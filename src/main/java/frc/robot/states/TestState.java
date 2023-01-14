@@ -3,10 +3,10 @@ package frc.robot.states;
 import frc.robot.RobotStateManager;
 import frc.robot.State;
 
-public class Disabled implements State{
+public class TestState implements State{
     private String name, parent;
     
-    public Disabled(String name, String parent){
+    public TestState(String name, String parent){
         this.name = name;
         this.parent = parent;
     }

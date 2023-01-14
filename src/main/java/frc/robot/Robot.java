@@ -24,7 +24,7 @@ public class Robot extends TimedRobot {
   // private Command m_autonomousCommand;
 
   // private RobotContainer m_robotContainer;
-  private RobotStateManager robotStateManager;
+  private RobotStateManager rs;
   public XboxController driveController;
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -35,9 +35,9 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     driveController = new XboxController(Controller.DRIVE_CONTROLLER_PORT);
-    robotStateManager = new RobotStateManager();
-    robotStateManager.addStates(
-      new Disabled("disabled", null),
+    rs = RobotStateManager.getInstance();
+    rs.addStates(
+      new DisabledState("disabled", null),
       new TeleOpState("teleOp", null),
       new DriveTeleOpState("driveTeleOp", "teleOp"),
       new BalanceState("balanceTeleOp", "teleOp"),
@@ -45,9 +45,10 @@ public class Robot extends TimedRobot {
       new PickupState("pickup", "auto"),
       new DropState("drop", "auto"),
       new DriveAutoState("driveAuto", "auto"),
-      new BalanceState("balanceAuto", "auto")
+      new BalanceState("balanceAuto", "auto"),
+      new TestState("test", null)
       );
-    robotStateManager.startRobot("disabled");
+    rs.startRobot("disabled");
     // m_robotContainer = new RobotContainer();
   }
 
@@ -60,18 +61,18 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    robotStateManager.periodic();
+    rs.periodic();
 
     for(Map.Entry<Enum<Controller.Button>, Integer> entry : Controller.getInstance().buttonMap.entrySet()) {
       
       if(driveController.getRawButtonPressed(entry.getValue())){
-        robotStateManager.handleEvent(new Event((Button) entry.getKey(), Action.PRESSED));
+        rs.handleEvent(new Event((Button) entry.getKey(), Action.PRESSED));
       }
       if(driveController.getRawButtonReleased(entry.getValue())){
-        robotStateManager.handleEvent(new Event((Button) entry.getKey(), Action.RELEASED));
+        rs.handleEvent(new Event((Button) entry.getKey(), Action.RELEASED));
       }
       if(driveController.getRawButton(entry.getValue())){
-        robotStateManager.handleEvent(new Event((Button) entry.getKey(), Action.HELD));
+        rs.handleEvent(new Event((Button) entry.getKey(), Action.HELD));
       }
     }
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
@@ -87,7 +88,7 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    robotStateManager.setState("disabled");
+    rs.setState("disabled");
   }
 
   @Override
@@ -97,7 +98,7 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    robotStateManager.setState("auto");
+    rs.setState("auto");
     // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // // schedule the autonomous command (example)
@@ -121,7 +122,7 @@ public class Robot extends TimedRobot {
     // if (m_autonomousCommand != null) {
     //   m_autonomousCommand.cancel();
     // }
-    robotStateManager.setState("teleOp");
+    rs.setState("teleOp");
   }
 
   /** This function is called periodically during operator control. */
@@ -132,14 +133,15 @@ public class Robot extends TimedRobot {
 
   @Override
   public void close(){
-    robotStateManager.setState("disabled");
-    robotStateManager.periodic();
+    rs.setState("disabled");
+    rs.periodic();
   }
 
   @Override
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     // CommandScheduler.getInstance().cancelAll();
+    rs.setState("test");
   }
 
   /** This function is called periodically during test mode. */
