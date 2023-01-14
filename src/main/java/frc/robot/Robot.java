@@ -9,8 +9,9 @@ import java.util.Map;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.states.*;
-import frc.robot.states.disabled.AutoState;
-import frc.robot.states.disabled.TeleOpState;
+import frc.robot.states.auto.*;
+import frc.robot.states.teleOp.*;
+import frc.robot.states.shared.*;
 import frc.robot.Controller.*;
 
 /**
@@ -37,8 +38,14 @@ public class Robot extends TimedRobot {
     robotStateManager = new RobotStateManager();
     robotStateManager.addStates(
       new Disabled("disabled", null),
-      new TeleOpState("teleOp", "disabled"),
-      new AutoState("auto", "disabled")
+      new TeleOpState("teleOp", null),
+      new DriveTeleOpState("driveTeleOp", "teleOp"),
+      new BalanceState("balanceTeleOp", "teleOp"),
+      new AutoState("auto", null),
+      new PickupState("pickup", "auto"),
+      new DropState("drop", "auto"),
+      new DriveAutoState("driveAuto", "auto"),
+      new BalanceState("balanceAuto", "auto")
       );
     robotStateManager.startRobot("disabled");
     // m_robotContainer = new RobotContainer();
