@@ -112,7 +112,7 @@ public class RobotStateManager{
     }
 
     /**
-     * @reutrn imu instance
+     * @reutrn RobotStateManager instance
     */
     public static RobotStateManager getInstance(){
       if(instance == null){
