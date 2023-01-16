@@ -34,19 +34,19 @@ public class IMUSubsystem extends SubsystemBase {
       double[] xyz = bno055.getVector();
       return xyz[2];
     }
+
+    /**
+     * @return returns the imu's sensed heading
+     */
+    public double getHeading() {
+      return bno055.getHeading();
+    }
     
     /**
      * @param offset sets imu x heading offset
      */
     public void setOffset(double offset){
       bno055.headingOffset = offset;
-    }
-
-    /**
-     * @return returns the imu's sensed header
-     */
-    public double getHeader() {
-      return bno055.getHeading();
     }
 
     /**
@@ -87,6 +87,4 @@ public class IMUSubsystem extends SubsystemBase {
       }
       return instance;
     }
-
-    
 }
