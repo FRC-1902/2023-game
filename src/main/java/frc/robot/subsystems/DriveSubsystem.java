@@ -61,15 +61,6 @@ public class DriveSubsystem extends SubsystemBase {
     rightMotor2.setVoltage(volts);
   }
 
-  public DriveEncoders getRelativeEncoders() {
-    return new DriveEncoders(
-      leftMotor1.getEncoder(), 
-      leftMotor2.getEncoder(), 
-      rightMotor1.getEncoder(), 
-      rightMotor2.getEncoder()
-    );
-  }
-
   public void shift(TransmissionState state) {
     transmissionSolenoid.set(state == TransmissionState.HIGH_RATIO);
   }
