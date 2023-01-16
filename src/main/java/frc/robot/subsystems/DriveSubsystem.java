@@ -54,13 +54,9 @@ public class DriveSubsystem extends SubsystemBase {
     tankDrive.tankDrive(leftSpeed, rightSpeed);
   }
 
-  public void setVoltage(double volts) {
-    leftMotor1.setVoltage(volts);
-    leftMotor2.setVoltage(volts);
-    rightMotor1.setVoltage(volts);
-    rightMotor2.setVoltage(volts);
-  }
-
+  /** shifts drive subystem gearbox
+   * @param state HIGH_RATIO or LOW_RATIO enum
+   */
   public void shift(TransmissionState state) {
     transmissionSolenoid.set(state == TransmissionState.HIGH_RATIO);
   }
