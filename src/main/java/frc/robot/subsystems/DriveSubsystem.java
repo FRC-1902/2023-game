@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -14,14 +15,18 @@ public class DriveSubsystem extends SubsystemBase {
   private static DriveSubsystem instance;
 
   private CANSparkMax leftMotor1, leftMotor2, rightMotor1, rightMotor2;
+  public final RelativeEncoder leftEncoder, rightEncoder;
   private DifferentialDrive tankDrive;
   private Solenoid transmissionSolenoid;
 
   public DriveSubsystem() {
-    leftMotor1 = new CANSparkMax(Constants.LEFT_MOTOR_ID_1, MotorType.kBrushed);
-    leftMotor2 = new CANSparkMax(Constants.LEFT_MOTOR_ID_2, MotorType.kBrushed);
-    rightMotor1 = new CANSparkMax(Constants.RIGHT_MOTOR_ID_1, MotorType.kBrushed);
-    rightMotor2 = new CANSparkMax(Constants.RIGHT_MOTOR_ID_1, MotorType.kBrushed);
+    leftMotor1 = new CANSparkMax(Constants.LEFT_DRIVE_ID_1, MotorType.kBrushed);
+    leftMotor2 = new CANSparkMax(Constants.LEFT_DRIVE_ID_2, MotorType.kBrushed);
+    rightMotor1 = new CANSparkMax(Constants.RIGHT_DRIVE_ID_1, MotorType.kBrushed);
+    rightMotor2 = new CANSparkMax(Constants.RIGHT_DRIVE_ID_2, MotorType.kBrushed);
+
+    leftEncoder = rightMotor1.getAlternateEncoder(8192);
+    rightEncoder = rightMotor1.getAlternateEncoder(8192);
 
     tankDrive = new DifferentialDrive(
       new MotorControllerGroup(leftMotor1, leftMotor2), 
