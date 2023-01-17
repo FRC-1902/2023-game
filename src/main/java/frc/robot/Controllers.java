@@ -10,12 +10,20 @@ public class Controller {
     public XboxController manipController;
 
     private static Controller instance;
+    
     public static Controller getInstance(){
         if(instance==null){
             instance = new Controller();
         }
         return instance;
     }
+
+    private Controller(){
+        driveController = new XboxController(DRIVE_CONTROLLER_PORT);
+        manipController = new XboxController(MANIP_CONTROLLER_PORT);
+    }
+
+
 
     public enum Button{
         A, B, X, Y,

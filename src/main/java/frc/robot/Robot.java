@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.states.*;
 import frc.robot.states.auto.*;
 import frc.robot.states.teleOp.*;
-import frc.robot.Controller.*;
+import frc.robot.Controllers.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -24,7 +24,7 @@ public class Robot extends TimedRobot {
 
   // private RobotContainer m_robotContainer;
   private RobotStateManager rs;
-  private Controller ControllerInstance;
+  private Controllers ControllerInstance;
   private XboxController driveController;
   private XboxController manipController;
 
@@ -36,7 +36,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
-    ControllerInstance = Controller.getInstance();
+    ControllerInstance = Controllers.getInstance();
     driveController = ControllerInstance.driveController;
     manipController = ControllerInstance.manipController;
     rs = RobotStateManager.getInstance();
@@ -65,9 +65,10 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+    
     rs.periodic();
 
-    for(Map.Entry<Enum<Controller.Button>, Integer> entry : ControllerInstance.buttonMap.entrySet()) {
+    for(Map.Entry<Enum<Controllers.Button>, Integer> entry : ControllerInstance.buttonMap.entrySet()) {
       
       if(driveController.getRawButtonPressed(entry.getValue())){
         rs.handleEvent(new Event((Button) entry.getKey(), Action.PRESSED, ControllerName.DRIVE));
