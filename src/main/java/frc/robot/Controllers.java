@@ -5,20 +5,20 @@ import java.util.Map;
 
 import edu.wpi.first.wpilibj.XboxController;
 
-public class Controller {
+public class Controllers {
     public XboxController driveController;
     public XboxController manipController;
 
-    private static Controller instance;
+    private static Controllers instance;
     
-    public static Controller getInstance(){
+    public static Controllers getInstance(){
         if(instance==null){
-            instance = new Controller();
+            instance = new Controllers();
         }
         return instance;
     }
 
-    private Controller(){
+    private Controllers(){
         driveController = new XboxController(DRIVE_CONTROLLER_PORT);
         manipController = new XboxController(MANIP_CONTROLLER_PORT);
     }

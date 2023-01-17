@@ -1,7 +1,7 @@
 
 package frc.robot;
 
-import frc.robot.Controller.*;
+import frc.robot.Controllers.*;
 
 public class Event {
     public final Action action;
