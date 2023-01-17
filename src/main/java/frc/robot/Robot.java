@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.states.*;
 import frc.robot.states.auto.*;
 import frc.robot.states.teleOp.*;
-import frc.robot.states.shared.*;
 import frc.robot.Controller.*;
 
 /**
@@ -25,7 +24,10 @@ public class Robot extends TimedRobot {
 
   // private RobotContainer m_robotContainer;
   private RobotStateManager rs;
-  public XboxController driveController;
+  private Controller ControllerInstance;
+  private XboxController driveController;
+  private XboxController manipController;
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -34,7 +36,9 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
-    driveController = new XboxController(Controller.DRIVE_CONTROLLER_PORT);
+    ControllerInstance = Controller.getInstance();
+    driveController = ControllerInstance.driveController;
+    manipController = ControllerInstance.manipController;
     rs = RobotStateManager.getInstance();
     rs.addStates(
       new DisabledState("disabled", null),
@@ -63,16 +67,26 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     rs.periodic();
 
-    for(Map.Entry<Enum<Controller.Button>, Integer> entry : Controller.getInstance().buttonMap.entrySet()) {
+    for(Map.Entry<Enum<Controller.Button>, Integer> entry : ControllerInstance.buttonMap.entrySet()) {
       
       if(driveController.getRawButtonPressed(entry.getValue())){
-        rs.handleEvent(new Event((Button) entry.getKey(), Action.PRESSED));
+        rs.handleEvent(new Event((Button) entry.getKey(), Action.PRESSED, ControllerName.DRIVE));
       }
       if(driveController.getRawButtonReleased(entry.getValue())){
-        rs.handleEvent(new Event((Button) entry.getKey(), Action.RELEASED));
+        rs.handleEvent(new Event((Button) entry.getKey(), Action.RELEASED, ControllerName.DRIVE));
       }
       if(driveController.getRawButton(entry.getValue())){
-        rs.handleEvent(new Event((Button) entry.getKey(), Action.HELD));
+        rs.handleEvent(new Event((Button) entry.getKey(), Action.HELD, ControllerName.DRIVE));
+      }
+      
+      if(manipController.getRawButtonPressed(entry.getValue())){
+        rs.handleEvent(new Event((Button) entry.getKey(), Action.PRESSED, ControllerName.MANIP));
+      }
+      if(manipController.getRawButtonReleased(entry.getValue())){
+        rs.handleEvent(new Event((Button) entry.getKey(), Action.RELEASED, ControllerName.MANIP));
+      }
+      if(manipController.getRawButton(entry.getValue())){
+        rs.handleEvent(new Event((Button) entry.getKey(), Action.HELD, ControllerName.MANIP));
       }
     }
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
