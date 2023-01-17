@@ -1,13 +1,12 @@
-package frc.robot.states;
+package frc.robot.states.teleOp;
 
-import frc.robot.Event;
 import frc.robot.RobotStateManager;
 import frc.robot.State;
 
-public class AutoState implements State{
+public class AutoAlignExtendState implements State{
     private String name, parent;
     
-    public AutoState(String name, String parent){
+    public AutoAlignExtendState(String name, String parent){
         this.name = name;
         this.parent = parent;
     }
@@ -34,9 +33,6 @@ public class AutoState implements State{
 
     @Override
     public void Periodic(RobotStateManager rs) {
-        /**
-         * if intake is filled -> grab  
-         */
-    }
 
+    }
 }

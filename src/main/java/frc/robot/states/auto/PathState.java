@@ -1,12 +1,12 @@
-package frc.robot.states.teleOp;
+package frc.robot.states.auto;
 
 import frc.robot.RobotStateManager;
 import frc.robot.State;
 
-public class DriveTeleOpState implements State{
+public class PathState implements State{
     private String name, parent;
     
-    public DriveTeleOpState(String name, String parent){
+    public PathState(String name, String parent){
         this.name = name;
         this.parent = parent;
     }

@@ -39,15 +39,15 @@ public class Robot extends TimedRobot {
     rs.addStates(
       new DisabledState("disabled", null),
       new TeleOpState("teleOp", null),
-      new DriveTeleOpState("driveTeleOp", "teleOp"),
-      new BalanceState("balanceTeleOp", "teleOp"),
+      new CenterTurretState("driveTeleOp", "teleOp"),
+      new BalanceState("balance", null),
       new AutoState("auto", null),
       new PickupState("pickup", "auto"),
-      new DropState("drop", "auto"),
-      new DriveAutoState("driveAuto", "auto"),
-      new BalanceState("balanceAuto", "auto"),
-      new TestState("test", null)
-      );
+      new DropState("drop", "visionAlign"),
+      new VisionAlignState("visionAlign", "auto"),
+      new PathState("path", "auto"),
+      new TurretState("turret", "path"),
+      new TestState("test", null));
     rs.startRobot("disabled");
     // m_robotContainer = new RobotContainer();
   }

@@ -33,6 +33,8 @@ public class PickupState implements State{
 
     @Override
     public void Periodic(RobotStateManager rs) {
-
+        /**
+         * possible to implement auto driving to pick up here
+         */
     }
 }

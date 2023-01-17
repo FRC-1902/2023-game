@@ -1,12 +1,12 @@
-package frc.robot.states.auto;
+package frc.robot.states.teleOp;
 
 import frc.robot.RobotStateManager;
 import frc.robot.State;
 
-public class DriveAutoState implements State{
+public class IntakeState implements State{
     private String name, parent;
     
-    public DriveAutoState(String name, String parent){
+    public IntakeState(String name, String parent){
         this.name = name;
         this.parent = parent;
     }
@@ -23,7 +23,7 @@ public class DriveAutoState implements State{
 
     @Override
     public void Enter() {
-        System.out.println("entered" + name);
+        System.out.println("entered " + name);
     }
 
     @Override

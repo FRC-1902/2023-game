@@ -33,6 +33,9 @@ public class DropState implements State{
 
     @Override
     public void Periodic(RobotStateManager rs) {
-
+        /**
+         * set outtake to open
+         * exit state when finished opening
+         */
     }
 }
