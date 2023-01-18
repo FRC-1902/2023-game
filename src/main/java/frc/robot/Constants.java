@@ -23,6 +23,6 @@ public final class Constants {
   public static final int SOLENOID_CHANNEL = 4;
 
   public static final double PLATFORM_BALANCE_YAW_THRESHOLD_DEG = 5;
-  public static final double PLATFORM_BALANCE_PITCH_THRESHOLD_DEG = 2;
+  public static final double PLATFORM_BALANCE_PITCH_THRESHOLD_DEG = 10;
   public static final double PLATFORM_YAW_DEG = 10;
 }
