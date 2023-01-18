@@ -17,7 +17,7 @@ public class DriveSubsystem extends SubsystemBase {
   private CANSparkMax leftMotor1, leftMotor2, rightMotor1, rightMotor2;
   public final RelativeEncoder leftEncoder, rightEncoder;
   private DifferentialDrive tankDrive;
-  private Solenoid transmissionSolenoid;
+  private Solenoid leftShifterSolenoid, rightShifterSolenoid;
 
   public DriveSubsystem() {
     leftMotor1 = new CANSparkMax(Constants.LEFT_DRIVE_ID_1, MotorType.kBrushed);
@@ -33,7 +33,8 @@ public class DriveSubsystem extends SubsystemBase {
       new MotorControllerGroup(rightMotor1, rightMotor2)
     );
 
-    transmissionSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.SOLENOID_CHANNEL);
+    leftShifterSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.LEFT_DRIVE_SOLENOID);
+    rightShifterSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.RIGHT_DRIVE_SOLENOID);
   }
 
   @Override
@@ -58,7 +59,8 @@ public class DriveSubsystem extends SubsystemBase {
    * @param state HIGH_RATIO or LOW_RATIO enum
    */
   public void shift(TransmissionState state) {
-    transmissionSolenoid.set(state == TransmissionState.HIGH_RATIO);
+    leftShifterSolenoid.set(state == TransmissionState.HIGH_RATIO);
+    rightShifterSolenoid.set(state == TransmissionState.HIGH_RATIO);
   }
 
   public static DriveSubsystem getInstance() {
