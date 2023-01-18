@@ -8,11 +8,16 @@ public class RobotStateManager{
     private State currentState;
     private State targetState;
     private Map<String, State> stateMap= new HashMap<String, State>();
+    private static RobotStateManager instance;
   
     public RobotStateManager(){
       currentState = null;
     }
-  
+    
+    /**
+     * Switch states to targetState
+     * updates targetState to null
+     */
     private void updateState(){
       if(targetState!=null){
         State ancestor = findCommonAncestor(targetState, currentState);
@@ -44,7 +49,6 @@ public class RobotStateManager{
     }
   
     /**
-     * 
      * @param startState
      * String name of state that the robot starts at
      */
@@ -61,7 +65,6 @@ public class RobotStateManager{
         loopingState = stateMap.get(loopingState.getParent());
       }
     }
-
 
     public void handleEvent(Event event){
       updateState();
@@ -107,5 +110,14 @@ public class RobotStateManager{
         s.Enter();
       }
     }
-  
+
+    /**
+     * @reutrn RobotStateManager instance
+    */
+    public static RobotStateManager getInstance(){
+      if(instance == null){
+        instance = new RobotStateManager();
+      }
+      return instance;
+    }
 }

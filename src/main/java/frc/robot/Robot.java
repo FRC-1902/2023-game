@@ -9,9 +9,9 @@ import java.util.Map;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.states.*;
-import frc.robot.states.disabled.AutoState;
-import frc.robot.states.disabled.TeleOpState;
-import frc.robot.Controller.*;
+import frc.robot.states.auto.*;
+import frc.robot.states.teleOp.*;
+import frc.robot.Controllers.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -23,8 +23,11 @@ public class Robot extends TimedRobot {
   // private Command m_autonomousCommand;
 
   // private RobotContainer m_robotContainer;
-  private RobotStateManager robotStateManager;
-  public XboxController driveController;
+  private RobotStateManager rs;
+  private Controllers ControllerInstance;
+  private XboxController driveController;
+  private XboxController manipController;
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -33,14 +36,23 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
-    driveController = new XboxController(Controller.DRIVE_CONTROLLER_PORT);
-    robotStateManager = new RobotStateManager();
-    robotStateManager.addStates(
-      new Disabled("disabled", null),
-      new TeleOpState("teleOp", "disabled"),
-      new AutoState("auto", "disabled")
-      );
-    robotStateManager.startRobot("disabled");
+    ControllerInstance = Controllers.getInstance();
+    driveController = ControllerInstance.driveController;
+    manipController = ControllerInstance.manipController;
+    rs = RobotStateManager.getInstance();
+    rs.addStates(
+      new DisabledState("disabled", null),
+      new TeleOpState("teleOp", null),
+      new CenterTurretState("driveTeleOp", "teleOp"),
+      new BalanceState("balance", null),
+      new AutoState("auto", null),
+      new PickupState("pickup", "auto"),
+      new DropState("drop", "visionAlign"),
+      new VisionAlignState("visionAlign", "auto"),
+      new PathState("path", "auto"),
+      new TurretState("turret", "path"),
+      new TestState("test", null));
+    rs.startRobot("disabled");
     // m_robotContainer = new RobotContainer();
   }
 
@@ -53,18 +65,29 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    robotStateManager.periodic();
+    
+    rs.periodic();
 
-    for(Map.Entry<Enum<Controller.Button>, Integer> entry : Controller.getInstance().buttonMap.entrySet()) {
+    for(Map.Entry<Enum<Controllers.Button>, Integer> entry : ControllerInstance.buttonMap.entrySet()) {
       
       if(driveController.getRawButtonPressed(entry.getValue())){
-        robotStateManager.handleEvent(new Event((Button) entry.getKey(), Action.PRESSED));
+        rs.handleEvent(new Event((Button) entry.getKey(), Action.PRESSED, ControllerName.DRIVE));
       }
       if(driveController.getRawButtonReleased(entry.getValue())){
-        robotStateManager.handleEvent(new Event((Button) entry.getKey(), Action.RELEASED));
+        rs.handleEvent(new Event((Button) entry.getKey(), Action.RELEASED, ControllerName.DRIVE));
       }
       if(driveController.getRawButton(entry.getValue())){
-        robotStateManager.handleEvent(new Event((Button) entry.getKey(), Action.HELD));
+        rs.handleEvent(new Event((Button) entry.getKey(), Action.HELD, ControllerName.DRIVE));
+      }
+      
+      if(manipController.getRawButtonPressed(entry.getValue())){
+        rs.handleEvent(new Event((Button) entry.getKey(), Action.PRESSED, ControllerName.MANIP));
+      }
+      if(manipController.getRawButtonReleased(entry.getValue())){
+        rs.handleEvent(new Event((Button) entry.getKey(), Action.RELEASED, ControllerName.MANIP));
+      }
+      if(manipController.getRawButton(entry.getValue())){
+        rs.handleEvent(new Event((Button) entry.getKey(), Action.HELD, ControllerName.MANIP));
       }
     }
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
@@ -80,7 +103,7 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    robotStateManager.setState("disabled");
+    rs.setState("disabled");
   }
 
   @Override
@@ -90,7 +113,7 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    robotStateManager.setState("auto");
+    rs.setState("auto");
     // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // // schedule the autonomous command (example)
@@ -114,7 +137,7 @@ public class Robot extends TimedRobot {
     // if (m_autonomousCommand != null) {
     //   m_autonomousCommand.cancel();
     // }
-    robotStateManager.setState("teleOp");
+    rs.setState("teleOp");
   }
 
   /** This function is called periodically during operator control. */
@@ -125,14 +148,15 @@ public class Robot extends TimedRobot {
 
   @Override
   public void close(){
-    robotStateManager.setState("disabled");
-    robotStateManager.periodic();
+    rs.setState("disabled");
+    rs.periodic();
   }
 
   @Override
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     // CommandScheduler.getInstance().cancelAll();
+    rs.setState("test");
   }
 
   /** This function is called periodically during test mode. */

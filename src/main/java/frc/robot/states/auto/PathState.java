@@ -1,13 +1,12 @@
-package frc.robot.states.disabled;
+package frc.robot.states.auto;
 
-import frc.robot.Event;
 import frc.robot.RobotStateManager;
 import frc.robot.State;
 
-public class AutoState implements State{
+public class PathState implements State{
     private String name, parent;
     
-    public AutoState(String name, String parent){
+    public PathState(String name, String parent){
         this.name = name;
         this.parent = parent;
     }
@@ -24,23 +23,16 @@ public class AutoState implements State{
 
     @Override
     public void Enter() {
-        System.out.println("entered auto");
+        System.out.println("entered" + name);
     }
 
     @Override
     public void Leave() {
-        System.out.println("left auto");
+        System.out.println("left " + name);
     }
 
     @Override
     public void Periodic(RobotStateManager rs) {
 
     }
-
-    @Override
-    public boolean handleEvent(Event event, RobotStateManager rs) {
-        return false;
-    }
-
-    
 }

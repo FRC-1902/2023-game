@@ -1,4 +1,4 @@
-package frc.robot.states.disabled;
+package frc.robot.states;
 
 import frc.robot.Event;
 import frc.robot.RobotStateManager;
@@ -24,12 +24,12 @@ public class TeleOpState implements frc.robot.State{
 
     @Override
     public void Enter() {
-        System.out.println("entered teleop");
+        System.out.println("entered " + name);
     }
 
     @Override
     public void Leave() {
-        System.out.println("left teleop");
+        System.out.println("left " + name);
     }
 
     @Override
