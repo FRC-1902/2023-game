@@ -21,4 +21,7 @@ public final class Constants {
   public static final int RIGHT_DRIVE_ID_2 = 3;
 
   public static final int SOLENOID_CHANNEL = 4;
+
+  public static final double PLATFORM_BALANCE_YAW_EPSILON_DEG = 5;
+  public static final double PLATFORM_YAW_DEG = 10;
 }

@@ -12,7 +12,7 @@ public class IMUSubsystem extends SubsystemBase {
     private final BNO055 bno055 = BNO055.getInstance(BNO055.opmode_t.OPERATION_MODE_IMUPLUS, BNO055.vector_type_t.VECTOR_EULER);
 
     /**
-     * @return imu x heading
+     * @return returns the imu's x scalar (heading or yaw)
      */
     public double getX() {
       double[] xyz = bno055.getVector();
@@ -20,7 +20,7 @@ public class IMUSubsystem extends SubsystemBase {
     }
 
     /**
-     * @return imu y heading
+     * @return returns the imu's y scalar (roll)
      */
     public double getY(){
       double[] xyz = bno055.getVector();
@@ -28,7 +28,7 @@ public class IMUSubsystem extends SubsystemBase {
     }
 
     /**
-     * @return imu z heading
+     * @return returns the imu's y scalar (pitch)
      */
     public double getZ(){
       double[] xyz = bno055.getVector();
