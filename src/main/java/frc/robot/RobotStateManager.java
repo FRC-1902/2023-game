@@ -111,8 +111,12 @@ public class RobotStateManager{
       }
     }
 
+    public State findState(String name) {
+      return stateMap.get(name);
+    }
+
     /**
-     * @reutrn RobotStateManager instance
+     * @return RobotStateManager instance
     */
     public static RobotStateManager getInstance(){
       if(instance == null){

@@ -1,20 +1,23 @@
 package frc.robot.states;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj2.command.PIDCommand;
 import frc.robot.Constants;
 import frc.robot.RobotStateManager;
 import frc.robot.State;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IMUSubsystem;
 
-public class BalanceState implements State{
+public class BalanceState implements State {
     private String name, parent;
     private IMUSubsystem imu;
     private DriveSubsystem drive;
-    private PIDController yawPID, pitchPID;
+    private PIDController yawPID;
 
     private double desiredYaw;
+
+    // Child states are supposed to modify these, so Periodic() can set the appropriate speed
+    // without things getting all messed up.
+    public double calculatedForwardSpeed, calculatedYawSpeed;
     
     public BalanceState(String name, String parent){
         this.name = name;
@@ -23,7 +26,6 @@ public class BalanceState implements State{
         drive = DriveSubsystem.getInstance();
 
         yawPID = new PIDController(0, 0, 0);
-        pitchPID = new PIDController(0, 0, 0);
     }
 
     @Override
@@ -54,19 +56,19 @@ public class BalanceState implements State{
 
     @Override
     public void Periodic(RobotStateManager rs) {
-        double currentPitch = imu.getZ(), currentYaw = imu.getX();
-        double yawPlatformRelative, calculatedYawSpeed = yawPID.calculate(currentYaw, desiredYaw), calculatedForwardSpeed = 0;
+        imu.setOffset(desiredYaw);
 
-        System.out.format("Pitch: %f, Yaw: %f\n", currentPitch, currentYaw);
+        double currentYaw = imu.getHeading();
 
-        // Pitch correction thingy
-        yawPlatformRelative = currentYaw - desiredYaw;
-        if (yawPlatformRelative < Constants.PLATFORM_BALANCE_YAW_EPSILON_DEG &&
-            yawPlatformRelative > -Constants.PLATFORM_BALANCE_YAW_EPSILON_DEG)
-        {
-            calculatedForwardSpeed = pitchPID.calculate(currentPitch, 0);
-        }
+        System.out.format("Yaw: %3.1f, Pitch: %3.1f\n", currentYaw, imu.getZ());
+
+        calculatedYawSpeed += yawPID.calculate(imu.getHeading());
 
         drive.arcadeDrive(calculatedForwardSpeed, calculatedYawSpeed);
+        
+        calculatedForwardSpeed = 0;
+        calculatedYawSpeed = 0;
+
+        imu.resetHeading();
     }
 }

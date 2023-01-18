@@ -10,6 +10,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.states.*;
 import frc.robot.states.auto.*;
+import frc.robot.states.balance.DriveOntoPlatformState;
+import frc.robot.states.balance.BalanceOnPlatformState;
 import frc.robot.states.teleOp.*;
 import frc.robot.Controllers.*;
 
@@ -45,6 +47,8 @@ public class Robot extends TimedRobot {
       new TeleOpState("teleOp", null),
       new CenterTurretState("driveTeleOp", "teleOp"),
       new BalanceState("balance", null),
+      new DriveOntoPlatformState("drivePlatform", "balance"),
+      new BalanceOnPlatformState("balancePlatform", "balance"),
       new AutoState("auto", null),
       new PickupState("pickup", "auto"),
       new DropState("drop", "visionAlign"),
