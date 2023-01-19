@@ -88,6 +88,10 @@ public class RobotStateManager{
       }
       return null;
     }
+
+    public State getCurrentState() {
+      return currentState;
+    }
   
     private void leaveTo(State child, State ancestor){
       while(true){
