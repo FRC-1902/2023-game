@@ -8,7 +8,7 @@ public class RobotStateManager{
     private State currentState;
     private State targetState;
     private Map<String, State> stateMap= new HashMap<String, State>();
-    private static RobotStateManager instance;
+    private static RobotStateManager instance = null;
   
     public RobotStateManager(){
       currentState = null;
@@ -104,7 +104,6 @@ public class RobotStateManager{
         if(child == ancestor) break;
         lineage.add(0, child);
         child = stateMap.get(child.getParent());
-        
       }
       for(State s:lineage){
         s.Enter();

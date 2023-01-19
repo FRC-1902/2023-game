@@ -27,7 +27,7 @@ public class Controllers {
 
     public enum Button{
         A, B, X, Y,
-        RB, LB, L, R
+        RB, LB, LS, RS
         //names of all buttons on controller
     }
 
@@ -38,8 +38,8 @@ public class Controllers {
             put(Button.B, 2);
             put(Button.X, 3);
             put(Button.Y, 4);
-            put(Button.L, 5);
-            put(Button.R, 6);
+            put(Button.LS, 5);
+            put(Button.RS, 6);
             put(Button.LB, 9);
             put(Button.RB, 10);
         }};
@@ -61,7 +61,6 @@ public class Controllers {
 
     public enum Action{
         PRESSED,
-        HELD,
         RELEASED
     }
 
