@@ -66,6 +66,7 @@ public class BalanceState implements State {
 
     System.out.format("Yaw: %3.1f, Pitch: %3.1f\n", currentYaw, imu.getZ());
 
+    // TODO: Add a state transition from here to BalanceOnPlatform, using positional data.
     if (!rs.getCurrentState().equals(this) && Math.abs(currentYaw) < Constants.PLATFORM_BALANCE_YAW_THRESHOLD_DEG)
       rs.setState("balancePlatform");
 
