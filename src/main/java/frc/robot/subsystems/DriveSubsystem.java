@@ -56,11 +56,11 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   /** shifts drive subystem gearbox
-   * @param state HIGH_RATIO or LOW_RATIO enum
+   * @param state boolean, true for high and false for low
    */
-  public void shift(TransmissionState state) {
-    leftShifterSolenoid.set(state == TransmissionState.HIGH_RATIO);
-    rightShifterSolenoid.set(state == TransmissionState.HIGH_RATIO);
+  public void shift(boolean state) {
+    leftShifterSolenoid.set(state);
+    rightShifterSolenoid.set(state);
   }
 
   public static DriveSubsystem getInstance() {

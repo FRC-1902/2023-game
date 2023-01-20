@@ -58,7 +58,7 @@ public class TeleOpState implements frc.robot.State{
             case RB:
                 switch(event.action){
                     case PRESSED:
-                        driveSub.shift(TransmissionState.LOW_RATIO);
+                        driveSub.shift(true);
                         return true;
                     default:
                         break;
@@ -66,7 +66,7 @@ public class TeleOpState implements frc.robot.State{
             case LB:
                 switch(event.action){
                     case PRESSED:
-                        driveSub.shift(TransmissionState.HIGH_RATIO);
+                        driveSub.shift(false);
                         return true;
                     default:
                         break;
