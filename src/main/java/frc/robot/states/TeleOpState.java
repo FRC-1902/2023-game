@@ -4,7 +4,7 @@ import frc.robot.Controllers;
 import frc.robot.Controllers.*;
 import frc.robot.Event;
 import frc.robot.RobotStateManager;
-import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.*;
 
 public class TeleOpState implements frc.robot.State{
 
@@ -51,13 +51,29 @@ public class TeleOpState implements frc.robot.State{
                 switch(event.action){
                     case PRESSED:
                         rs.setState("disabled");
+                        return true;
                     default:
                         break;
                 }
-                return true;
+            case RB:
+                switch(event.action){
+                    case PRESSED:
+                        driveSub.shift(TransmissionState.LOW_RATIO);
+                        return true;
+                    default:
+                        break;
+                }
+            case LB:
+                switch(event.action){
+                    case PRESSED:
+                        driveSub.shift(TransmissionState.HIGH_RATIO);
+                        return true;
+                    default:
+                        break;
+                }
             default:
                 return false;
-            }
+        }
     }
     
 }
