@@ -47,15 +47,21 @@ public class Robot extends TimedRobot {
       new TeleOpState("teleOp", null),
       new CenterTurretState("driveTeleOp", "teleOp"),
       new BalanceState("balance", null),
-      new DriveOntoPlatformState("drivePlatform", "balance"),
-      new BalanceOnPlatformState("balancePlatform", "balance"),
       new AutoState("auto", null),
       new PickupState("pickup", "auto"),
       new DropState("drop", "visionAlign"),
       new VisionAlignState("visionAlign", "auto"),
       new PathState("path", "auto"),
       new TurretState("turret", "path"),
-      new TestState("test", null));
+      new TestState("test", null)
+     );
+
+    // We have to initialize these last, because they depend on getting their.
+    rs.addStates(
+      new DriveOntoPlatformState("drivePlatform", "balance"),
+      new BalanceOnPlatformState("balancePlatform", "balance")
+    );
+
     rs.startRobot("disabled");
     // m_robotContainer = new RobotContainer();
   }
@@ -124,6 +130,8 @@ public class Robot extends TimedRobot {
     // if (m_autonomousCommand != null) {
     //   m_autonomousCommand.schedule();
     // }
+
+    rs.setState("balancePlatform");
   }
 
   /** This function is called periodically during autonomous. */

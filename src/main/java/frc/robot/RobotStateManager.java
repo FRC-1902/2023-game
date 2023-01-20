@@ -108,7 +108,6 @@ public class RobotStateManager{
         if(child == ancestor) break;
         lineage.add(0, child);
         child = stateMap.get(child.getParent());
-        
       }
       for(State s:lineage){
         s.Enter();

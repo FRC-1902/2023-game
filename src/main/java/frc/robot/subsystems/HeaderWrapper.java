@@ -4,6 +4,10 @@ public class HeaderWrapper {
   private IMUSubsystem wrappedSensor;
   private double offset;
 
+  public HeaderWrapper() {
+    this(0);
+  }
+
   public HeaderWrapper(double offset) {
     wrappedSensor = IMUSubsystem.getInstance();
     this.offset = offset;

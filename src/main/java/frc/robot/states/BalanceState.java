@@ -26,6 +26,7 @@ public class BalanceState implements State {
   public BalanceState(String name, String parent){
     this.name = name;
     this.parent = parent;
+    imu = IMUSubsystem.getInstance();
     compass = new HeaderWrapper(0);
     drive = DriveSubsystem.getInstance();
 

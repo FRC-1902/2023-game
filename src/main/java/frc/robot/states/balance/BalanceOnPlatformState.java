@@ -16,7 +16,7 @@ public class BalanceOnPlatformState implements State {
 
   public BalanceOnPlatformState(String name, String parent){
     this.name = name;
-    this.parent = (BalanceState) RobotStateManager.getInstance().findState("balanceState");
+    this.parent = (BalanceState) RobotStateManager.getInstance().findState("balance");
 
     imu = IMUSubsystem.getInstance();
     pitchPID = new PIDController(0, 0, 0);
