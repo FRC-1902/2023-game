@@ -1,15 +1,22 @@
 package frc.robot.states;
 
+import frc.robot.Controllers;
+import frc.robot.Controllers.*;
 import frc.robot.Event;
 import frc.robot.RobotStateManager;
+import frc.robot.subsystems.DriveSubsystem;
 
 public class TeleOpState implements frc.robot.State{
 
     private String name, parent;
+    private DriveSubsystem driveSub;
+    private Controllers controllers;
     
     public TeleOpState(String name, String parent){
         this.name = name;
         this.parent = parent;
+        driveSub = DriveSubsystem.getInstance();
+        controllers = Controllers.getInstance();
     }
 
     @Override
@@ -34,11 +41,7 @@ public class TeleOpState implements frc.robot.State{
 
     @Override
     public void Periodic(RobotStateManager rs) {
-        /*
-        move(joystick1);
-        turn(joystick2)
-        
-        */
+        driveSub.arcadeDrive(controllers.get(ControllerName.DRIVE, Axis.RY), controllers.get(ControllerName.DRIVE, Axis.LX));
     }
 
     @Override
