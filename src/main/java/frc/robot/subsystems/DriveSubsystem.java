@@ -6,7 +6,6 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -16,24 +15,23 @@ public class DriveSubsystem extends SubsystemBase {
 
   private CANSparkMax leftMotor1, leftMotor2, rightMotor1, rightMotor2;
   public final RelativeEncoder leftEncoder, rightEncoder;
-  private DifferentialDrive tankDrive;
-  private Solenoid transmissionSolenoid;
+  private MotorControllerGroup leftMotors, rightMotors;
+  private Solenoid leftShifterSolenoid, rightShifterSolenoid;
 
   public DriveSubsystem() {
-    leftMotor1 = new CANSparkMax(Constants.LEFT_DRIVE_ID_1, MotorType.kBrushed);
-    leftMotor2 = new CANSparkMax(Constants.LEFT_DRIVE_ID_2, MotorType.kBrushed);
-    rightMotor1 = new CANSparkMax(Constants.RIGHT_DRIVE_ID_1, MotorType.kBrushed);
-    rightMotor2 = new CANSparkMax(Constants.RIGHT_DRIVE_ID_2, MotorType.kBrushed);
+    leftMotor1 = new CANSparkMax(Constants.LEFT_DRIVE_ID_1, MotorType.kBrushless);
+    leftMotor2 = new CANSparkMax(Constants.LEFT_DRIVE_ID_2, MotorType.kBrushless);
+    rightMotor1 = new CANSparkMax(Constants.RIGHT_DRIVE_ID_1, MotorType.kBrushless);
+    rightMotor2 = new CANSparkMax(Constants.RIGHT_DRIVE_ID_2, MotorType.kBrushless);
 
-    leftEncoder = rightMotor1.getAlternateEncoder(8192);
+    leftEncoder = leftMotor1.getAlternateEncoder(8192);
     rightEncoder = rightMotor1.getAlternateEncoder(8192);
+    
+    leftMotors = new MotorControllerGroup(leftMotor1, leftMotor2);
+    rightMotors = new MotorControllerGroup(rightMotor1, rightMotor2);
 
-    tankDrive = new DifferentialDrive(
-      new MotorControllerGroup(leftMotor1, leftMotor2), 
-      new MotorControllerGroup(rightMotor1, rightMotor2)
-    );
-
-    transmissionSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.SOLENOID_CHANNEL);
+    leftShifterSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.LEFT_DRIVE_SOLENOID);
+    rightShifterSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.RIGHT_DRIVE_SOLENOID);
   }
 
   @Override
@@ -47,18 +45,20 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void arcadeDrive(double xSpeed, double zRotation) {
-    tankDrive.arcadeDrive(xSpeed, zRotation, true);
+    tankDrive(xSpeed - zRotation, xSpeed + zRotation);
   }
 
   public void tankDrive(double leftSpeed, double rightSpeed) {
-    tankDrive.tankDrive(leftSpeed, rightSpeed);
+    leftMotors.set(leftSpeed);
+    rightMotors.set(rightSpeed);
   }
 
   /** shifts drive subystem gearbox
-   * @param state HIGH_RATIO or LOW_RATIO enum
+   * @param state boolean, true for high and false for low
    */
-  public void shift(TransmissionState state) {
-    transmissionSolenoid.set(state == TransmissionState.HIGH_RATIO);
+  public void shift(boolean state) {
+    leftShifterSolenoid.set(state);
+    rightShifterSolenoid.set(state);
   }
 
   public static DriveSubsystem getInstance() {
