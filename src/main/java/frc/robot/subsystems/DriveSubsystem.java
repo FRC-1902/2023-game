@@ -25,7 +25,7 @@ public class DriveSubsystem extends SubsystemBase {
     rightMotor1 = new CANSparkMax(Constants.RIGHT_DRIVE_ID_1, MotorType.kBrushless);
     rightMotor2 = new CANSparkMax(Constants.RIGHT_DRIVE_ID_2, MotorType.kBrushless);
 
-    leftEncoder = rightMotor1.getAlternateEncoder(8192);
+    leftEncoder = leftMotor1.getAlternateEncoder(8192);
     rightEncoder = rightMotor1.getAlternateEncoder(8192);
 
     tankDrive = new DifferentialDrive(
