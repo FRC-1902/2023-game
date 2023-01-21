@@ -6,7 +6,6 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -16,7 +15,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   private CANSparkMax leftMotor1, leftMotor2, rightMotor1, rightMotor2;
   public final RelativeEncoder leftEncoder, rightEncoder;
-  private DifferentialDrive tankDrive;
+  private MotorControllerGroup leftMotors, rightMotors;
   private Solenoid leftShifterSolenoid, rightShifterSolenoid;
 
   public DriveSubsystem() {
@@ -27,11 +26,9 @@ public class DriveSubsystem extends SubsystemBase {
 
     leftEncoder = leftMotor1.getAlternateEncoder(8192);
     rightEncoder = rightMotor1.getAlternateEncoder(8192);
-
-    tankDrive = new DifferentialDrive(
-      new MotorControllerGroup(leftMotor1, leftMotor2), 
-      new MotorControllerGroup(rightMotor1, rightMotor2)
-    );
+    
+    leftMotors = new MotorControllerGroup(leftMotor1, leftMotor2);
+    rightMotors = new MotorControllerGroup(rightMotor1, rightMotor2);
 
     leftShifterSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.LEFT_DRIVE_SOLENOID);
     rightShifterSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.RIGHT_DRIVE_SOLENOID);
@@ -48,11 +45,12 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void arcadeDrive(double xSpeed, double zRotation) {
-    tankDrive.arcadeDrive(xSpeed, zRotation, true);
+    tankDrive(xSpeed - zRotation, xSpeed + zRotation);
   }
 
   public void tankDrive(double leftSpeed, double rightSpeed) {
-    tankDrive.tankDrive(leftSpeed, rightSpeed);
+    leftMotors.set(leftSpeed);
+    rightMotors.set(rightSpeed);
   }
 
   /** shifts drive subystem gearbox
