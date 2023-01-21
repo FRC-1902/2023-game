@@ -31,32 +31,30 @@ public class Controllers {
         //names of all buttons on controller
     }
 
-    //TODO: check these button maps
     public Map<Enum<Button>, Integer> buttonMap = 
         new HashMap<Enum<Button>, Integer>() {{
             put(Button.A, 1);
             put(Button.B, 2);
             put(Button.X, 3);
             put(Button.Y, 4);
-            put(Button.LS, 5);
-            put(Button.RS, 6);
-            put(Button.LB, 9);
-            put(Button.RB, 10);
+            put(Button.LS, 9);
+            put(Button.RS, 10);
+            put(Button.LB, 5);
+            put(Button.RB, 6);
         }};
 
     public enum Axis{
         LX, LY, RX, RY, LT, RT
     }
 
-    //TODO: check these button maps
     public Map<Enum<Axis>, Integer> axisMap = 
         new HashMap<Enum<Axis>, Integer>() {{
             put(Axis.LX, 0);
             put(Axis.LY, 1);
-            put(Axis.RX, 2);
-            put(Axis.RY, 3);
-            put(Axis.LT, 4);
-            put(Axis.RT, 5);
+            put(Axis.RX, 4);
+            put(Axis.RY, 5);
+            put(Axis.LT, 2);
+            put(Axis.RT, 3);
     }};
 
     public enum Action{
