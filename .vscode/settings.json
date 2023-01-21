@@ -25,6 +25,5 @@
       }
     },
   ],
-  "java.test.defaultConfig": "WPIlibUnitTests",
-  "editor.tabSize": 2
+  "java.test.defaultConfig": "WPIlibUnitTests"
 }
