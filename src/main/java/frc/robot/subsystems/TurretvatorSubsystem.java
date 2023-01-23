@@ -18,9 +18,11 @@ public class TurretvatorSubsystem extends SubsystemBase {
   private static TurretvatorSubsystem instance;
 
   static final int throughboreCPR = 2048; //TODO: check me
-  int turretEncoderCenter = 0; //TODO: set me
+  int turretEncoderCenter = throughboreCPR/2; //TODO: set me
   int turretMaxAngle = 90;
-  int elevatorLRMaxDifference = 10; //max encoder ticks differential between both sides of elevator
+  int elevatorLRMaxDifference = 10; //TODO: set me//max encoder ticks differential between both sides of elevator
+  int elevatorLowStop; //TODO: set me
+  int elevatorHighStop; //TODO: set me
 
   CANSparkMax elevatorLeft, elevatorRight, turretMotor;
   MotorControllerGroup elevatorMotors;
@@ -38,6 +40,8 @@ public class TurretvatorSubsystem extends SubsystemBase {
 
     turretMotor = new CANSparkMax(Constants.TURRET_ID, MotorType.kBrushless);
     turretEncoder = turretMotor.getAbsoluteEncoder(Type.kDutyCycle);
+    //TODO: set me to back of turret
+    turretEncoder.setZeroOffset(0);
     //TODO: Tune me
     turretPID = new PIDController(0, 0, 0);
   }
@@ -78,7 +82,6 @@ public class TurretvatorSubsystem extends SubsystemBase {
     if (instance == null) {
       instance = new TurretvatorSubsystem();
     }
-
     return instance;
   }
 }
