@@ -18,6 +18,9 @@ public final class Constants {
   public static final int LEFT_DRIVE_ID_2 = 3;
   public static final int RIGHT_DRIVE_ID_1 = 4;
   public static final int RIGHT_DRIVE_ID_2 = 5;
+  public static final int LEFT_ELEVATOR_ID = 6;
+  public static final int RIGHT_ELEVATOR_ID = 7;
+  public static final int TURRET_ID = 8;
 
   //REVPH Solenoid Chanels
   public static final int LEFT_DRIVE_SOLENOID = 0;
