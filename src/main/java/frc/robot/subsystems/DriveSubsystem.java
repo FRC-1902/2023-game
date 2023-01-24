@@ -4,6 +4,8 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
@@ -15,8 +17,13 @@ public class DriveSubsystem extends SubsystemBase {
 
   private CANSparkMax leftMotor1, leftMotor2, rightMotor1, rightMotor2;
   public final RelativeEncoder leftEncoder, rightEncoder;
+
   private MotorControllerGroup leftMotors, rightMotors;
   private Solenoid leftShifterSolenoid, rightShifterSolenoid;
+
+  private double TICKS_PER_METERS = 10_000.0; //TODO: find this number
+  private double DISTANCE_FROM_WHEEL_TO_CENTER = 0.1; //TODO: find this number
+
 
   public DriveSubsystem() {
     leftMotor1 = new CANSparkMax(Constants.LEFT_DRIVE_ID_1, MotorType.kBrushless);
@@ -51,6 +58,17 @@ public class DriveSubsystem extends SubsystemBase {
   public void tankDrive(double leftSpeed, double rightSpeed) {
     leftMotors.set(leftSpeed);
     rightMotors.set(rightSpeed);
+  }
+
+  /**
+   * 
+   * @param velocity x = 0, y = forward velocity (meters per second), rotation = angular velocity (radians per second)
+   */
+  public void driveByVelocities(Transform2d velocity){
+    double rightDriveVelocity = velocity.getY() * TICKS_PER_METERS, leftDriveVelocity = velocity.getY() * TICKS_PER_METERS;
+    rightDriveVelocity += velocity.getRotation().getRadians()/DISTANCE_FROM_WHEEL_TO_CENTER * TICKS_PER_METERS; 
+    leftDriveVelocity -= velocity.getRotation().getRadians()/DISTANCE_FROM_WHEEL_TO_CENTER * TICKS_PER_METERS;
+    //TODO: apply velocities
   }
 
   /** shifts drive subystem gearbox
