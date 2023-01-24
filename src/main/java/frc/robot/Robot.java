@@ -77,7 +77,6 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     
     rs.periodic();
-
     for(Map.Entry<Enum<Controllers.Button>, Integer> entry : ControllerInstance.buttonMap.entrySet()) {
       
       if(driveController.getRawButtonPressed(entry.getValue())){
@@ -86,18 +85,12 @@ public class Robot extends TimedRobot {
       if(driveController.getRawButtonReleased(entry.getValue())){
         rs.handleEvent(new Event((Button) entry.getKey(), Action.RELEASED, ControllerName.DRIVE));
       }
-      if(driveController.getRawButton(entry.getValue())){
-        rs.handleEvent(new Event((Button) entry.getKey(), Action.HELD, ControllerName.DRIVE));
-      }
       
       if(manipController.getRawButtonPressed(entry.getValue())){
         rs.handleEvent(new Event((Button) entry.getKey(), Action.PRESSED, ControllerName.MANIP));
       }
       if(manipController.getRawButtonReleased(entry.getValue())){
         rs.handleEvent(new Event((Button) entry.getKey(), Action.RELEASED, ControllerName.MANIP));
-      }
-      if(manipController.getRawButton(entry.getValue())){
-        rs.handleEvent(new Event((Button) entry.getKey(), Action.HELD, ControllerName.MANIP));
       }
     }
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
@@ -113,7 +106,7 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    rs.setState("disabled");
+    // rs.setState("disabled");
   }
 
   @Override
