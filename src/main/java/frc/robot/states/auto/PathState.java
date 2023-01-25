@@ -3,21 +3,18 @@ package frc.robot.states.auto;
 import frc.robot.RobotStateManager;
 import frc.robot.State;
 import frc.robot.path.Paths;
+import frc.robot.path.Vector2D;
+import frc.robot.sensors.BNO055;
+import frc.robot.sensors.BNO055.opmode_t;
 import frc.robot.subsystems.DriveSubsystem;
 
-import java.io.FileReader;
-import java.io.IOException;
-
-import org.json.simple.JSONArray;
+import org.ejml.simple.SimpleMatrix;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.Data;
+
+
 
 // import org.json.simple.JSONArray;
 
@@ -25,7 +22,7 @@ import frc.robot.Data;
 public class PathState implements State{
     private String name, parent;
 
-    double startTimeSeconds;
+    double startTimeSeconds = -1.0;
     
     public PathState(String name, String parent){
         this.name = name;
@@ -44,8 +41,7 @@ public class PathState implements State{
 
     @Override
     public void Enter() {
-        System.out.println("entered" + name);
-        startTimeSeconds = System.currentTimeMillis()/1000.0;
+        System.out.println("entered " + name);
     }
 
     @Override
@@ -55,40 +51,72 @@ public class PathState implements State{
 
     @Override
     public void Periodic(RobotStateManager rs) {
+        if(startTimeSeconds<0.0){
+            startTimeSeconds = System.currentTimeMillis()/1000.0;
+        }
         
-        Object[] objects = Paths.getInstance(Paths.pathName.BLUE).getPathArray().toArray();
+        Object[] objects = Paths.getInstance().getPathArray();
 
         double currentSecondsSinceStart = System.currentTimeMillis()/1000.0 - startTimeSeconds;
 
-        Transform2d velocity = new Transform2d();
+        double velocity = 0.0;
+        double angularVelocity = 0.0;
         
-        for(int i = 1; i < objects.length; i++){
+        for(int i = 1; i < objects.length; i++){ //this can be optimized by starting at the i value of the last frame
             JSONObject greaterJO = (JSONObject) objects[i];
+            
             double greaterPathTime = (double) greaterJO.get("time");
             
-            
             if(greaterPathTime > currentSecondsSinceStart){
-                // JSONObject lesserJO = (JSONObject) objects[i-1];
-                // double lesserPathTime = (double) lesserJO.get("time");
-                velocity = new Transform2d(new Translation2d(0.0, ((Number) greaterJO.get("velocity")).doubleValue()), new Rotation2d(((Number) greaterJO.get("angularVelocity")).doubleValue()));
-                System.out.println(velocity.toString());
+                JSONObject lesserJO = (JSONObject) objects[i-1];
+
+                double lesserPathTime = (double) lesserJO.get("time");
+
+                double percentComplete = (currentSecondsSinceStart - lesserPathTime) / (greaterPathTime - lesserPathTime);
+
+                
+                double finalVelocity = ((Number) greaterJO.get("velocity")).doubleValue();
+                double finalAngularVelocity = ((Number) greaterJO.get("angularVelocity")).doubleValue();
+
+                double initialVelocity = ((Number) lesserJO.get("velocity")).doubleValue();
+                double initialAngularVelocity = ((Number) lesserJO.get("angularVelocity")).doubleValue();
+                
+                velocity = lerp(initialVelocity, finalVelocity, percentComplete);
+                angularVelocity = lerp(initialAngularVelocity, finalAngularVelocity, percentComplete);
+
+                Vector2D currentVelocity = new Vector2D(velocity, 0);
+                currentVelocity.rotateBy(BNO055.getInstance(opmode_t.OPERATION_MODE_GYRONLY, ));
+
+                velocity += getCorrectingPointAdd(new Vector2D(), new Vector2D(), currentVelocity, 0.3);
+                
+                System.out.println("Time:\t"+ Math.round(greaterPathTime * 1000.0) / 1000.0+ ",\tVelocity:\t" + Math.round(velocity * 1000.0) / 1000.0 + ",\tAngular Velocity:\t" + Math.round(angularVelocity* 1000.0) / 1000.0);
                 break;
             }
             
         }
-        
-        DriveSubsystem.getInstance().driveByVelocities(velocity);
+        // DriveSubsystem.getInstance().driveByVelocities(velocity, angularVelocity);
+    }
 
-        
-        /** 
-         * calculate current point on path
-         * calculate target velocity (including getting back to spline)
-         * use velocities to control movment
-         * increment position on path
-         */
+    
 
-        // getPointOnPath(); 
-        
+    private double getCorrectingPointAdd(Vector2D target, Vector2D current, Vector2D currentVelocity, double proportional){
+        //TODO: test
+        //TODO: fix zero velocity state
+        Vector2D fromRobotToPointOnPath = target.getSubtracted(current).clone();
+        double scalarProjection = fromRobotToPointOnPath.dot(currentVelocity)/currentVelocity.getLengthSq();
+        return currentVelocity.getMultiplied(proportional*scalarProjection).getLength();
+    }
+
+    private double getCorrectingAngleAdd(Vector2D target, Vector2D current, double proportional){
+        //distance to current point effects heading
+        //distance from current angle to target angle
+        return 0.0;
+    }
+
+
+    //linear interpolation
+    private double lerp(double a, double b, double t){
+        return a + t * (b - a);
     }
 
 

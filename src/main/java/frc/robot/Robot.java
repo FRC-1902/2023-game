@@ -12,6 +12,7 @@ import frc.robot.states.*;
 import frc.robot.states.auto.*;
 import frc.robot.states.teleOp.*;
 import frc.robot.Controllers.*;
+import frc.robot.path.Paths;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -36,6 +37,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
+    Paths.getInstance().readPathArray(Paths.pathName.BLUE);//TODO: connect autonomouse chooser
     ControllerInstance = Controllers.getInstance();
     driveController = ControllerInstance.driveController;
     manipController = ControllerInstance.manipController;

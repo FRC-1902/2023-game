@@ -5,7 +5,6 @@ import java.io.IOException;
 import org.json.simple.parser.ParseException;
 
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 public class Paths {
@@ -14,14 +13,18 @@ public class Paths {
 
   private static Paths paths = null;
 
-  public static Paths getInstance(pathName pName){
+  public static Paths getInstance(){
     if(paths == null){
-      paths = new Paths(pName);
+      paths = new Paths();
     }
     return paths;
   }
 
-  private Paths(pathName pName){
+  private Paths(){
+
+  }
+
+  public Paths readPathArray(pathName pName){
     switch(pName){
       case BLUE:
         try {
@@ -32,13 +35,14 @@ public class Paths {
         }
         break;
     }
+    return this;
   }
 
-  public JSONArray getPathArray(){
+  public Object[] getPathArray(){
     if(pathArray == null){
-      return new JSONArray();
+      return new JSONArray().toArray();
     }
-    return pathArray;
+    return pathArray.toArray();
   }
 
   public static enum pathName{

@@ -64,10 +64,10 @@ public class DriveSubsystem extends SubsystemBase {
    * 
    * @param velocity x = 0, y = forward velocity (meters per second), rotation = angular velocity (radians per second)
    */
-  public void driveByVelocities(Transform2d velocity){
-    double rightDriveVelocity = velocity.getY() * TICKS_PER_METERS, leftDriveVelocity = velocity.getY() * TICKS_PER_METERS;
-    rightDriveVelocity += velocity.getRotation().getRadians()/DISTANCE_FROM_WHEEL_TO_CENTER * TICKS_PER_METERS; 
-    leftDriveVelocity -= velocity.getRotation().getRadians()/DISTANCE_FROM_WHEEL_TO_CENTER * TICKS_PER_METERS;
+  public void driveByVelocities(double velocity, double anglularVelocity){
+    double rightDriveVelocity = velocity * TICKS_PER_METERS, leftDriveVelocity = velocity * TICKS_PER_METERS;
+    rightDriveVelocity += anglularVelocity/DISTANCE_FROM_WHEEL_TO_CENTER * TICKS_PER_METERS; 
+    leftDriveVelocity -= anglularVelocity/DISTANCE_FROM_WHEEL_TO_CENTER * TICKS_PER_METERS;
     //TODO: apply velocities
   }
 
