@@ -36,8 +36,6 @@ public class AutoState implements State{
     public void Periodic(RobotStateManager rs) {
         /**
          * if intake is filled -> grab  
-         * 
-         * maintain odometry
          */
     }
 

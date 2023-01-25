@@ -52,7 +52,7 @@ public class Robot extends TimedRobot {
       new PathState("path", "auto"),
       new TurretState("turret", "path"),
       new TestState("test", null));
-    rs.startRobot("path");
+    rs.startRobot("disabled");
     // m_robotContainer = new RobotContainer();
   }
 
@@ -96,7 +96,7 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    // rs.setState("disabled");
+    rs.setState("disabled");
   }
 
   @Override
