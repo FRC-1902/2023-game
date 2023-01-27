@@ -1,11 +1,11 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -14,9 +14,9 @@ public class DriveSubsystem extends SubsystemBase {
   private static DriveSubsystem instance;
 
   private CANSparkMax leftMotor1, leftMotor2, rightMotor1, rightMotor2;
-  public final RelativeEncoder leftEncoder, rightEncoder;
+  public Encoder leftEncoder, rightEncoder;
   private MotorControllerGroup leftMotors, rightMotors;
-  private Solenoid leftShifterSolenoid, rightShifterSolenoid;
+  private DoubleSolenoid leftSolenoid, rightSolenoid;
 
   public DriveSubsystem() {
     leftMotor1 = new CANSparkMax(Constants.LEFT_DRIVE_ID_1, MotorType.kBrushless);
@@ -24,14 +24,19 @@ public class DriveSubsystem extends SubsystemBase {
     rightMotor1 = new CANSparkMax(Constants.RIGHT_DRIVE_ID_1, MotorType.kBrushless);
     rightMotor2 = new CANSparkMax(Constants.RIGHT_DRIVE_ID_2, MotorType.kBrushless);
 
-    leftEncoder = leftMotor1.getAlternateEncoder(8192);
-    rightEncoder = rightMotor1.getAlternateEncoder(8192);
+    leftMotor1.setInverted(false);
+    leftMotor2.setInverted(false);
+    rightMotor1.setInverted(true);
+    rightMotor2.setInverted(true);
+
+    leftEncoder = new Encoder(Constants.LEFT_DRIVE_ENCODER_1, Constants.LEFT_DRIVE_ENCODER_2);
+    rightEncoder = new Encoder(Constants.RIGHT_DRIVE_ENCODER_1, Constants.RIGHT_DRIVE_ENCODER_2);
     
     leftMotors = new MotorControllerGroup(leftMotor1, leftMotor2);
     rightMotors = new MotorControllerGroup(rightMotor1, rightMotor2);
-
-    leftShifterSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.LEFT_DRIVE_SOLENOID);
-    rightShifterSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.RIGHT_DRIVE_SOLENOID);
+    
+    leftSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, Constants.LEFT_LOW_DRIVE_SOLENOID, Constants.LEFT_HIGH_DRIVE_SOLENOID);
+    rightSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, Constants.RIGHT_LOW_DRIVE_SOLENOID, Constants.RIGHT_HIGH_DRIVE_SOLENOID);
   }
 
   @Override
@@ -53,12 +58,25 @@ public class DriveSubsystem extends SubsystemBase {
     rightMotors.set(rightSpeed);
   }
 
+  public enum ShiftState{
+    HIGH,LOW,DEPRESSURIZED
+  }
+
   /** shifts drive subystem gearbox
-   * @param state boolean, true for high and false for low
+   * @param state DoubleSolenoid.Value, kForward or kReverse
    */
-  public void shift(boolean state) {
-    leftShifterSolenoid.set(state);
-    rightShifterSolenoid.set(state);
+  public void shift(ShiftState state) {
+    switch(state){
+    case HIGH:
+      leftSolenoid.set(DoubleSolenoid.Value.kForward);
+      rightSolenoid.set(DoubleSolenoid.Value.kForward);
+    case LOW:
+      leftSolenoid.set(DoubleSolenoid.Value.kReverse);
+      rightSolenoid.set(DoubleSolenoid.Value.kReverse);
+    case DEPRESSURIZED:
+      leftSolenoid.set(DoubleSolenoid.Value.kOff);
+      rightSolenoid.set(DoubleSolenoid.Value.kOff);
+    }
   }
 
   public static DriveSubsystem getInstance() {

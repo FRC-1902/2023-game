@@ -23,6 +23,17 @@ public final class Constants {
   public static final int TURRET_ID = 8;
 
   //REVPH Solenoid Chanels
-  public static final int LEFT_DRIVE_SOLENOID = 0;
-  public static final int RIGHT_DRIVE_SOLENOID = 1;
+  public static final int LEFT_LOW_DRIVE_SOLENOID = 0;
+  public static final int LEFT_HIGH_DRIVE_SOLENOID = 1;
+  public static final int RIGHT_LOW_DRIVE_SOLENOID = 2;
+  public static final int RIGHT_HIGH_DRIVE_SOLENOID = 3;
+
+  //DIO ports
+  public static final int LEFT_DRIVE_ENCODER_1 = 0;
+  public static final int LEFT_DRIVE_ENCODER_2 = 1;
+  public static final int RIGHT_DRIVE_ENCODER_1 = 2;
+  public static final int RIGHT_DRIVE_ENCODER_2 = 3;
+  public static final int TURRET_ENCODER = 4;
+  public static final int LEFT_ELEVATOR_ENCODER = 5;
+  public static final int RIGHT_ELEVATOR_ENCODER = 6;
 }

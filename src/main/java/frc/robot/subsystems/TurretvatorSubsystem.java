@@ -4,12 +4,11 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -17,7 +16,7 @@ import frc.robot.Constants;
 public class TurretvatorSubsystem extends SubsystemBase {
   private static TurretvatorSubsystem instance;
 
-  static final int throughboreCPR = 2048; //TODO: check me
+  static final int throughboreCPR = 8192; //TODO: check me
   int turretEncoderCenter = throughboreCPR/2; //TODO: set me
   int turretMaxAngle = 90;
   int elevatorLRMaxDifference = 10; //TODO: set me//max encoder ticks differential between both sides of elevator
@@ -26,22 +25,20 @@ public class TurretvatorSubsystem extends SubsystemBase {
 
   CANSparkMax elevatorLeft, elevatorRight, turretMotor;
   MotorControllerGroup elevatorMotors;
-  AbsoluteEncoder elevatorLeftEncoder, elevatorRightEncoder, turretEncoder;
+  DutyCycleEncoder elevatorLeftEncoder, elevatorRightEncoder, turretEncoder;
   PIDController elevatorPID, turretPID;
 
   public TurretvatorSubsystem() {
     elevatorLeft = new CANSparkMax(Constants.LEFT_ELEVATOR_ID, MotorType.kBrushless);
     elevatorRight = new CANSparkMax(Constants.RIGHT_ELEVATOR_ID, MotorType.kBrushless);
     elevatorMotors = new MotorControllerGroup(elevatorLeft, elevatorRight);
-    elevatorLeftEncoder = elevatorLeft.getAbsoluteEncoder(Type.kDutyCycle);
-    elevatorRightEncoder = elevatorRight.getAbsoluteEncoder(Type.kDutyCycle);
+    elevatorLeftEncoder = new DutyCycleEncoder(Constants.LEFT_ELEVATOR_ENCODER);
+    elevatorRightEncoder = new DutyCycleEncoder(Constants.RIGHT_ELEVATOR_ENCODER);
     //TODO: Tune me
     elevatorPID = new PIDController(0, 0, 0);
 
     turretMotor = new CANSparkMax(Constants.TURRET_ID, MotorType.kBrushless);
-    turretEncoder = turretMotor.getAbsoluteEncoder(Type.kDutyCycle);
-    //TODO: set me to back of turret
-    turretEncoder.setZeroOffset(0);
+    turretEncoder = new DutyCycleEncoder(Constants.TURRET_ENCODER);
     //TODO: Tune me
     turretPID = new PIDController(0, 0, 0);
   }
@@ -50,7 +47,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
    * <p>Centers turret with PID from curret encoder position to turretEncoderCenter</p>
    */
   public void turretCenter(){
-    turretMotor.set(turretPID.calculate(turretEncoder.getPosition(), turretEncoderCenter));
+    turretMotor.set(turretPID.calculate(turretEncoder.getAbsolutePosition(), turretEncoderCenter));
   }
 
   /**
@@ -65,7 +62,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
       return;
     }
     int setAngle = (int)(degrees / 360 * throughboreCPR) + turretEncoderCenter;
-    turretMotor.set(turretPID.calculate(turretEncoder.getPosition(), setAngle));
+    turretMotor.set(turretPID.calculate(turretEncoder.getAbsolutePosition(), setAngle));
   }
 
   @Override
