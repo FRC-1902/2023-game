@@ -1,10 +1,12 @@
 package frc.robot.states;
 
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import frc.robot.Controllers;
 import frc.robot.Controllers.*;
 import frc.robot.Event;
 import frc.robot.RobotStateManager;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.DriveSubsystem.ShiftState;
 
 public class TeleOpState implements frc.robot.State{
 
@@ -51,7 +53,7 @@ public class TeleOpState implements frc.robot.State{
     case RB:
       switch(event.action){
       case PRESSED:
-        driveSub.shift(true);
+        driveSub.shift(ShiftState.LOW);
         return true;
       default:
           break;
@@ -60,7 +62,7 @@ public class TeleOpState implements frc.robot.State{
     case LB:
       switch(event.action){
       case PRESSED:
-        driveSub.shift(false);
+        driveSub.shift(ShiftState.LOW);
         return true;
       default:
           break;
