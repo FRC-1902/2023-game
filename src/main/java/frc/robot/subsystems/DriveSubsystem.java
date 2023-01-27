@@ -6,9 +6,13 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -24,8 +28,22 @@ public class DriveSubsystem extends SubsystemBase {
   private double TICKS_PER_METERS = 10_000.0; //TODO: find this number
   private double DISTANCE_FROM_WHEEL_TO_CENTER = 0.1; //TODO: find this number
 
+  public void initializeShuffleboardWidgets() {
+    ShuffleboardTab dashboardTab = Shuffleboard.getTab("Shuffleboard");
+
+    dashboardTab.addDouble("Left Drive Encoder Position", () -> leftEncoder.getPosition())
+      .withWidget(BuiltInWidgets.kGraph);
+    dashboardTab.addDouble("Right Drive Encoder Position", () -> leftEncoder.getPosition())
+      .withWidget(BuiltInWidgets.kGraph);
+    dashboardTab.addDouble("Left Drive Encoder Velocity", () -> rightEncoder.getVelocity())
+      .withWidget(BuiltInWidgets.kGraph);
+    dashboardTab.addDouble("Right Drive Encoder Velocity", () -> rightEncoder.getVelocity())
+      .withWidget(BuiltInWidgets.kGraph);
+  }
 
   public DriveSubsystem() {
+    
+
     leftMotor1 = new CANSparkMax(Constants.LEFT_DRIVE_ID_1, MotorType.kBrushless);
     leftMotor2 = new CANSparkMax(Constants.LEFT_DRIVE_ID_2, MotorType.kBrushless);
     rightMotor1 = new CANSparkMax(Constants.RIGHT_DRIVE_ID_1, MotorType.kBrushless);

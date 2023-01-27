@@ -8,11 +8,16 @@ import java.util.Map;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.states.*;
 import frc.robot.states.auto.*;
 import frc.robot.states.balance.DriveOntoPlatformState;
 import frc.robot.states.balance.BalanceOnPlatformState;
 import frc.robot.states.teleOp.*;
+import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.IMUSubsystem;
 import frc.robot.Controllers.*;
 
 /**
@@ -41,6 +46,7 @@ public class Robot extends TimedRobot {
     ControllerInstance = Controllers.getInstance();
     driveController = ControllerInstance.driveController;
     manipController = ControllerInstance.manipController;
+
     rs = RobotStateManager.getInstance();
     rs.addStates(
       new DisabledState("disabled", null),
@@ -75,7 +81,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    
     rs.periodic();
     for(Map.Entry<Enum<Controllers.Button>, Integer> entry : ControllerInstance.buttonMap.entrySet()) {
       
@@ -99,8 +104,6 @@ public class Robot extends TimedRobot {
     // block in order for anything in the Command-based framework to work.
     
     // CommandScheduler.getInstance().run();
-
-
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

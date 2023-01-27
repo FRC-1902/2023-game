@@ -1,6 +1,10 @@
 package frc.robot.states;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.Constants;
 import frc.robot.RobotStateManager;
 import frc.robot.State;
@@ -22,6 +26,8 @@ public class BalanceState implements State {
   // Child states are supposed to modify these, so Periodic() can set the appropriate speed
   // without things getting all messed up.
   public double calculatedForwardSpeed, calculatedYawSpeed;
+
+  private GenericEntry pidPWidget, pidIWidget, pidDWidget;
   
   public BalanceState(String name, String parent){
     this.name = name;
@@ -31,6 +37,12 @@ public class BalanceState implements State {
     drive = DriveSubsystem.getInstance();
 
     yawPID = new PIDController(0, 0, 0);
+
+    ShuffleboardTab pidTuningTab = Shuffleboard.getTab("PID Tuning");
+    
+    pidPWidget = pidTuningTab.add("Balance Yaw PID - Proportional", 0.0).withWidget(BuiltInWidgets.kNumberSlider).getEntry();
+    pidIWidget = pidTuningTab.add("Balance Yaw PID - Integral", 0.0).withWidget(BuiltInWidgets.kNumberSlider).getEntry();
+    pidDWidget = pidTuningTab.add("Balance Yaw PID - Derivative", 0.0).withWidget(BuiltInWidgets.kNumberSlider).getEntry();
   }
 
   @Override
@@ -64,6 +76,10 @@ public class BalanceState implements State {
   @Override
   public void Periodic(RobotStateManager rs) {
     double currentYaw = compass.getHeading();
+
+    yawPID.setP(pidPWidget.getDouble(0));
+    yawPID.setI(pidIWidget.getDouble(0));
+    yawPID.setD(pidDWidget.getDouble(0));
 
     System.out.format("Yaw: %3.1f, Pitch: %3.1f\n", currentYaw, imu.getZ());
 

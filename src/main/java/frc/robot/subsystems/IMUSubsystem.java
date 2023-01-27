@@ -1,5 +1,8 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.sensors.BNO055;
@@ -10,6 +13,14 @@ public class IMUSubsystem extends SubsystemBase {
     private static IMUSubsystem instance = new IMUSubsystem();
 
     private final BNO055 bno055 = BNO055.getInstance(BNO055.opmode_t.OPERATION_MODE_IMUPLUS, BNO055.vector_type_t.VECTOR_EULER);
+
+    public IMUSubsystem() {
+      ShuffleboardTab dashboardTab = Shuffleboard.getTab("Shuffleboard");
+
+      dashboardTab.addDouble("BNO055 Pitch", () -> getX()).withWidget(BuiltInWidgets.kNumberBar);
+      dashboardTab.addDouble("BNO055 Roll", () -> getY()).withWidget(BuiltInWidgets.kNumberBar);
+      dashboardTab.addDouble("BNO055 Yaw", () -> getZ()).withWidget(BuiltInWidgets.kNumberBar);
+    }
 
     /**
      * @return returns the imu's x scalar (heading or yaw)
