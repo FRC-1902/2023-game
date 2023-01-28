@@ -49,20 +49,22 @@ public class TeleOpState implements frc.robot.State{
   @Override
   public boolean handleEvent(Event event, RobotStateManager rs) {
     switch(event.button){
-  //Shift high
+  //Shift low
     case RB:
       switch(event.action){
       case PRESSED:
+        System.out.println("Shifted LOW");
         driveSub.shift(ShiftState.LOW);
         return true;
       default:
-          break;
+        break;
       }
-  //Shift low
+  //Shift high
     case LB:
       switch(event.action){
       case PRESSED:
-        driveSub.shift(ShiftState.LOW);
+        System.out.println("Shifted HIGH");
+        driveSub.shift(ShiftState.HIGH);
         return true;
       default:
           break;

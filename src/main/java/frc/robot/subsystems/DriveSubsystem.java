@@ -70,12 +70,15 @@ public class DriveSubsystem extends SubsystemBase {
     case HIGH:
       leftSolenoid.set(DoubleSolenoid.Value.kForward);
       rightSolenoid.set(DoubleSolenoid.Value.kForward);
+      break;
     case LOW:
       leftSolenoid.set(DoubleSolenoid.Value.kReverse);
       rightSolenoid.set(DoubleSolenoid.Value.kReverse);
+      break;
     case DEPRESSURIZED:
       leftSolenoid.set(DoubleSolenoid.Value.kOff);
       rightSolenoid.set(DoubleSolenoid.Value.kOff);
+      break;
     }
   }
 
