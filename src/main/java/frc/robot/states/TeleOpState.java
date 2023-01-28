@@ -1,10 +1,12 @@
 package frc.robot.states;
 
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import frc.robot.Controllers;
 import frc.robot.Controllers.*;
 import frc.robot.Event;
 import frc.robot.RobotStateManager;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.DriveSubsystem.ShiftState;
 
 public class TeleOpState implements frc.robot.State{
 
@@ -47,20 +49,22 @@ public class TeleOpState implements frc.robot.State{
   @Override
   public boolean handleEvent(Event event, RobotStateManager rs) {
     switch(event.button){
-  //Shift high
+  //Shift low
     case RB:
       switch(event.action){
       case PRESSED:
-        driveSub.shift(true);
+        System.out.println("Shifted LOW");
+        driveSub.shift(ShiftState.LOW);
         return true;
       default:
-          break;
+        break;
       }
-  //Shift low
+  //Shift high
     case LB:
       switch(event.action){
       case PRESSED:
-        driveSub.shift(false);
+        System.out.println("Shifted HIGH");
+        driveSub.shift(ShiftState.HIGH);
         return true;
       default:
           break;
