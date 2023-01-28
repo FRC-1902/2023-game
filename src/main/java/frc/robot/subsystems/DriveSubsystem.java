@@ -119,6 +119,7 @@ public class DriveSubsystem extends SubsystemBase {
     case DEPRESSURIZED:
       leftSolenoid.set(DoubleSolenoid.Value.kOff);
       rightSolenoid.set(DoubleSolenoid.Value.kOff);
+      break;
     }
   }
 

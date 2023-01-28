@@ -1,12 +1,12 @@
-package frc.robot.states;
+package frc.robot.states.auto;
 
 import frc.robot.RobotStateManager;
 import frc.robot.State;
 
-public class AutoState implements State{
+public class PathState implements State{
     private String name, parent;
     
-    public AutoState(String name, String parent){
+    public PathState(String name, String parent){
         this.name = name;
         this.parent = parent;
     }
@@ -23,7 +23,7 @@ public class AutoState implements State{
 
     @Override
     public void Enter() {
-        System.out.println("entered " + name);
+        System.out.println("entered" + name);
     }
 
     @Override
@@ -33,9 +33,6 @@ public class AutoState implements State{
 
     @Override
     public void Periodic(RobotStateManager rs) {
-        /**
-         * if intake is filled -> grab  
-         */
-    }
 
+    }
 }
