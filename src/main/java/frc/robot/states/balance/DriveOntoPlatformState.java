@@ -1,8 +1,5 @@
 package frc.robot.states.balance;
 
-import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import frc.robot.Constants;
 import frc.robot.RobotStateManager;
 import frc.robot.State;
@@ -14,7 +11,6 @@ public class DriveOntoPlatformState implements State {
   private BalanceState parent;
 
   private IMUSubsystem imu;
-
 
   public DriveOntoPlatformState(String name, String parent){
     this.name = name;

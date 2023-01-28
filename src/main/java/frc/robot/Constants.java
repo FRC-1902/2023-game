@@ -40,4 +40,7 @@ public final class Constants {
   public static final int TURRET_ENCODER = 4;
   public static final int LEFT_ELEVATOR_ENCODER = 5;
   public static final int RIGHT_ELEVATOR_ENCODER = 6;
+
+  // Shuffleboard junk
+  public static final String MAIN_SHUFFLEBOARD_TAB = "Shuffleboard";
 }

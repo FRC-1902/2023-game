@@ -3,15 +3,14 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -24,11 +23,21 @@ public class DriveSubsystem extends SubsystemBase {
   private MotorControllerGroup leftMotors, rightMotors;
   private DoubleSolenoid leftSolenoid, rightSolenoid;
 
-  public void initializeShuffleboardWidgets() {
-    ShuffleboardTab dashboardTab = Shuffleboard.getTab("Shuffleboard");
+  public static enum ShiftState{
+    HIGH, LOW, DEPRESSURIZED
+  }
 
-    dashboardTab.addDouble("Left Drive Encoder Velocity", leftEncoder::getRate).withWidget(BuiltInWidgets.kGraph);
-    dashboardTab.addDouble("Right Drive Encoder Velocity", rightEncoder::getRate).withWidget(BuiltInWidgets.kGraph);
+  public void initializeShuffleboardWidgets() {
+    ShuffleboardLayout dashboardLayout = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)
+      .getLayout("Drive Train", BuiltInLayouts.kList)
+      .withSize(4, 4);
+
+    dashboardLayout.addDouble("Left Drive Encoder Velocity", leftEncoder::getRate)
+      .withWidget(BuiltInWidgets.kGraph);
+    dashboardLayout.addString("Left Drive Shift State", () -> getLeftShiftState().name());
+    dashboardLayout.addDouble("Right Drive Encoder Velocity", rightEncoder::getRate)
+      .withWidget(BuiltInWidgets.kGraph);
+    dashboardLayout.addString("Right Drive Shift State", () -> getRightShiftState().name());
   }
 
   public DriveSubsystem() {
@@ -73,21 +82,40 @@ public class DriveSubsystem extends SubsystemBase {
     rightMotors.set(rightSpeed);
   }
 
-  public static enum ShiftState{
-    HIGH, LOW, DEPRESSURIZED
+  private ShiftState getShiftState(DoubleSolenoid solenoid) {
+    switch (solenoid.get()) {
+      case kForward:
+        return ShiftState.HIGH;
+      case kReverse:
+        return ShiftState.LOW;
+      case kOff:
+        return ShiftState.DEPRESSURIZED;
+      default:
+        throw new NullPointerException("Critical bruh moment encountered");
+    }
+  }
+
+  public ShiftState getLeftShiftState() {
+    return getShiftState(leftSolenoid);
+  }
+
+  public ShiftState getRightShiftState() {
+    return getShiftState(rightSolenoid);
   }
 
   /** shifts drive subystem gearbox
    * @param state DoubleSolenoid.Value, kForward or kReverse
    */
   public void shift(ShiftState state) {
-    switch(state){
+    switch (state) {
     case HIGH:
       leftSolenoid.set(DoubleSolenoid.Value.kForward);
       rightSolenoid.set(DoubleSolenoid.Value.kForward);
+      break;
     case LOW:
       leftSolenoid.set(DoubleSolenoid.Value.kReverse);
       rightSolenoid.set(DoubleSolenoid.Value.kReverse);
+      break;
     case DEPRESSURIZED:
       leftSolenoid.set(DoubleSolenoid.Value.kOff);
       rightSolenoid.set(DoubleSolenoid.Value.kOff);

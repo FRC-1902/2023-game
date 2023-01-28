@@ -1,6 +1,5 @@
 package frc.robot.states;
 
-import frc.robot.Event;
 import frc.robot.RobotStateManager;
 import frc.robot.State;
 

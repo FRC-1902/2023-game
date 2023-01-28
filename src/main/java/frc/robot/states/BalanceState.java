@@ -2,8 +2,10 @@ package frc.robot.states;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.Constants;
 import frc.robot.RobotStateManager;
@@ -38,11 +40,19 @@ public class BalanceState implements State {
 
     yawPID = new PIDController(0, 0, 0);
 
-    ShuffleboardTab pidTuningTab = Shuffleboard.getTab("PID Tuning");
+    ShuffleboardLayout pidTuningTab = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)
+      .getLayout("Balance Yaw PID", BuiltInLayouts.kList)
+      .withSize(2, 3);
     
-    pidPWidget = pidTuningTab.add("Balance Yaw PID - Proportional", 0.0).withWidget(BuiltInWidgets.kNumberSlider).getEntry();
-    pidIWidget = pidTuningTab.add("Balance Yaw PID - Integral", 0.0).withWidget(BuiltInWidgets.kNumberSlider).getEntry();
-    pidDWidget = pidTuningTab.add("Balance Yaw PID - Derivative", 0.0).withWidget(BuiltInWidgets.kNumberSlider).getEntry();
+    pidPWidget = pidTuningTab
+      .add("Balance Yaw PID - Proportional", 0.0)
+      .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
+    pidIWidget = pidTuningTab
+      .add("Balance Yaw PID - Integral", 0.0)
+      .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
+    pidDWidget = pidTuningTab
+      .add("Balance Yaw PID - Derivative", 0.0)
+      .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
   }
 
   @Override

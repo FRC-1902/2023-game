@@ -1,10 +1,13 @@
 package frc.robot.subsystems;
 
+import java.util.Map;
+
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import frc.robot.Constants;
 import frc.robot.sensors.BNO055;
 
 
@@ -15,15 +18,25 @@ public class IMUSubsystem extends SubsystemBase {
     private final BNO055 bno055 = BNO055.getInstance(BNO055.opmode_t.OPERATION_MODE_IMUPLUS, BNO055.vector_type_t.VECTOR_EULER);
 
     public IMUSubsystem() {
-      ShuffleboardTab dashboardTab = Shuffleboard.getTab("Shuffleboard");
+      ShuffleboardLayout dashboardTab = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)
+        .getLayout("BNO055 Telemetry", BuiltInLayouts.kList)
+        .withSize(4, 4);
 
-      dashboardTab.addDouble("BNO055 Pitch", () -> getX()).withWidget(BuiltInWidgets.kNumberBar);
-      dashboardTab.addDouble("BNO055 Roll", () -> getY()).withWidget(BuiltInWidgets.kNumberBar);
-      dashboardTab.addDouble("BNO055 Yaw", () -> getZ()).withWidget(BuiltInWidgets.kNumberBar);
+      dashboardTab.addDouble("BNO055 Yaw", () -> getX())
+        .withProperties(Map.of("Min", -180, "Max", 180))
+        .withWidget(BuiltInWidgets.kNumberBar);
+
+      dashboardTab.addDouble("BNO055 Roll", () -> getY())
+        .withProperties(Map.of("Min", -90, "Max", 90))
+        .withWidget(BuiltInWidgets.kNumberBar);
+
+      dashboardTab.addDouble("BNO055 Pitch", () -> getZ())
+        .withProperties(Map.of("Min", 0, "Max", 360))
+        .withWidget(BuiltInWidgets.kNumberBar);
     }
 
     /**
-     * @return returns the imu's x scalar (heading or yaw)
+     * @return returns the imu's x scalar (heading/yaw) representing an angle from 0 to 360 degrees
      */
     public double getX() {
       double[] xyz = bno055.getVector();
@@ -31,7 +44,7 @@ public class IMUSubsystem extends SubsystemBase {
     }
 
     /**
-     * @return returns the imu's y scalar (roll)
+     * @return returns the imu's y scalar (roll) representing an angle from -90 to 90 degrees
      */
     public double getY(){
       double[] xyz = bno055.getVector();
@@ -39,7 +52,7 @@ public class IMUSubsystem extends SubsystemBase {
     }
 
     /**
-     * @return returns the imu's y scalar (pitch)
+     * @return returns the imu's y scalar (pitch) representing an angle from -180 to 180 degrees
      */
     public double getZ(){
       double[] xyz = bno055.getVector();

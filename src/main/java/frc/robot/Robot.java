@@ -10,16 +10,11 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.states.*;
 import frc.robot.states.auto.*;
 import frc.robot.states.balance.DriveOntoPlatformState;
 import frc.robot.states.balance.BalanceOnPlatformState;
 import frc.robot.states.teleOp.*;
-import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.IMUSubsystem;
 import frc.robot.Controllers.*;
 
 /**
