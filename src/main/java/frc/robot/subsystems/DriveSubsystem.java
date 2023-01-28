@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -35,6 +34,7 @@ public class DriveSubsystem extends SubsystemBase {
     dashboardLayout.addDouble("Left Drive Encoder Velocity", leftEncoder::getRate)
       .withWidget(BuiltInWidgets.kGraph);
     dashboardLayout.addString("Left Drive Shift State", () -> getLeftShiftState().name());
+
     dashboardLayout.addDouble("Right Drive Encoder Velocity", rightEncoder::getRate)
       .withWidget(BuiltInWidgets.kGraph);
     dashboardLayout.addString("Right Drive Shift State", () -> getRightShiftState().name());

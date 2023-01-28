@@ -8,8 +8,15 @@ import java.util.Map;
 
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.states.*;
 import frc.robot.states.auto.*;
 import frc.robot.states.balance.DriveOntoPlatformState;
@@ -31,6 +38,38 @@ public class Robot extends TimedRobot {
   private XboxController driveController;
   private XboxController manipController;
   private Compressor compressor;
+
+  public void initializeShuffleBoardWidgets() {
+    ShuffleboardTab dashboardTab = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB);
+
+    ShuffleboardLayout pdpLayout = 
+      dashboardTab.getLayout("Power Distribution Panel", BuiltInLayouts.kList);
+    ShuffleboardLayout stateMachineLayout = 
+      dashboardTab.getLayout("State Machine", BuiltInLayouts.kList);
+
+    PowerDistribution pdp = new PowerDistribution(1, ModuleType.kRev);
+    
+    pdpLayout.addDouble("Battery Voltage", pdp::getVoltage)
+      .withWidget(BuiltInWidgets.kGraph)
+      .withProperties(Map.of("Unit", "V"));
+    pdpLayout.addDouble("Total Output Current", pdp::getTotalCurrent)
+      .withWidget(BuiltInWidgets.kGraph)
+      .withProperties(Map.of("Unit", "A"));
+    pdpLayout.addDouble("Total Output Power", pdp::getTotalPower)
+      .withWidget(BuiltInWidgets.kGraph)
+      .withProperties(Map.of("Unit", "W"));
+    pdpLayout.addDouble("PDP Temperature", pdp::getTemperature)
+      .withWidget(BuiltInWidgets.kGraph)
+      .withProperties(Map.of("Unit", "deg C"));
+
+    stateMachineLayout.addString("Current State", () -> {
+      State currState = rs.getCurrentState();
+
+      if (currState == null)
+        return "Root";
+      return currState.getName();
+    });
+  }
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -65,6 +104,8 @@ public class Robot extends TimedRobot {
       new DriveOntoPlatformState("drivePlatform", "balance"),
       new BalanceOnPlatformState("balancePlatform", "balance")
     );
+
+    initializeShuffleBoardWidgets();
 
     rs.startRobot("disabled");
     //m_robotContainer = new RobotContainer();
@@ -107,7 +148,7 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    // rs.setState("disabled");
+    rs.setState("disabled");
   }
 
   @Override
