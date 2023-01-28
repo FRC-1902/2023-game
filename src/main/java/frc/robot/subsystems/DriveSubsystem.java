@@ -58,7 +58,7 @@ public class DriveSubsystem extends SubsystemBase {
     rightMotors.set(rightSpeed);
   }
 
-  public enum ShiftState{
+  public static enum ShiftState{
     HIGH,LOW,DEPRESSURIZED
   }
 
