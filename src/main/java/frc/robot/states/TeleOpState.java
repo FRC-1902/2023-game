@@ -1,6 +1,5 @@
 package frc.robot.states;
 
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import frc.robot.Controllers;
 import frc.robot.Controllers.*;
 import frc.robot.Event;

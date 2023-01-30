@@ -71,10 +71,10 @@ public class DriveSubsystem extends SubsystemBase {
    * @param velocity m/s that you want to hit
    * @param angularVelocity m/s of angular change
    */
-  public void velocityPID(double velocity, double anglularVelocity){
+  public void velocityPID(double velocity, double angularVelocity){
     //TODO:test me
-    double leftPower = velocityController.calculate(leftEncoder.getRate(), velocity - anglularVelocity);
-    double rightPower = velocityController.calculate(leftEncoder.getRate(), velocity + anglularVelocity);
+    double leftPower = velocityController.calculate(leftEncoder.getRate(), velocity - angularVelocity);
+    double rightPower = velocityController.calculate(leftEncoder.getRate(), velocity + angularVelocity);
     tankDrive(leftPower,rightPower);
   }
 
