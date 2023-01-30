@@ -85,7 +85,8 @@ public class PathState implements State{
                 angularVelocity = lerp(initialAngularVelocity, finalAngularVelocity, percentComplete);
 
                 Vector2D currentVelocity = new Vector2D(velocity, 0);
-                currentVelocity.rotateBy(BNO055.getInstance(opmode_t.OPERATION_MODE_GYRONLY, ));
+            //TODO:fixme, error
+                //currentVelocity.rotateBy(BNO055.getInstance(opmode_t.OPERATION_MODE_GYRONLY, ));
 
                 velocity += getCorrectingPointAdd(new Vector2D(), new Vector2D(), currentVelocity, 0.3);
                 
