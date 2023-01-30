@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -17,6 +18,7 @@ public class DriveSubsystem extends SubsystemBase {
   public Encoder leftEncoder, rightEncoder;
   private MotorControllerGroup leftMotors, rightMotors;
   private DoubleSolenoid leftSolenoid, rightSolenoid;
+  private PIDController velocityController;
 
   public DriveSubsystem() {
     leftMotor1 = new CANSparkMax(Constants.LEFT_DRIVE_ID_1, MotorType.kBrushless);
@@ -31,12 +33,18 @@ public class DriveSubsystem extends SubsystemBase {
 
     leftEncoder = new Encoder(Constants.LEFT_DRIVE_ENCODER_1, Constants.LEFT_DRIVE_ENCODER_2);
     rightEncoder = new Encoder(Constants.RIGHT_DRIVE_ENCODER_1, Constants.RIGHT_DRIVE_ENCODER_2);
-    
+    //TODO: check me, meters per count
+    leftEncoder.setDistancePerPulse(0.0000584447);
+    rightEncoder.setDistancePerPulse(0.0000584447);
+
     leftMotors = new MotorControllerGroup(leftMotor1, leftMotor2);
     rightMotors = new MotorControllerGroup(rightMotor1, rightMotor2);
     
     leftSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, Constants.LEFT_LOW_DRIVE_SOLENOID, Constants.LEFT_HIGH_DRIVE_SOLENOID);
     rightSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, Constants.RIGHT_LOW_DRIVE_SOLENOID, Constants.RIGHT_HIGH_DRIVE_SOLENOID);
+
+    //TODO:tune me
+    velocityController = new PIDController(0,0,0);
   }
 
   @Override
@@ -59,15 +67,15 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   /**
-   * 
-   * @param velocity x = 0, y = forward velocity (meters per second), rotation = angular velocity (radians per second)
+   * PID to hit a specific velocity for your drivetrain
+   * @param velocity m/s that you want to hit
+   * @param angularVelocity m/s of angular change
    */
-  public void driveByVelocities(double velocity, double anglularVelocity){
-    //TODO: fix me, can do with encoder.setDistancePerPulse() and .getRate() for curret velocity
-    //double rightDriveVelocity = velocity * TICKS_PER_METERS, leftDriveVelocity = velocity * TICKS_PER_METERS;
-    //rightDriveVelocity += anglularVelocity/DISTANCE_FROM_WHEEL_TO_CENTER * TICKS_PER_METERS; 
-    //leftDriveVelocity -= anglularVelocity/DISTANCE_FROM_WHEEL_TO_CENTER * TICKS_PER_METERS;
-    //TODO: apply velocities
+  public void velocityPID(double velocity, double anglularVelocity){
+    //TODO:test me
+    double leftPower = velocityController.calculate(leftEncoder.getRate(), velocity - anglularVelocity);
+    double rightPower = velocityController.calculate(leftEncoder.getRate(), velocity + anglularVelocity);
+    tankDrive(leftPower,rightPower);
   }
 
   public static enum ShiftState{
