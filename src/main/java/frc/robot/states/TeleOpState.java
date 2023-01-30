@@ -1,5 +1,7 @@
 package frc.robot.states;
 
+import edu.wpi.first.wpilibj.RobotController;
+import frc.robot.Constants;
 import frc.robot.Controllers;
 import frc.robot.Controllers.*;
 import frc.robot.Event;
@@ -12,6 +14,7 @@ public class TeleOpState implements frc.robot.State{
   private String name, parent;
   private DriveSubsystem driveSub;
   private Controllers controllers;
+  private long balancedPressedTimestamp;
   
   public TeleOpState(String name, String parent){
     this.name = name;
@@ -67,6 +70,30 @@ public class TeleOpState implements frc.robot.State{
         return true;
       default:
           break;
+      }
+  // Goes to the balance state
+    case Y:
+      switch(event.action) {
+      case PRESSED:
+        System.out.println("Balance button depressed, waiting for release...");
+        balancedPressedTimestamp = RobotController.getFPGATime();
+        return true;
+      case RELEASED:
+        if (RobotController.getFPGATime() - balancedPressedTimestamp > Constants.ENTER_AUTO_DRIVE_BALANCE_THRESHOLD_US) {
+          System.out.format(
+            "Balance button depressed for more than %dus, going into `drivePlatform` state\n", 
+            Constants.ENTER_AUTO_DRIVE_BALANCE_THRESHOLD_US
+          );
+          rs.setState("drivePlatform");
+        }
+        else {
+          System.out.format(
+            "Balance button depressed for less than %dus, going into `balancePlatform`\n", 
+            Constants.ENTER_AUTO_DRIVE_BALANCE_THRESHOLD_US
+          );
+          rs.setState("balancePlatform");
+        }
+        return true;
       }
     default:
       return false;

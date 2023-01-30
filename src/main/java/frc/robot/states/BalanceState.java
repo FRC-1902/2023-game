@@ -7,8 +7,10 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import frc.robot.Constants;
+import frc.robot.Event;
 import frc.robot.RobotStateManager;
 import frc.robot.State;
+import frc.robot.Controllers.Button;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.HeaderWrapper;
 import frc.robot.subsystems.IMUSubsystem;
@@ -21,6 +23,7 @@ public class BalanceState implements State {
   private PIDController yawPID;
   private IMUSubsystem imu;
   private HeaderWrapper compass;
+  private State enteredFromState;
 
   private double desiredYaw;
 
@@ -64,17 +67,22 @@ public class BalanceState implements State {
     return parent;
   }
 
+  // Dont ask
   @Override
-  public void Enter() {
+  public void Enter() {}
+
+  @Override
+  public void Enter(State enteredFrom) {
     System.out.println("entered" + name);
 
     desiredYaw = Constants.PLATFORM_YAW_DEG;
     // Checks whether or not the robot is coming from the back of the platform.
-    if (Math.abs(imu.getX() - Constants.PLATFORM_YAW_DEG) > 180) {
+    if (Math.abs(imu.getX() - Constants.PLATFORM_YAW_DEG) > 180)
         desiredYaw = (desiredYaw + 180) % 360;
-    }
 
     compass.setHeadingOffset(desiredYaw);
+
+    enteredFromState = enteredFrom;
   }
 
   @Override
@@ -103,4 +111,14 @@ public class BalanceState implements State {
     calculatedForwardSpeed = 0;
     calculatedYawSpeed = 0;
   }
+
+  public boolean handleEvent(Event event, RobotStateManager rs) {
+    if (event.button == Button.A) {
+      rs.setState(enteredFromState.getName());
+      return true;
+    }
+
+    return false;
+  }
+
 }

@@ -14,7 +14,7 @@ public class DriveOntoPlatformState implements State {
 
   public DriveOntoPlatformState(String name, String parent){
     this.name = name;
-    this.parent = (BalanceState) RobotStateManager.getInstance().findState("balanceState");
+    this.parent = (BalanceState) RobotStateManager.getInstance().findState("balance");
     imu = IMUSubsystem.getInstance();
   }
 
