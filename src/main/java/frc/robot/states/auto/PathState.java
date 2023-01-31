@@ -42,6 +42,7 @@ public class PathState implements State{
     @Override
     public void Leave() {
         System.out.println("left " + name);
+        DriveSubsystem.getInstance().velocityPID(0, 0);
     }
 
     @Override

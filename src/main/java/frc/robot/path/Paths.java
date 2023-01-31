@@ -34,6 +34,13 @@ public class Paths {
           e.printStackTrace();
         }
         break;
+      case STRAIGHT:
+        try {
+          Object obj = new JSONParser().parse(new FileReader("src/main/java/frc/robot/path/straight.json"));
+          pathArray = (JSONArray) obj;
+        } catch (IOException | ParseException e) {
+          e.printStackTrace();
+        }
     }
     return this;
   }
@@ -46,7 +53,8 @@ public class Paths {
   }
 
   public static enum pathName{
-    BLUE
+    BLUE,
+    STRAIGHT
   }
 
 }
