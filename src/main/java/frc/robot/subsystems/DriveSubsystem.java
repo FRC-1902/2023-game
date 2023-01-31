@@ -36,6 +36,8 @@ public class DriveSubsystem extends SubsystemBase {
     //TODO: check me, meters per count
     leftEncoder.setDistancePerPulse(0.0000584447);
     rightEncoder.setDistancePerPulse(0.0000584447);
+    leftEncoder.setReverseDirection(true);
+    rightEncoder.setReverseDirection(false);
 
     leftMotors = new MotorControllerGroup(leftMotor1, leftMotor2);
     rightMotors = new MotorControllerGroup(rightMotor1, rightMotor2);
@@ -44,7 +46,7 @@ public class DriveSubsystem extends SubsystemBase {
     rightSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, Constants.RIGHT_LOW_DRIVE_SOLENOID, Constants.RIGHT_HIGH_DRIVE_SOLENOID);
 
     //TODO:tune me
-    velocityController = new PIDController(0,0,0);
+    velocityController = new PIDController(0.2,0,0);
   }
 
   @Override
@@ -72,9 +74,10 @@ public class DriveSubsystem extends SubsystemBase {
    * @param angularVelocity m/s of angular change
    */
   public void velocityPID(double velocity, double angularVelocity){
+    System.out.println(leftEncoder.getRate() + " " + rightEncoder.getRate());
     //TODO:test me
     double leftPower = velocityController.calculate(leftEncoder.getRate(), velocity - angularVelocity);
-    double rightPower = velocityController.calculate(leftEncoder.getRate(), velocity + angularVelocity);
+    double rightPower = velocityController.calculate(rightEncoder.getRate(), velocity + angularVelocity);
     tankDrive(leftPower,rightPower);
   }
 
