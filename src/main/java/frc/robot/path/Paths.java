@@ -28,7 +28,7 @@ public class Paths {
     switch(pName){
       case BLUE:
         try {
-          Object obj = new JSONParser().parse(new FileReader("src/main/java/frc/robot/path/Blue.wpilib.json"));
+          Object obj = new JSONParser().parse(new FileReader("java/frc/robot/path/Blue.wpilib.json"));
           pathArray = (JSONArray) obj;
         } catch (IOException | ParseException e) {
           e.printStackTrace();

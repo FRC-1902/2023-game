@@ -2,13 +2,16 @@ package frc.robot.states;
 
 import frc.robot.RobotStateManager;
 import frc.robot.State;
+import frc.robot.subsystems.DriveSubsystem;
 
 public class TestState implements State{
     private String name, parent;
-    
+    private DriveSubsystem ds;
+
     public TestState(String name, String parent){
         this.name = name;
         this.parent = parent;
+        ds = DriveSubsystem.getInstance();
     }
 
     @Override
@@ -33,6 +36,6 @@ public class TestState implements State{
 
     @Override
     public void Periodic(RobotStateManager rs) {
-
+        ds.velocityPID(1, 0);
     }
 }

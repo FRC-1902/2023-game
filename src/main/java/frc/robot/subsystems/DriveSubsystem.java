@@ -18,7 +18,7 @@ public class DriveSubsystem extends SubsystemBase {
   public Encoder leftEncoder, rightEncoder;
   private MotorControllerGroup leftMotors, rightMotors;
   private DoubleSolenoid leftSolenoid, rightSolenoid;
-  private PIDController velocityController;
+  private PIDController highVelocityController, lowVelocityController;
 
   public DriveSubsystem() {
     leftMotor1 = new CANSparkMax(Constants.LEFT_DRIVE_ID_1, MotorType.kBrushless);
@@ -36,6 +36,8 @@ public class DriveSubsystem extends SubsystemBase {
     //TODO: check me, meters per count
     leftEncoder.setDistancePerPulse(0.0000584447);
     rightEncoder.setDistancePerPulse(0.0000584447);
+    leftEncoder.setReverseDirection(true);
+    rightEncoder.setReverseDirection(false);
 
     leftMotors = new MotorControllerGroup(leftMotor1, leftMotor2);
     rightMotors = new MotorControllerGroup(rightMotor1, rightMotor2);
@@ -44,7 +46,8 @@ public class DriveSubsystem extends SubsystemBase {
     rightSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, Constants.RIGHT_LOW_DRIVE_SOLENOID, Constants.RIGHT_HIGH_DRIVE_SOLENOID);
 
     //TODO:tune me
-    velocityController = new PIDController(0,0,0);
+    highVelocityController = new PIDController(0.4,0,0);
+    lowVelocityController = new PIDController(0.5,0,0);
   }
 
   @Override
@@ -72,9 +75,22 @@ public class DriveSubsystem extends SubsystemBase {
    * @param angularVelocity m/s of angular change
    */
   public void velocityPID(double velocity, double angularVelocity){
-    //TODO:test me
-    double leftPower = velocityController.calculate(leftEncoder.getRate(), velocity - angularVelocity);
-    double rightPower = velocityController.calculate(leftEncoder.getRate(), velocity + angularVelocity);
+    double leftPower, rightPower;
+    ShiftState state = getShiftState();
+    
+    switch(state){
+    case HIGH:
+      leftPower = highVelocityController.calculate(leftEncoder.getRate(), velocity - angularVelocity);
+      rightPower = highVelocityController.calculate(rightEncoder.getRate(), velocity + angularVelocity);
+      break;
+    case LOW:
+      leftPower = lowVelocityController.calculate(leftEncoder.getRate(), velocity - angularVelocity);
+      rightPower = lowVelocityController.calculate(rightEncoder.getRate(), velocity + angularVelocity);
+      break;
+    default:
+      throw new AssertionError("Illegal shifting state to drive in: " + state);
+    }
+
     tankDrive(leftPower,rightPower);
   }
 
@@ -82,10 +98,12 @@ public class DriveSubsystem extends SubsystemBase {
     HIGH,LOW,DEPRESSURIZED
   }
 
-  /** shifts drive subystem gearbox
+  /**shifts drive subystem gearbox
    * @param state DoubleSolenoid.Value, kForward or kReverse
    */
   public void shift(ShiftState state) {
+    if(state == getShiftState()){return;}
+
     switch(state){
     case HIGH:
       leftSolenoid.set(DoubleSolenoid.Value.kForward);
@@ -99,6 +117,25 @@ public class DriveSubsystem extends SubsystemBase {
       leftSolenoid.set(DoubleSolenoid.Value.kOff);
       rightSolenoid.set(DoubleSolenoid.Value.kOff);
       break;
+    default:
+      throw new AssertionError("Illegal shifting state: " + state);
+    }
+  }
+
+  /**
+   * @return the current ShiftState of the drivetrain
+   */
+  public ShiftState getShiftState(){
+    DoubleSolenoid.Value currentState = leftSolenoid.get();
+    switch(currentState){
+    case kForward:
+      return ShiftState.HIGH;
+    case kReverse:
+      return ShiftState.LOW;
+    case kOff:
+      return ShiftState.DEPRESSURIZED;
+    default:
+      throw new AssertionError("Illegal current state: " + currentState);
     }
   }
 
