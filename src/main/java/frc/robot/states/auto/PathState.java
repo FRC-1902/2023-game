@@ -17,7 +17,7 @@ import org.json.simple.JSONObject;
 public class PathState implements State{
     private String name, parent;
 
-    double startTimeSeconds = -1.0;
+    double startTimeSeconds;
     
     public PathState(String name, String parent){
         this.name = name;
@@ -36,6 +36,7 @@ public class PathState implements State{
 
     @Override
     public void Enter() {
+        startTimeSeconds = -1.0;
         System.out.println("entered " + name);
     }
 
@@ -47,6 +48,7 @@ public class PathState implements State{
 
     @Override
     public void Periodic(RobotStateManager rs) {
+        
         if(startTimeSeconds<0.0){
             startTimeSeconds = System.currentTimeMillis()/1000.0;
         }
@@ -57,13 +59,15 @@ public class PathState implements State{
 
         double velocity = 0.0;
         double angularVelocity = 0.0;
-        
+        boolean foundTime = false;
         for(int i = 1; i < objects.length; i++){ //this can be optimized by starting at the i value of the last frame
+            
             JSONObject greaterJO = (JSONObject) objects[i];
             
             double greaterPathTime = (double) greaterJO.get("time");
             
             if(greaterPathTime > currentSecondsSinceStart){
+                foundTime = true;
                 JSONObject lesserJO = (JSONObject) objects[i-1];
 
                 double lesserPathTime = (double) lesserJO.get("time");
@@ -93,6 +97,7 @@ public class PathState implements State{
             }
             
         }
+        if(!foundTime) rs.setState("disabled");
         // DriveSubsystem.getInstance().driveByVelocities(velocity, angularVelocity);
     }
 

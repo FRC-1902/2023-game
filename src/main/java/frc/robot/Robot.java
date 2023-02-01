@@ -7,6 +7,7 @@ package frc.robot;
 import java.util.Map;
 
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
@@ -41,7 +42,7 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     compressor = new Compressor(1, PneumaticsModuleType.REVPH);
     compressor.enableDigital();
-    Paths.getInstance().readPathArray(Paths.pathName.BLUE);//TODO: connect autonomouse chooser
+    Paths.getInstance().readPathArray(Paths.pathName.TEST);//TODO: connect autonomouse chooser
     ControllerInstance = Controllers.getInstance();
     driveController = ControllerInstance.driveController;
     manipController = ControllerInstance.manipController;
@@ -142,7 +143,6 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-
   }
 
   @Override

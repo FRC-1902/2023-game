@@ -47,7 +47,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     //TODO:tune me
     highVelocityController = new PIDController(0.4,0,0);
-    lowVelocityController = new PIDController(0.5,0,0);
+    lowVelocityController = new PIDController(0.1,0,0);
   }
 
   @Override
@@ -77,7 +77,12 @@ public class DriveSubsystem extends SubsystemBase {
   public void velocityPID(double velocity, double angularVelocity){
     double leftPower, rightPower;
     ShiftState state = getShiftState();
+
+    velocity *= -1;
+    angularVelocity *= -1;
     
+    System.out.println(velocity);
+
     switch(state){
     case HIGH:
       leftPower = highVelocityController.calculate(leftEncoder.getRate(), velocity - angularVelocity);
