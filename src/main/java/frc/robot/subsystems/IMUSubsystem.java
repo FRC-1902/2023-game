@@ -7,14 +7,14 @@ import frc.robot.sensors.BNO055;
 
 public class IMUSubsystem extends SubsystemBase {
 
-    private static IMUSubsystem instance = new IMUSubsystem();
+    private static IMUSubsystem instance = null;
 
     private final BNO055 bno055 = BNO055.getInstance(BNO055.opmode_t.OPERATION_MODE_IMUPLUS, BNO055.vector_type_t.VECTOR_EULER);
 
     /**
      * @return imu x heading
      */
-    public double getX() {
+    public double getYaw() {
       double[] xyz = bno055.getVector();
       return xyz[0];
     }
@@ -22,7 +22,7 @@ public class IMUSubsystem extends SubsystemBase {
     /**
      * @return imu y heading
      */
-    public double getY(){
+    public double getRoll(){
       double[] xyz = bno055.getVector();
       return xyz[1];
     }
@@ -30,13 +30,13 @@ public class IMUSubsystem extends SubsystemBase {
     /**
      * @return imu z heading
      */
-    public double getZ(){
+    public double getPitch(){
       double[] xyz = bno055.getVector();
       return xyz[2];
     }
 
     /**
-     * @return returns the imu's sensed heading
+     * @return returns the imu's sensed x heading with offsets
      */
     public double getHeading() {
       return bno055.getHeading();
