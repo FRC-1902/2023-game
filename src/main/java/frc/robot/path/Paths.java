@@ -3,10 +3,10 @@ package frc.robot.path;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import org.json.simple.parser.ParseException;
 
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 
 public class Paths {
@@ -30,7 +30,8 @@ public class Paths {
     switch(pName){
       case TEST:
         try {
-          Object obj = new JSONParser().parse(new FileReader("/home/lvuser/deploy/test.json"));
+          //Object obj = new JSONParser().parse(new FileReader("/home/lvuser/deploy/test.json"));
+          Object obj = new JSONParser().parse(new FileReader(new File("/home/lvuser/deploy/pathplanner/generatedJSON/straight1m.parsed.json")));
           pathArray = (JSONArray) obj;
         } catch (IOException | ParseException e) {
           e.printStackTrace();
@@ -38,7 +39,7 @@ public class Paths {
         break;
       case STRAIGHT:
         try {
-          Object obj = new JSONParser().parse(new FileReader(new File("/home/lvuser/deploy/straight.json")));
+          Object obj = new JSONParser().parse(new FileReader(new File("/home/lvuser/deploy/pathplanner/generatedJSON/straight1m.parsed.json")));
           pathArray = (JSONArray) obj;
         } catch (IOException | ParseException e) {
           e.printStackTrace();

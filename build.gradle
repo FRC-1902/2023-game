@@ -1,6 +1,7 @@
 plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2023.1.1"
+    //implementation files("build/libs/json-java.jar")
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
