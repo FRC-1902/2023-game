@@ -34,9 +34,8 @@ public class DriveSubsystem extends SubsystemBase {
 
     leftEncoder = new Encoder(Constants.LEFT_DRIVE_ENCODER_1, Constants.LEFT_DRIVE_ENCODER_2);
     rightEncoder = new Encoder(Constants.RIGHT_DRIVE_ENCODER_1, Constants.RIGHT_DRIVE_ENCODER_2);
-    //TODO: check me, meters per count
-    leftEncoder.setDistancePerPulse(0.0000584447);
-    rightEncoder.setDistancePerPulse(0.0000584447);
+    leftEncoder.setDistancePerPulse(0.0002337788);
+    rightEncoder.setDistancePerPulse(0.0002337788);
     leftEncoder.setReverseDirection(true);
     rightEncoder.setReverseDirection(false);
 
@@ -48,7 +47,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     //TODO:tune me
     highVelocityController = new PIDController(0.5,0,0);
-    lowVelocityController = new PIDController(0.3,0,0);
+    lowVelocityController = new PIDController(0.5,0,0);
   }
 
   @Override
