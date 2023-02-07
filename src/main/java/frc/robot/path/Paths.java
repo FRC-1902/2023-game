@@ -45,6 +45,14 @@ public class Paths {
           e.printStackTrace();
         }
         break;
+      case SQUARE:
+        try {
+          Object obj = new JSONParser().parse(new FileReader(new File("/home/lvuser/deploy/pathplanner/generatedJSON/square2m.parsed.json")));
+          pathArray = (JSONArray) obj;
+        } catch (IOException | ParseException e) {
+          e.printStackTrace();
+        }
+        break;
       case CIRCLE:
         try {
           Object obj = new JSONParser().parse(new FileReader(new File("/home/lvuser/deploy/circle.json")));
@@ -73,7 +81,8 @@ public class Paths {
     BLUE,
     STRAIGHT,
     CIRCLE,
-    TEST
+    TEST,
+    SQUARE
   }
 
 }

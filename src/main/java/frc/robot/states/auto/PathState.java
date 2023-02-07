@@ -7,18 +7,14 @@ import frc.robot.subsystems.DriveSubsystem;
 
 import org.json.simple.JSONObject;
 
-import edu.wpi.first.wpilibj.Encoder;
-
-
-
-
-// import org.json.simple.JSONArray;
-
 
 public class PathState implements State{
     private String name, parent;
 
+    DriveSubsystem driveSubsystem;
+
     double beganAvgDist, beganLeftDist;
+    int currentFrame;
     
     public PathState(String name, String parent){
         this.name = name;
@@ -37,12 +33,13 @@ public class PathState implements State{
 
     @Override
     public void Enter() {
-        DriveSubsystem driveSubsystem = DriveSubsystem.getInstance();
-
         System.out.println("entered " + name);
+
+        driveSubsystem = DriveSubsystem.getInstance();
 
         beganLeftDist = driveSubsystem.leftEncoder.getDistance();
         beganAvgDist = (driveSubsystem.leftEncoder.getDistance() + driveSubsystem.rightEncoder.getDistance())/2;
+        currentFrame = 0;
     }
 
     @Override
@@ -55,70 +52,62 @@ public class PathState implements State{
     public void Periodic(RobotStateManager rs) {
         Object[] objects = Paths.getInstance().getPathArray();
 
-        DriveSubsystem driveSubsystem = DriveSubsystem.getInstance();
-        Encoder leftEncoder = driveSubsystem.leftEncoder, rightEncoder = driveSubsystem.rightEncoder;
+        if(currentFrame >= objects.length){
+            driveSubsystem.velocityPID(0, 0);
+            return;
+        }
 
         double velocity = 0.0;
         double angularVelocity = 0.0;
-        boolean foundStuff = false;
 
-        System.out.format("objects length: %d\n", objects.length);
+        JSONObject greaterJO = (JSONObject) objects[currentFrame + 1];
+        JSONObject lesserJO = (JSONObject) objects[currentFrame];
+        
+        double greaterLeftEncoderDist = (double) greaterJO.get("lMeter");
 
-        for(int i = 1; i < objects.length; i++){ //this can be optimized by starting at the i value of the last frame
-            
-            JSONObject greaterJO = (JSONObject) objects[i];
-            
-            double greaterLeftEncoderDist = (double) greaterJO.get("lMeter");
-            double greaterRightEncoderDist = (double) greaterJO.get("rMeter");
-
-            double greaterAvgEncoderDist = (greaterLeftEncoderDist + greaterRightEncoderDist) / 2;
-
-            double curLeftEncoderDist = leftEncoder.getDistance();
-            double curRightEncoderDist = rightEncoder.getDistance();
-            double curAvgEncoderDist = (curLeftEncoderDist + curRightEncoderDist) / 2;
-            
-            //if(greaterAvgEncoderDist > curAvgEncoderDist - beganAvgDist){
-            if(greaterLeftEncoderDist > curLeftEncoderDist - beganLeftDist){
-                foundStuff = true;
-
-                System.out.format("found thing!\n");
-
-                JSONObject lesserJO = (JSONObject) objects[i-1];
-
-                double lesserPathLeftDist = (double) lesserJO.get("lMeter");
-
-                double percentComplete = (curLeftEncoderDist - lesserPathLeftDist) / (greaterLeftEncoderDist - lesserPathLeftDist);
-                
-                double finalVelocity = ((Number) greaterJO.get("velocity")).doubleValue();
-                double finalAngularVelocity = ((Number) greaterJO.get("angularVelocity")).doubleValue();
-
-                double initialVelocity = ((Number) lesserJO.get("velocity")).doubleValue();
-                double initialAngularVelocity = ((Number) lesserJO.get("angularVelocity")).doubleValue();
-                
-                velocity = lerp(initialVelocity, finalVelocity, percentComplete);
-                angularVelocity = lerp(initialAngularVelocity, finalAngularVelocity, percentComplete);
-
-                driveSubsystem.velocityPID(velocity, angularVelocity);
-
-                // Vector2D currentVelocity = new Vector2D(velocity, 0);
-                //TODO: fixme, error
-                //currentVelocity.rotateBy(BNO055.getInstance(opmode_t.OPERATION_MODE_GYRONLY, ));
-
-                // velocity += getCorrectingPointAdd(new Vector2D(), new Vector2D(), currentVelocity, 0.3);
-
-                System.out.format("Distance (l): %f\tDistance (r): %f\tVelocity: %f\tAngular velocity: %f\n", 
-                    Math.round(greaterLeftEncoderDist * 1000.0) / 1000.0,
-                    Math.round(greaterRightEncoderDist * 1000.0) / 1000.0,
-                    Math.round(velocity * 1000.0) / 1000.0, 
-                    Math.round(angularVelocity* 1000.0) / 1000.0
-                );
-
-                break;
-            }
-            
+        double curLeftEncoderDist = driveSubsystem.leftEncoder.getDistance();
+        
+    //TODO: fixme, what happends when greaterLeftEncoderDist or curLeftEncoderDist are negative
+        if((double) ((JSONObject)objects[objects.length - 1]).get("lMeter") <= curLeftEncoderDist - beganLeftDist){
+            driveSubsystem.velocityPID(0, 0);
+            currentFrame = objects.length;
+            System.out.println("SURPASSED FINAL LENGTH PREMATURELY");
         }
-        if(!foundStuff) rs.setState("disabled");
-        // DriveSubsystem.getInstance().driveByVelocities(velocity, angularVelocity);
+
+        if(greaterLeftEncoderDist > curLeftEncoderDist - beganLeftDist){
+            double lesserPathLeftDist = ((Number)lesserJO.get("lMeter")).doubleValue();
+
+            double percentComplete = (curLeftEncoderDist - lesserPathLeftDist) / (greaterLeftEncoderDist - lesserPathLeftDist);
+            
+            double finalVelocity = ((Number) greaterJO.get("velocity")).doubleValue() /3; //TODO: fixme, testing
+            double finalAngularVelocity = ((Number) greaterJO.get("angularVelocity")).doubleValue();
+
+            double initialVelocity = ((Number) lesserJO.get("velocity")).doubleValue() /3;
+            double initialAngularVelocity = ((Number) lesserJO.get("angularVelocity")).doubleValue();
+            
+            velocity = lerp(initialVelocity, finalVelocity, percentComplete);
+            angularVelocity = lerp(initialAngularVelocity, finalAngularVelocity, percentComplete);
+
+            driveSubsystem.velocityPID(finalVelocity, finalAngularVelocity);
+        }
+
+        //Frame change
+        while(greaterLeftEncoderDist <= driveSubsystem.leftEncoder.getDistance() - beganLeftDist){
+            if(greaterLeftEncoderDist > driveSubsystem.leftEncoder.getDistance() - beganLeftDist){break;}
+            if(currentFrame >= objects.length){return;}
+            currentFrame ++;
+            greaterJO = (JSONObject) objects[currentFrame + 1];
+            greaterLeftEncoderDist = (double) greaterJO.get("lMeter");
+        }
+
+        //debug prints
+        System.out.format("Distance (l): %f\tDistance Traveled (l): %f\tFinal Velocity: %f\tCurrent Frame: %d\tCurrent Rate: %f\n", 
+            Math.round(greaterLeftEncoderDist * 1000.0) / 1000.0,
+            Math.round(curLeftEncoderDist * 1000.0) / 1000.0,
+            Math.round(((Number) greaterJO.get("velocity")).doubleValue() * 1000.0) / 1000.0, 
+            currentFrame,
+            Math.round(driveSubsystem.leftEncoder.getRate() * 1000.0) / 1000.0
+        );
     }
 
     

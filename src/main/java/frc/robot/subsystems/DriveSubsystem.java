@@ -20,6 +20,7 @@ public class DriveSubsystem extends SubsystemBase {
   private DoubleSolenoid leftSolenoid, rightSolenoid;
   private PIDController highVelocityController, lowVelocityController;
   private ShiftState currentShiftState;
+  private final double driveWidth;
 
   public DriveSubsystem() {
     leftMotor1 = new CANSparkMax(Constants.LEFT_DRIVE_ID_1, MotorType.kBrushless);
@@ -36,8 +37,8 @@ public class DriveSubsystem extends SubsystemBase {
     rightEncoder = new Encoder(Constants.RIGHT_DRIVE_ENCODER_1, Constants.RIGHT_DRIVE_ENCODER_2);
     leftEncoder.setDistancePerPulse(0.0002337788);
     rightEncoder.setDistancePerPulse(0.0002337788);
-    leftEncoder.setReverseDirection(true);
-    rightEncoder.setReverseDirection(false);
+    leftEncoder.setReverseDirection(false);
+    rightEncoder.setReverseDirection(true);
 
     leftMotors = new MotorControllerGroup(leftMotor1, leftMotor2);
     rightMotors = new MotorControllerGroup(rightMotor1, rightMotor2);
@@ -46,8 +47,10 @@ public class DriveSubsystem extends SubsystemBase {
     rightSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, Constants.RIGHT_LOW_DRIVE_SOLENOID, Constants.RIGHT_HIGH_DRIVE_SOLENOID);
 
     //TODO:tune me
-    highVelocityController = new PIDController(0.5,0,0);
-    lowVelocityController = new PIDController(0.5,0,0);
+    highVelocityController = new PIDController(0.1,0,0);
+    lowVelocityController = new PIDController(0.1,0,0);
+
+    driveWidth = 0.5461;
   }
 
   @Override
@@ -79,17 +82,21 @@ public class DriveSubsystem extends SubsystemBase {
 
     velocity *= -1;
     angularVelocity *= -1;
+
+    double diffV = (driveWidth * Math.PI)*(1/(2*Math.PI))*angularVelocity;
+    //TODO:Fix angular velocity
+    
     
     System.out.println(leftSolenoid.get());
 
     switch(currentShiftState){
     case HIGH:
-      leftPower = highVelocityController.calculate(leftEncoder.getRate(), velocity - angularVelocity);
-      rightPower = highVelocityController.calculate(rightEncoder.getRate(), velocity + angularVelocity);
+      leftPower = highVelocityController.calculate(leftEncoder.getRate(), velocity - diffV);
+      rightPower = highVelocityController.calculate(rightEncoder.getRate(), velocity + diffV);
       break;
     case LOW:
-      leftPower = lowVelocityController.calculate(leftEncoder.getRate(), velocity - angularVelocity);
-      rightPower = lowVelocityController.calculate(rightEncoder.getRate(), velocity + angularVelocity);
+      leftPower = lowVelocityController.calculate(leftEncoder.getRate(), velocity - diffV);
+      rightPower = lowVelocityController.calculate(rightEncoder.getRate(), velocity + diffV);
       break;
     default:
       throw new AssertionError("Illegal shifting state to drive in: " + currentShiftState);

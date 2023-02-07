@@ -42,7 +42,7 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     compressor = new Compressor(1, PneumaticsModuleType.REVPH);
     compressor.enableDigital();
-    Paths.getInstance().readPathArray(Paths.pathName.TEST);//TODO: connect autonomouse chooser
+    Paths.getInstance().readPathArray(Paths.pathName.STRAIGHT);//TODO: connect autonomouse chooser
     ControllerInstance = Controllers.getInstance();
     driveController = ControllerInstance.driveController;
     manipController = ControllerInstance.manipController;
