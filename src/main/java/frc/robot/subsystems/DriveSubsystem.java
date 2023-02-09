@@ -47,8 +47,8 @@ public class DriveSubsystem extends SubsystemBase {
     rightSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, Constants.RIGHT_LOW_DRIVE_SOLENOID, Constants.RIGHT_HIGH_DRIVE_SOLENOID);
 
     //TODO:tune me
-    highVelocityController = new PIDController(0.1,0,0);
-    lowVelocityController = new PIDController(0.1,0,0);
+    highVelocityController = new PIDController(.25,0,0);
+    lowVelocityController = new PIDController(.05,0,0);
 
     driveWidth = 0.5461;
   }
