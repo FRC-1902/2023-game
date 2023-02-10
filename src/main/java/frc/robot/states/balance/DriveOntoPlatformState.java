@@ -46,6 +46,7 @@ public class DriveOntoPlatformState implements State {
       return;
     }
 
-    parent.calculatedForwardSpeed += 100;
+    // TODO: Tune me!
+    parent.calculatedForwardSpeed += 0.2;
   }
 }

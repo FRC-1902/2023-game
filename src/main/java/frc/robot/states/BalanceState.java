@@ -98,11 +98,11 @@ public class BalanceState implements State {
     yawPID.setI(pidIWidget.getDouble(0));
     yawPID.setD(pidDWidget.getDouble(0));
 
-    System.out.format("Yaw: %3.1f, Pitch: %3.1f\n", currentYaw, imu.getZ());
+    System.out.format("(BalanceState) Yaw: %3.1f, Pitch: %3.1f\n", currentYaw, imu.getZ());
 
-    // TODO: Add a state transition from here to BalanceOnPlatform, using positional data.
-    if (!rs.getCurrentState().equals(this) && Math.abs(currentYaw) < Constants.PLATFORM_BALANCE_YAW_THRESHOLD_DEG)
-      rs.setState("balancePlatform");
+    // Starts to drive onto the platform if it isn't, and it detects we have good yaw.
+    if (rs.getCurrentState().equals(this) && Math.abs(currentYaw) < Constants.PLATFORM_BALANCE_YAW_THRESHOLD_DEG)
+      rs.setState("drivePlatform");
 
     calculatedYawSpeed += yawPID.calculate(currentYaw);
 
