@@ -81,17 +81,17 @@ public class TeleOpState implements frc.robot.State{
       case RELEASED:
         if (RobotController.getFPGATime() - balancedPressedTimestamp > Constants.ENTER_AUTO_DRIVE_BALANCE_THRESHOLD_US) {
           System.out.format(
-            "Balance button depressed for more than %dus, going into `balance` state\n", 
+            "Balance button depressed for more than %dus, going into `drivePlatform` state\n", 
             Constants.ENTER_AUTO_DRIVE_BALANCE_THRESHOLD_US
           );
-          rs.setState("balance");
+          rs.setState("drivePlatform");
         }
         else {
           System.out.format(
-            "Balance button depressed for less than %dus, going into `balancePlatform`\n", 
+            "Balance button depressed for less than %dus, going into `balance`\n", 
             Constants.ENTER_AUTO_DRIVE_BALANCE_THRESHOLD_US
           );
-          rs.setState("balancePlatform");
+          rs.setState("balance");
         }
         return true;
       }
