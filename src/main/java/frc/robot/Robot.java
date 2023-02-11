@@ -42,27 +42,27 @@ public class Robot extends TimedRobot {
   public void initializeShuffleBoardWidgets() {
     ShuffleboardTab dashboardTab = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB);
 
-    ShuffleboardLayout pdpLayout = 
+    ShuffleboardLayout pdhLayout = 
       dashboardTab.getLayout("Power Distribution Panel", BuiltInLayouts.kList);
     ShuffleboardLayout stateMachineLayout = 
       dashboardTab.getLayout("State Machine", BuiltInLayouts.kList);
-
+    /*
     // TODO: Close this lol
-    PowerDistribution pdp = new PowerDistribution(1, ModuleType.kRev);
+    PowerDistribution pdh = new PowerDistribution(0, ModuleType.kRev);
     
-    pdpLayout.addDouble("Battery Voltage", pdp::getVoltage)
+    pdhLayout.addDouble("Battery Voltage", pdh::getVoltage)
       .withWidget(BuiltInWidgets.kGraph)
       .withProperties(Map.of("Unit", "V"));
-    pdpLayout.addDouble("Total Output Current", pdp::getTotalCurrent)
+    pdhLayout.addDouble("Total Output Current", pdh::getTotalCurrent)
       .withWidget(BuiltInWidgets.kGraph)
       .withProperties(Map.of("Unit", "A"));
-    pdpLayout.addDouble("Total Output Power", pdp::getTotalPower)
+    pdhLayout.addDouble("Total Output Power", pdh::getTotalPower)
       .withWidget(BuiltInWidgets.kGraph)
       .withProperties(Map.of("Unit", "W"));
-    pdpLayout.addDouble("PDP Temperature", pdp::getTemperature)
+    pdhLayout.addDouble("PDH Temperature", pdh::getTemperature)
       .withWidget(BuiltInWidgets.kGraph)
       .withProperties(Map.of("Unit", "deg C"));
-
+    */
     stateMachineLayout.addString("Current State", () -> {
       State currState = rs.getCurrentState();
 

@@ -50,53 +50,60 @@ public class TeleOpState implements frc.robot.State{
 
   @Override
   public boolean handleEvent(Event event, RobotStateManager rs) {
-    switch(event.button){
-  //Shift low
-    case RB:
-      switch(event.action){
-      case PRESSED:
-        System.out.println("Shifted LOW");
-        driveSub.shift(ShiftState.LOW);
-        return true;
-      default:
-        break;
-      }
-  //Shift high
-    case LB:
-      switch(event.action){
-      case PRESSED:
-        System.out.println("Shifted HIGH");
-        driveSub.shift(ShiftState.HIGH);
-        return true;
-      default:
+    switch(event.controllerName){
+  //Drive Controller
+      case DRIVE:
+        switch(event.button){
+      //Shift low
+        case RB:
+          switch(event.action){
+          case PRESSED:
+            System.out.println("Shifted LOW");
+            driveSub.shift(ShiftState.LOW);
+            return true;
+          default: break;
+          }
           break;
+      //Shift high
+        case LB:
+          switch(event.action){
+          case PRESSED:
+            System.out.println("Shifted HIGH");
+            driveSub.shift(ShiftState.HIGH);
+            return true;
+          default: break;
+          }
+          break;
+      // Goes to the balance state
+        case Y:
+          switch(event.action) {
+          case PRESSED:
+            System.out.println("Balance button depressed, waiting for release...");
+            balancedPressedTimestamp = RobotController.getFPGATime();
+            return true;
+          case RELEASED:
+            if (RobotController.getFPGATime() - balancedPressedTimestamp > Constants.ENTER_AUTO_DRIVE_BALANCE_THRESHOLD_US) {
+              System.out.format(
+                "Balance button depressed for more than %dus, going into `drivePlatform` state\n", 
+                Constants.ENTER_AUTO_DRIVE_BALANCE_THRESHOLD_US
+              );
+              rs.setState("drivePlatform");
+            }
+            else {
+              System.out.format(
+                "Balance button depressed for less than %dus, going into `balance`\n", 
+                Constants.ENTER_AUTO_DRIVE_BALANCE_THRESHOLD_US
+              );
+              rs.setState("balance");
+            }
+            return true;
+          }
+        default: break;
       }
-  // Goes to the balance state
-    case Y:
-      switch(event.action) {
-      case PRESSED:
-        System.out.println("Balance button depressed, waiting for release...");
-        balancedPressedTimestamp = RobotController.getFPGATime();
-        return true;
-      case RELEASED:
-        if (RobotController.getFPGATime() - balancedPressedTimestamp > Constants.ENTER_AUTO_DRIVE_BALANCE_THRESHOLD_US) {
-          System.out.format(
-            "Balance button depressed for more than %dus, going into `drivePlatform` state\n", 
-            Constants.ENTER_AUTO_DRIVE_BALANCE_THRESHOLD_US
-          );
-          rs.setState("drivePlatform");
-        }
-        else {
-          System.out.format(
-            "Balance button depressed for less than %dus, going into `balance`\n", 
-            Constants.ENTER_AUTO_DRIVE_BALANCE_THRESHOLD_US
-          );
-          rs.setState("balance");
-        }
-        return true;
-      }
-    default:
-      return false;
+  //Manip Controller
+      case MANIP:
+      default: break;
     }
+    return false;
   }
 }
