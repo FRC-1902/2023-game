@@ -45,7 +45,9 @@ public class TeleOpState implements frc.robot.State{
 
   @Override
   public void Periodic(RobotStateManager rs) {
-    driveSub.arcadeDrive(controllers.get(ControllerName.DRIVE, Axis.LY), controllers.get(ControllerName.DRIVE, Axis.RX));
+    double xSpeed = controllers.get(ControllerName.DRIVE, Axis.LY) * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/2.0);
+    double zRotation = controllers.get(ControllerName.DRIVE, Axis.RX) * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/2.0);
+    driveSub.arcadeDrive(xSpeed,zRotation);
   }
 
   @Override
