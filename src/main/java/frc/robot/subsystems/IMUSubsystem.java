@@ -22,7 +22,7 @@ public class IMUSubsystem extends SubsystemBase {
         .getLayout("BNO055 Telemetry", BuiltInLayouts.kList)
         .withSize(4, 4);
 
-      dashboardTab.addDouble("BNO055 Yaw", () -> getX())
+      dashboardTab.addDouble("BNO055 Yaw", () -> getX() - 180)
         .withProperties(Map.of("Min", -180, "Max", 180))
         .withWidget(BuiltInWidgets.kNumberBar);
 
@@ -31,7 +31,7 @@ public class IMUSubsystem extends SubsystemBase {
         .withWidget(BuiltInWidgets.kNumberBar);
 
       dashboardTab.addDouble("BNO055 Pitch", () -> getZ())
-        .withProperties(Map.of("Min", 0, "Max", 360))
+        .withProperties(Map.of("Min", -180, "Max", 180))
         .withWidget(BuiltInWidgets.kNumberBar);
     }
 
@@ -56,7 +56,8 @@ public class IMUSubsystem extends SubsystemBase {
      */
     public double getZ(){
       double[] xyz = bno055.getVector();
-      return xyz[2];
+      // TODO: Remove the `3`, this was only used for testing because the brassboard was at a slant.
+      return xyz[2] + 3;
     }
 
     /**

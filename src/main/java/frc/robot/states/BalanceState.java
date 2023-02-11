@@ -10,7 +10,9 @@ import frc.robot.Constants;
 import frc.robot.Event;
 import frc.robot.RobotStateManager;
 import frc.robot.State;
+import frc.robot.Controllers.Action;
 import frc.robot.Controllers.Button;
+import frc.robot.Controllers.ControllerName;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.HeaderWrapper;
 import frc.robot.subsystems.IMUSubsystem;
@@ -40,8 +42,6 @@ public class BalanceState implements State {
     compass = new HeaderWrapper(0);
     drive = DriveSubsystem.getInstance();
 
-    yawPID = new PIDController(0, 0, 0);
-
     ShuffleboardLayout pidTuningTab = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)
       .getLayout("Balance Yaw PID", BuiltInLayouts.kList)
       .withSize(2, 3);
@@ -55,6 +55,9 @@ public class BalanceState implements State {
     pidDWidget = pidTuningTab
       .add("Balance Yaw PID - Derivative", 0.0)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
+
+    yawPID = new PIDController(0, 0, 0);
+
   }
 
   @Override
@@ -94,9 +97,9 @@ public class BalanceState implements State {
   public void Periodic(RobotStateManager rs) {
     double currentYaw = compass.getHeading();
 
-    yawPID.setP(pidPWidget.getDouble(0));
-    yawPID.setI(pidIWidget.getDouble(0));
-    yawPID.setD(pidDWidget.getDouble(0));
+    yawPID.setP(pidPWidget.getDouble(0)/10);
+    yawPID.setI(pidIWidget.getDouble(0)/10);
+    yawPID.setD(pidDWidget.getDouble(0)/10);
 
     System.out.format("(BalanceState) Yaw: %3.1f, Pitch: %3.1f\n", currentYaw, imu.getZ());
 
@@ -107,13 +110,14 @@ public class BalanceState implements State {
     calculatedYawSpeed += yawPID.calculate(currentYaw);
 
     drive.arcadeDrive(calculatedForwardSpeed, calculatedYawSpeed);
+    drive.shift(DriveSubsystem.ShiftState.LOW);
     
     calculatedForwardSpeed = 0;
     calculatedYawSpeed = 0;
   }
 
   public boolean handleEvent(Event event, RobotStateManager rs) {
-    if (event.button == Button.A) {
+    if (event.controllerName == ControllerName.DRIVE && event.button == Button.Y && event.action == Action.RELEASED) {
       rs.setState(enteredFromState.getName());
       return true;
     }

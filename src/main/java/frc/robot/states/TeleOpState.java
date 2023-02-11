@@ -79,6 +79,7 @@ public class TeleOpState implements frc.robot.State{
       // Goes to the balance state
         case Y:
           switch(event.action) {
+          /*
           case PRESSED:
             System.out.println("Balance button depressed, waiting for release...");
             balancedPressedTimestamp = RobotController.getFPGATime();
@@ -86,19 +87,24 @@ public class TeleOpState implements frc.robot.State{
           case RELEASED:
             if (RobotController.getFPGATime() - balancedPressedTimestamp > Constants.ENTER_AUTO_DRIVE_BALANCE_THRESHOLD_US) {
               System.out.format(
-                "Balance button depressed for more than %dus, going into `drivePlatform` state\n", 
-                Constants.ENTER_AUTO_DRIVE_BALANCE_THRESHOLD_US
-              );
-              rs.setState("drivePlatform");
-            }
-            else {
-              System.out.format(
-                "Balance button depressed for less than %dus, going into `balance`\n", 
+                "Balance button depressed for more than %dus, going into `balance` state\n", 
                 Constants.ENTER_AUTO_DRIVE_BALANCE_THRESHOLD_US
               );
               rs.setState("balance");
             }
+            else {
+              System.out.format(
+                "Balance button depressed for less than %dus, going into `balancePlatform`\n", 
+                Constants.ENTER_AUTO_DRIVE_BALANCE_THRESHOLD_US
+              );
+              rs.setState("balancePlatform");
+            }
             return true;
+          */
+          case PRESSED:
+            rs.setState("balancePlatform");
+            return true;
+          default: break;
           }
         default: break;
       }

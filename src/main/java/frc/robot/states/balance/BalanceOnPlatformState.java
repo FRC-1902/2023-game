@@ -1,12 +1,17 @@
 package frc.robot.states.balance;
 
+import java.util.Map;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.util.concurrent.Event;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.RobotStateManager;
 import frc.robot.State;
 import frc.robot.states.BalanceState;
@@ -38,6 +43,7 @@ public class BalanceOnPlatformState implements State {
     pidDWidget = pidTuningTab
       .add("Balance On Platform PID - Derivative", 0.0)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
+      //.withProperties(Map.of("Min", -0.15, "Max", 0.15))
 
     imu = IMUSubsystem.getInstance();
     pitchPID = new PIDController(0, 0, 0);
@@ -65,10 +71,13 @@ public class BalanceOnPlatformState implements State {
 
   @Override
   public void Periodic(RobotStateManager rs) {
-    pitchPID.setP(pidPWidget.getDouble(0));
-    pitchPID.setI(pidIWidget.getDouble(0));
-    pitchPID.setD(pidDWidget.getDouble(0));
+    // NOTE: These are all divided by 10 from the values displayed in shuffleboard. This is just in order to get more precision.
+    pitchPID.setP(pidPWidget.getDouble(0)/10);
+    pitchPID.setI(pidIWidget.getDouble(0)/10);
+    pitchPID.setD(pidDWidget.getDouble(0)/10);
 
     parent.calculatedForwardSpeed += pitchPID.calculate(imu.getZ(), 0);
+
+    System.out.format("(BalanceOnPlatform) Current forward speed %f\n", parent.calculatedForwardSpeed);
   }
 }
