@@ -2,7 +2,7 @@ package frc.robot.subsystems;
 
 public class HeaderWrapper {
   private IMUSubsystem wrappedSensor;
-  private double offset;
+  private double offset, turnOffset;
 
   public HeaderWrapper() {
     this(0);
@@ -10,11 +10,12 @@ public class HeaderWrapper {
 
   public HeaderWrapper(double offset) {
     wrappedSensor = IMUSubsystem.getInstance();
+    turnOffset = wrappedSensor.getTurns() * 360;
     this.offset = offset;
   }
 
   public double getHeading() {
-    return wrappedSensor.getHeading() + offset;
+    return wrappedSensor.getHeading() - offset - turnOffset;
   }
 
   public void setHeadingOffset(double offset) {

@@ -56,15 +56,22 @@ public class IMUSubsystem extends SubsystemBase {
      */
     public double getZ(){
       double[] xyz = bno055.getVector();
-      // TODO: Remove the `3`, this was only used for testing because the brassboard was at a slant.
+      // TODO: Remove the `+ 3`; this was only used for testing because the brassboard was at a slant.
       return xyz[2] + 3;
     }
 
     /**
-     * @return returns the imu's sensed heading
+     * @return the imu's sensed heading
      */
     public double getHeading() {
       return bno055.getHeading();
+    }
+    
+    /**
+     * @return the signed sum of the amount of full rotations the BNO has taken
+     */
+    public long getTurns() {
+      return bno055.getTurns();
     }
     
     /**

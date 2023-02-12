@@ -768,6 +768,13 @@ public class BNO055 {
 	public double[] getVector() {
 		return xyz;
 	}
+
+	/**
+	 * @return the signed sum of the number of rotations the BNO has completed
+	 */
+	public long getTurns() {
+		return turns;
+	}
 	
 	/**
 	 * The heading of the sensor (x axis) in continuous format. Eg rotating the

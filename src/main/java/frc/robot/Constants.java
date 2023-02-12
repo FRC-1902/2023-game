@@ -26,7 +26,7 @@ public final class Constants {
   public static final double PLATFORM_BALANCE_YAW_THRESHOLD_DEG = 5;
   public static final double PLATFORM_BALANCE_PITCH_THRESHOLD_DEG = 10;
   public static final double PLATFORM_YAW_DEG = 10;
-  public static final long ENTER_AUTO_DRIVE_BALANCE_THRESHOLD_US = 1000000;
+  public static final double PLATFORM_DRIVE_PLATFORM_YAW_DELTA = 5;
 
   //REVPH Solenoid Chanels
   public static final int LEFT_LOW_DRIVE_SOLENOID = 0;

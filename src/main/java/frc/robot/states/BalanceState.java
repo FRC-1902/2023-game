@@ -96,12 +96,21 @@ public class BalanceState implements State {
   @Override
   public void Periodic(RobotStateManager rs) {
     double currentYaw = compass.getHeading();
+    State currentState = rs.getCurrentState();
 
     yawPID.setP(pidPWidget.getDouble(0)/10);
     yawPID.setI(pidIWidget.getDouble(0)/10);
     yawPID.setD(pidDWidget.getDouble(0)/10);
 
     System.out.format("(BalanceState) Yaw: %3.1f, Pitch: %3.1f\n", currentYaw, imu.getZ());
+
+    // This changes the setpoint of the PID to reorientate itself at a slight offset, but only if it's currently
+    // driving/about to drive onto the platform. This is neccessary because the robot cannot go onto the platform
+    // unless it's at a slight angle (;-;).
+    if (currentState.equals(this) || currentState.getName() == "drivePlatform")
+      yawPID.setSetpoint(Constants.PLATFORM_DRIVE_PLATFORM_YAW_DELTA * Math.signum(compass.getHeading()));
+    else
+      yawPID.setSetpoint(0);
 
     // Starts to drive onto the platform if it isn't, and it detects we have good yaw.
     if (rs.getCurrentState().equals(this) && Math.abs(currentYaw) < Constants.PLATFORM_BALANCE_YAW_THRESHOLD_DEG)
