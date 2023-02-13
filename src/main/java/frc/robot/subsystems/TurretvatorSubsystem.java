@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -27,6 +30,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
   MotorControllerGroup elevatorMotors;
   DutyCycleEncoder elevatorLeftEncoder, elevatorRightEncoder, turretEncoder;
   PIDController elevatorPID, turretPID;
+  Logger logger;
 
   public TurretvatorSubsystem() {
     elevatorLeft = new CANSparkMax(Constants.LEFT_ELEVATOR_ID, MotorType.kBrushless);
@@ -41,6 +45,8 @@ public class TurretvatorSubsystem extends SubsystemBase {
     turretEncoder = new DutyCycleEncoder(Constants.TURRET_ENCODER);
     //TODO: Tune me
     turretPID = new PIDController(0, 0, 0);
+
+    logger = Logger.getLogger("frc.robot.subsystems");
   }
 
   /**Call in loop to center turret
@@ -58,7 +64,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
   public void turretSet(double degrees){
     //TODO: test me
     if(Math.abs(degrees) > turretMaxAngle){
-      System.out.println("Degree put into TurretvatorSubsystem.turretSet too large!");
+      logger.severe("Degree put into TurretvatorSubsystem.turretSet too large!");
       return;
     }
     int setAngle = (int)(degrees / 360 * throughboreCPR) + turretEncoderCenter;

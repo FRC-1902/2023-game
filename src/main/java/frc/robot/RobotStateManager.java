@@ -3,15 +3,18 @@ package frc.robot;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class RobotStateManager{
     private State currentState;
     private State targetState;
     private Map<String, State> stateMap= new HashMap<String, State>();
+    private Logger logger;
     private static RobotStateManager instance = null;
   
     public RobotStateManager(){
       currentState = null;
+      logger = Logger.getLogger("frc.robot");
     }
     
     /**
@@ -92,6 +95,7 @@ public class RobotStateManager{
     private void leaveTo(State child, State ancestor){
       while(true){
         if(child == null || child == ancestor) break;
+        logger.info(String.format("Leaving state `%s`...", child.getName()));
         child.Leave();
         if(stateMap.get(child.getParent())==ancestor)break;
         child = stateMap.get(child.getParent());
@@ -106,6 +110,7 @@ public class RobotStateManager{
         child = stateMap.get(child.getParent());
       }
       for(State s:lineage){
+        logger.info(String.format("Entering state `%s`...", s.getName()));
         s.Enter();
       }
     }

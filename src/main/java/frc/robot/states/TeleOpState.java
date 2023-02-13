@@ -33,12 +33,12 @@ public class TeleOpState implements frc.robot.State{
 
   @Override
   public void Enter() {
-    System.out.println("entered " + name);
+    
   }
 
   @Override
   public void Leave() {
-    System.out.println("left " + name);
+    
   }
 
   @Override
@@ -53,7 +53,6 @@ public class TeleOpState implements frc.robot.State{
     case RB:
       switch(event.action){
       case PRESSED:
-        System.out.println("Shifted LOW");
         driveSub.shift(ShiftState.LOW);
         return true;
       default:
@@ -63,7 +62,6 @@ public class TeleOpState implements frc.robot.State{
     case LB:
       switch(event.action){
       case PRESSED:
-        System.out.println("Shifted HIGH");
         driveSub.shift(ShiftState.HIGH);
         return true;
       default:

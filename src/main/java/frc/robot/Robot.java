@@ -5,6 +5,9 @@
 package frc.robot;
 
 import java.util.Map;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -29,6 +32,17 @@ public class Robot extends TimedRobot {
   private XboxController driveController;
   private XboxController manipController;
   private Compressor compressor;
+
+  public void initializeLogger() {
+    // Gets rid of the default console handler so that we can give it our own.
+    LogManager.getLogManager().reset();
+
+    Logger globalLogger = Logger.getLogger("");
+    ConsoleHandler consoleHandler = new ConsoleHandler();
+
+    consoleHandler.setFormatter(new LoggerFormatter());
+    globalLogger.addHandler(consoleHandler);
+  }
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -56,6 +70,9 @@ public class Robot extends TimedRobot {
       new PathState("path", "auto"),
       new TurretState("turret", "path"),
       new TestState("test", null));
+
+    initializeLogger();
+
     rs.startRobot("disabled");
     //m_robotContainer = new RobotContainer();
   }

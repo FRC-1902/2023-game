@@ -1,6 +1,5 @@
 package frc.robot.states;
 
-import frc.robot.Event;
 import frc.robot.RobotStateManager;
 import frc.robot.State;
 
@@ -24,12 +23,12 @@ public class AutoState implements State{
 
     @Override
     public void Enter() {
-        System.out.println("entered " + name);
+        
     }
 
     @Override
     public void Leave() {
-        System.out.println("left " + name);
+        
     }
 
     @Override

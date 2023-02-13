@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.logging.Logger;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -17,6 +19,7 @@ public class DriveSubsystem extends SubsystemBase {
   public Encoder leftEncoder, rightEncoder;
   private MotorControllerGroup leftMotors, rightMotors;
   private DoubleSolenoid leftSolenoid, rightSolenoid;
+  private Logger logger;
 
   public DriveSubsystem() {
     leftMotor1 = new CANSparkMax(Constants.LEFT_DRIVE_ID_1, MotorType.kBrushless);
@@ -37,6 +40,8 @@ public class DriveSubsystem extends SubsystemBase {
     
     leftSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, Constants.LEFT_LOW_DRIVE_SOLENOID, Constants.LEFT_HIGH_DRIVE_SOLENOID);
     rightSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, Constants.RIGHT_LOW_DRIVE_SOLENOID, Constants.RIGHT_HIGH_DRIVE_SOLENOID);
+
+    logger = Logger.getLogger("frc.robot.subsystems");
   }
 
   @Override
@@ -66,6 +71,8 @@ public class DriveSubsystem extends SubsystemBase {
    * @param state DoubleSolenoid.Value, kForward or kReverse
    */
   public void shift(ShiftState state) {
+    logger.info(String.format("Shifting to state `%s`", state));
+
     switch(state){
     case HIGH:
       leftSolenoid.set(DoubleSolenoid.Value.kForward);
