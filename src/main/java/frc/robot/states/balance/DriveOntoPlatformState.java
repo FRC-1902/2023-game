@@ -41,7 +41,7 @@ public class DriveOntoPlatformState implements State {
   @Override
   public void Periodic(RobotStateManager rs) {
     // Initiate state transition to BalanceOnPlatform, since it detects that we're now on it.
-    if (imu.getZ() > Constants.PLATFORM_BALANCE_PITCH_THRESHOLD_DEG) {
+    if (Math.abs(imu.getHeading()) > Constants.PLATFORM_BALANCE_PITCH_THRESHOLD_DEG) {
       rs.setState("balancePlatform");
       return;
     }

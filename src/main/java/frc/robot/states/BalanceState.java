@@ -80,7 +80,7 @@ public class BalanceState implements State {
 
     desiredYaw = Constants.PLATFORM_YAW_DEG;
     // Checks whether or not the robot is coming from the back of the platform.
-    if (Math.abs(imu.getX() - Constants.PLATFORM_YAW_DEG) > 180)
+    if (Math.abs(imu.getHeading() - Constants.PLATFORM_YAW_DEG) > 180)
         desiredYaw = (desiredYaw + 180) % 360;
 
     compass.setHeadingOffset(desiredYaw);
@@ -102,7 +102,7 @@ public class BalanceState implements State {
     yawPID.setI(pidIWidget.getDouble(0)/10);
     yawPID.setD(pidDWidget.getDouble(0)/10);
 
-    System.out.format("(BalanceState) Yaw: %3.1f, Pitch: %3.1f\n", currentYaw, imu.getZ());
+    System.out.format("(BalanceState) Yaw: %3.1f, Pitch: %3.1f\n", currentYaw, imu.getPitch());
 
     // This changes the setpoint of the PID to reorientate itself at a slight offset, but only if it's currently
     // driving/about to drive onto the platform. This is neccessary because the robot cannot go onto the platform

@@ -35,7 +35,7 @@ public class BalanceOnPlatformState implements State {
       .withSize(2, 3);
     
     pidPWidget = pidTuningTab
-      .add("Balance On Platform PID - Proportional", 0.0)
+      .add("Balance On Platform PID - Proportional", 0.1)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
     pidIWidget = pidTuningTab
       .add("Balance On Platform PID - Integral", 0.0)
@@ -75,8 +75,9 @@ public class BalanceOnPlatformState implements State {
     pitchPID.setP(pidPWidget.getDouble(0)/10);
     pitchPID.setI(pidIWidget.getDouble(0)/10);
     pitchPID.setD(pidDWidget.getDouble(0)/10);
-
-    parent.calculatedForwardSpeed += pitchPID.calculate(imu.getZ(), 0);
+    if(Math.abs(imu.getPitch()) > Constants.PLATFORM_BALANCE_PITCH_THRESHOLD_DEG){
+      parent.calculatedForwardSpeed += pitchPID.calculate(imu.getPitch(), 0);
+    }
 
     System.out.format("(BalanceOnPlatform) Current forward speed %f\n", parent.calculatedForwardSpeed);
   }
