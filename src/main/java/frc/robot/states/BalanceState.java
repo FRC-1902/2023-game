@@ -7,15 +7,14 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import frc.robot.Constants;
-import frc.robot.Event;
-import frc.robot.RobotStateManager;
-import frc.robot.State;
 import frc.robot.Controllers.Action;
 import frc.robot.Controllers.Button;
 import frc.robot.Controllers.ControllerName;
+import frc.robot.Event;
+import frc.robot.RobotStateManager;
+import frc.robot.State;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.HeaderWrapper;
-import frc.robot.subsystems.IMUSubsystem;
 
 public class BalanceState implements State {
   private String name, parent;
@@ -23,14 +22,11 @@ public class BalanceState implements State {
   private DriveSubsystem drive;
 
   private PIDController yawPID;
-  private IMUSubsystem imu;
   private HeaderWrapper compass;
   private State enteredFromState;
 
   private double desiredYaw;
 
-  // Child states are supposed to modify these, so Periodic() can set the appropriate speed
-  // without things getting all messed up.
   public double calculatedForwardSpeed, calculatedYawSpeed;
 
   private GenericEntry pidPWidget, pidIWidget, pidDWidget;
@@ -38,7 +34,6 @@ public class BalanceState implements State {
   public BalanceState(String name, String parent){
     this.name = name;
     this.parent = parent;
-    imu = IMUSubsystem.getInstance();
     compass = new HeaderWrapper(0);
     drive = DriveSubsystem.getInstance();
 
@@ -46,8 +41,9 @@ public class BalanceState implements State {
       .getLayout("Balance Yaw PID", BuiltInLayouts.kList)
       .withSize(2, 3);
     
+    //TODO: tune me once robot is built
     pidPWidget = pidTuningTab
-      .add("Balance Yaw PID - Proportional", 0.0)
+      .add("Balance Yaw PID - Proportional", 0.1)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
     pidIWidget = pidTuningTab
       .add("Balance Yaw PID - Integral", 0.0)
@@ -79,11 +75,8 @@ public class BalanceState implements State {
     System.out.println("entered" + name);
 
     desiredYaw = Constants.PLATFORM_YAW_DEG;
-    // Checks whether or not the robot is coming from the back of the platform.
-    if (Math.abs(imu.getHeading() - Constants.PLATFORM_YAW_DEG) > 180)
-        desiredYaw = (desiredYaw + 180) % 360;
 
-    compass.setHeadingOffset(desiredYaw);
+    compass.setHeadingOffset(compass.getHeadingOffset() + desiredYaw);
 
     enteredFromState = enteredFrom;
   }
@@ -95,28 +88,28 @@ public class BalanceState implements State {
 
   @Override
   public void Periodic(RobotStateManager rs) {
+    double headingTarget;
     double currentYaw = compass.getHeading();
-    State currentState = rs.getCurrentState();
 
     yawPID.setP(pidPWidget.getDouble(0)/10);
     yawPID.setI(pidIWidget.getDouble(0)/10);
     yawPID.setD(pidDWidget.getDouble(0)/10);
 
-    System.out.format("(BalanceState) Yaw: %3.1f, Pitch: %3.1f\n", currentYaw, imu.getPitch());
+    
+    if(currentYaw > 270){
+      currentYaw -= 360;
+    }
 
-    // This changes the setpoint of the PID to reorientate itself at a slight offset, but only if it's currently
-    // driving/about to drive onto the platform. This is neccessary because the robot cannot go onto the platform
-    // unless it's at a slight angle (;-;).
-    if (currentState.equals(this) || currentState.getName() == "drivePlatform")
-      yawPID.setSetpoint(Constants.PLATFORM_DRIVE_PLATFORM_YAW_DELTA * Math.signum(compass.getHeading()));
-    else
-      yawPID.setSetpoint(0);
+    if(currentYaw < 270 && currentYaw > 90){
+      headingTarget = 180;
+    }else{
+      headingTarget = 0;
+    }
 
-    // Starts to drive onto the platform if it isn't, and it detects we have good yaw.
-    if (rs.getCurrentState().equals(this) && Math.abs(currentYaw) < Constants.PLATFORM_BALANCE_YAW_THRESHOLD_DEG)
-      rs.setState("drivePlatform");
+    yawPID.setSetpoint(headingTarget);
+    calculatedYawSpeed = yawPID.calculate(currentYaw);
 
-    calculatedYawSpeed += yawPID.calculate(currentYaw);
+    System.out.format("(BalanceState) Yaw: %3.1f, YawSpeed: %3.1f, Setpoint: %3.1f\n", currentYaw, calculatedYawSpeed, yawPID.getSetpoint());
 
     drive.arcadeDrive(calculatedForwardSpeed, calculatedYawSpeed);
     drive.shift(DriveSubsystem.ShiftState.LOW);

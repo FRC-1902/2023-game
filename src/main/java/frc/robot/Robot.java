@@ -8,18 +8,14 @@ import java.util.Map;
 
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.states.*;
 import frc.robot.states.auto.*;
-import frc.robot.states.balance.DriveOntoPlatformState;
 import frc.robot.states.balance.BalanceOnPlatformState;
 import frc.robot.states.teleOp.*;
 import frc.robot.Controllers.*;
@@ -102,7 +98,6 @@ public class Robot extends TimedRobot {
 
     // We have to initialize these last, because they depend on getting their.
     rs.addStates(
-      new DriveOntoPlatformState("drivePlatform", "balance"),
       new BalanceOnPlatformState("balancePlatform", "balance")
     );
 
