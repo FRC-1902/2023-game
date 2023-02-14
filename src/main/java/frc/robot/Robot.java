@@ -4,18 +4,28 @@
 
 package frc.robot;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Map;
 import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.states.*;
 import frc.robot.states.auto.*;
 import frc.robot.states.teleOp.*;
+import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.DriveSubsystem.ShiftState;
 import frc.robot.Controllers.*;
 
 /**
@@ -33,15 +43,51 @@ public class Robot extends TimedRobot {
   private XboxController manipController;
   private Compressor compressor;
 
+  // TODO: Add compression to the log files and also make it so that it doesn't nuke the previous boot's log files.
   public void initializeLogger() {
+    LogManager logManager = LogManager.getLogManager();
+    ConsoleHandler consoleHandler;
+    Logger globalLogger;
+    
     // Gets rid of the default console handler so that we can give it our own.
-    LogManager.getLogManager().reset();
+    logManager.reset();
 
-    Logger globalLogger = Logger.getLogger("");
-    ConsoleHandler consoleHandler = new ConsoleHandler();
+    globalLogger = Logger.getLogger("");
+    
+    // Reads the log configuration in `{DEPLOY}/logger_config.txt` into the system configuration.
+    try {
+      FileInputStream configStream = new FileInputStream(new File(Filesystem.getDeployDirectory(), "logger_config.txt"));
+      logManager.readConfiguration(configStream);
+      configStream.close();
+    } catch (IOException e) {
+      // Here we can't use our logger since we removed the ConsoleHandler from it, so it'll just print into the void.
+      System.out.println("Failed to initialize configuration for log manager! Falling back to defaults...");
+      System.out.println("\n==== BEGIN ERROR MESSAGE ====");
+      e.printStackTrace();
+      System.out.println("==== END ERROR MESSAGE ====\n");
+    }
 
-    consoleHandler.setFormatter(new LoggerFormatter());
+    // This has to be set after the logger's configuration is loaded for reasons
+    globalLogger.setLevel(Level.ALL);
+
+    // Initializes the handler which logs to the console
+    consoleHandler = new ConsoleHandler();
     globalLogger.addHandler(consoleHandler);
+
+    // Initializes the handler which logs to the file system
+    try {
+      FileHandler fileHandler;
+      String logDir = Filesystem.getOperatingDirectory().toPath().resolve(Constants.LOG_DIRECTORY_NAME).toString();
+
+      // Creates the directory that we put the logs into :p
+      new File(logDir).mkdirs();
+
+      // Actually initializes the handler
+      fileHandler = new FileHandler(logDir + "/rio%g-%u.log");
+      globalLogger.addHandler(fileHandler);
+    } catch(IOException e) {
+      globalLogger.log(Level.SEVERE, e, () -> "Failed to initialize FileHandler logging facility!");
+    }
   }
 
   /**
@@ -50,6 +96,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    initializeLogger();
+
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     compressor = new Compressor(1, PneumaticsModuleType.REVPH);
@@ -70,8 +118,6 @@ public class Robot extends TimedRobot {
       new PathState("path", "auto"),
       new TurretState("turret", "path"),
       new TestState("test", null));
-
-    initializeLogger();
 
     rs.startRobot("disabled");
     //m_robotContainer = new RobotContainer();

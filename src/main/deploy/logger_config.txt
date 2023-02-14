@@ -1,0 +1,11 @@
+// FileHandler
+java.util.logging.FileHandler.level=ALL
+java.util.logging.FileHandler.formatter=frc.robot.LoggerFormatter
+
+// 4 MiB per file, for a total of 32MiB with 8 files.
+java.util.logging.FileHandler.limit=4194304
+java.util.logging.FileHandler.count=8
+
+// Console Handler
+java.util.logging.ConsoleHandler.level=FINE
+java.util.logging.ConsoleHandler.formatter=frc.robot.LoggerFormatter

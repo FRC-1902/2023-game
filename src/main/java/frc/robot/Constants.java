@@ -36,4 +36,7 @@ public final class Constants {
   public static final int TURRET_ENCODER = 4;
   public static final int LEFT_ELEVATOR_ENCODER = 5;
   public static final int RIGHT_ELEVATOR_ENCODER = 6;
+
+  // Logging thingys
+  public static final String LOG_DIRECTORY_NAME = "logs/";
 }
