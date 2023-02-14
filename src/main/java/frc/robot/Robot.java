@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import java.util.Map;
-
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -18,8 +16,6 @@ import frc.robot.states.*;
 import frc.robot.states.auto.*;
 import frc.robot.states.balance.BalanceOnPlatformState;
 import frc.robot.states.teleOp.*;
-import frc.robot.Controllers.*;
-
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -30,9 +26,7 @@ public class Robot extends TimedRobot {
   // private Command m_autonomousCommand;
   //private RobotContainer m_robotContainer;
   private RobotStateManager rs;
-  private Controllers ControllerInstance;
-  private XboxController driveController;
-  private XboxController manipController;
+  private Controllers controllers;
   private Compressor compressor;
 
   public void initializeShuffleBoardWidgets() {
@@ -78,9 +72,7 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     compressor = new Compressor(1, PneumaticsModuleType.REVPH);
     compressor.enableDigital();
-    ControllerInstance = Controllers.getInstance();
-    driveController = ControllerInstance.driveController;
-    manipController = ControllerInstance.manipController;
+    controllers = Controllers.getInstance();
 
     rs = RobotStateManager.getInstance();
     rs.addStates(
@@ -117,22 +109,6 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     rs.periodic();
-    for(Map.Entry<Enum<Controllers.Button>, Integer> entry : ControllerInstance.buttonMap.entrySet()) {
-      
-      if(driveController.getRawButtonPressed(entry.getValue())){
-        rs.handleEvent(new Event((Button) entry.getKey(), Action.PRESSED, ControllerName.DRIVE));
-      }
-      if(driveController.getRawButtonReleased(entry.getValue())){
-        rs.handleEvent(new Event((Button) entry.getKey(), Action.RELEASED, ControllerName.DRIVE));
-      }
-      
-      if(manipController.getRawButtonPressed(entry.getValue())){
-        rs.handleEvent(new Event((Button) entry.getKey(), Action.PRESSED, ControllerName.MANIP));
-      }
-      if(manipController.getRawButtonReleased(entry.getValue())){
-        rs.handleEvent(new Event((Button) entry.getKey(), Action.RELEASED, ControllerName.MANIP));
-      }
-    }
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
@@ -184,7 +160,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-
+    controllers.eventPeriodic();
   }
 
   @Override
@@ -202,7 +178,9 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+    controllers.eventPeriodic();
+  }
 
   /** This function is called once when the robot is first started up. */
   @Override
@@ -210,6 +188,7 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically whilst in simulation. */
   @Override
-  public void simulationPeriodic() {}
-
+  public void simulationPeriodic() {
+    controllers.eventPeriodic();
+  }
 }
