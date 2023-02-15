@@ -9,12 +9,16 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Path;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
+import java.util.regex.MatchResult;
 
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -42,8 +46,70 @@ public class Robot extends TimedRobot {
   private XboxController driveController;
   private XboxController manipController;
   private Compressor compressor;
+  private Logger logger;
 
-  // TODO: Add compression to the log files and also make it so that it doesn't nuke the previous boot's log files.
+  /**
+   * Backs up the logs saved in ${LAUNCH}/logs into a gzip compressed tar file.
+   */
+  public void saveLastBootLogs() {
+    Path operatingDirectory = Filesystem.getOperatingDirectory().toPath();
+    Path archiveDirectory = operatingDirectory.resolve(Constants.ARCHIVE_DIRECTORY_NAME);
+    String[] archiveFiles;
+    int greatestLogNumber = -1;
+
+    try {
+      archiveDirectory.toFile().mkdirs();
+    }
+    catch (IOException e) {
+      System.out.println("");
+      e.printStackTrace();
+    }
+
+    archiveFiles = archiveDirectory.toFile().list();
+    
+    for (String fileName : archiveFiles) {
+      Scanner nameMatcher = new Scanner(fileName);
+
+      try {
+        String intermediateString;
+        int parsedLogNumber;
+
+        nameMatcher.findInLine("log-archive-(\\d+).tar.gz");
+        nameMatcher.match();
+
+        // lol
+        intermediateString = fileName.substring("log-archive-".length());
+        parsedLogNumber = Integer.parseInt(intermediateString.substring(0, intermediateString.indexOf(".tar.gz")));
+
+        if (parsedLogNumber > greatestLogNumber)
+          greatestLogNumber = parsedLogNumber;
+      }
+      catch (IllegalStateException e) {
+        // Meh
+      }
+
+      nameMatcher.close();
+    }
+
+    try {
+      ProcessBuilder processBuilder = new ProcessBuilder(
+        "/usr/bin/tar", 
+        "-czf", 
+        operatingDirectory
+          .resolve(Constants.ARCHIVE_DIRECTORY_NAME)
+          .resolve(String.format("log-archive-%d.tar.gz", greatestLogNumber + 1))
+          .toString(), 
+        operatingDirectory.resolve(Constants.LOG_DIRECTORY_NAME).toString()
+      );
+
+      processBuilder.start();
+    }
+    catch (IOException e) {
+      System.out.println("Could not backup previous logs!");
+      e.printStackTrace();
+    }
+  }
+
   public void initializeLogger() {
     LogManager logManager = LogManager.getLogManager();
     ConsoleHandler consoleHandler;
@@ -96,7 +162,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    saveLastBootLogs();
     initializeLogger();
+    logger = Logger.getLogger("frc.robot");
 
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.

@@ -39,4 +39,5 @@ public final class Constants {
 
   // Logging thingys
   public static final String LOG_DIRECTORY_NAME = "logs/";
+  public static final String ARCHIVE_DIRECTORY_NAME = "log-archives/";
 }
