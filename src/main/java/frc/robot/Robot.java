@@ -51,20 +51,15 @@ public class Robot extends TimedRobot {
   /**
    * Backs up the logs saved in ${LAUNCH}/logs into a gzip compressed tar file.
    */
-  public void saveLastBootLogs() {
+  public void saveLastBootLogs() throws IOException {
     Path operatingDirectory = Filesystem.getOperatingDirectory().toPath();
     Path archiveDirectory = operatingDirectory.resolve(Constants.ARCHIVE_DIRECTORY_NAME);
+    String logArchiveName;
+    ProcessBuilder processBuilder;
     String[] archiveFiles;
     int greatestLogNumber = -1;
 
-    try {
-      archiveDirectory.toFile().mkdirs();
-    }
-    catch (IOException e) {
-      System.out.println("");
-      e.printStackTrace();
-    }
-
+    archiveDirectory.toFile().mkdirs();
     archiveFiles = archiveDirectory.toFile().list();
     
     for (String fileName : archiveFiles) {
@@ -91,23 +86,23 @@ public class Robot extends TimedRobot {
       nameMatcher.close();
     }
 
-    try {
-      ProcessBuilder processBuilder = new ProcessBuilder(
-        "/usr/bin/tar", 
-        "-czf", 
-        operatingDirectory
-          .resolve(Constants.ARCHIVE_DIRECTORY_NAME)
-          .resolve(String.format("log-archive-%d.tar.gz", greatestLogNumber + 1))
-          .toString(), 
-        operatingDirectory.resolve(Constants.LOG_DIRECTORY_NAME).toString()
-      );
+    logArchiveName = String.format("log-archive-%d.tar.gz", greatestLogNumber + 1);
 
-      processBuilder.start();
-    }
-    catch (IOException e) {
-      System.out.println("Could not backup previous logs!");
-      e.printStackTrace();
-    }
+    processBuilder = new ProcessBuilder(
+      "/usr/bin/tar", 
+      "-czf", 
+      operatingDirectory
+        .resolve(Constants.ARCHIVE_DIRECTORY_NAME)
+        .resolve(logArchiveName)
+        .toString(), 
+      operatingDirectory.resolve(Constants.LOG_DIRECTORY_NAME).toString()
+    );
+    
+    logger.fine(
+      String.format("Spawned process %d to backup logs into `%s`.", 
+      processBuilder.start().pid(), 
+      logArchiveName)
+    );
   }
 
   public void initializeLogger() {
@@ -140,20 +135,20 @@ public class Robot extends TimedRobot {
     consoleHandler = new ConsoleHandler();
     globalLogger.addHandler(consoleHandler);
 
-    // Initializes the handler which logs to the file system
-    try {
-      FileHandler fileHandler;
-      String logDir = Filesystem.getOperatingDirectory().toPath().resolve(Constants.LOG_DIRECTORY_NAME).toString();
+  }
+  
+  // Initializes the handler which logs to the file system
+  public void initializeFileLogger() throws IOException {
+    FileHandler fileHandler;
+    Logger globalLogger = Logger.getLogger("");
+    String logDir = Filesystem.getOperatingDirectory().toPath().resolve(Constants.LOG_DIRECTORY_NAME).toString();
 
-      // Creates the directory that we put the logs into :p
-      new File(logDir).mkdirs();
+    // Creates the directory that we put the logs into :p
+    new File(logDir).mkdirs();
 
-      // Actually initializes the handler
-      fileHandler = new FileHandler(logDir + "/rio%g-%u.log");
-      globalLogger.addHandler(fileHandler);
-    } catch(IOException e) {
-      globalLogger.log(Level.SEVERE, e, () -> "Failed to initialize FileHandler logging facility!");
-    }
+    // Actually initializes the handler
+    fileHandler = new FileHandler(logDir + "/rio%g-%u.log");
+    globalLogger.addHandler(fileHandler);
   }
 
   /**
@@ -162,9 +157,23 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    saveLastBootLogs();
     initializeLogger();
     logger = Logger.getLogger("frc.robot");
+
+    try {
+      saveLastBootLogs();
+      initializeFileLogger();
+    }
+    catch (IOException e) {
+      logger.log(
+        Level.SEVERE, 
+        e, 
+        () -> "Error encountered while initializing the file logger facility! The last boot's logs might not have" + 
+          "saved, and anything logged after this point will probably not be saved to disk."
+      );
+    }
+
+    logger.info("transgender >w>");
 
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
