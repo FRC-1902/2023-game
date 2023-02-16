@@ -173,8 +173,6 @@ public class Robot extends TimedRobot {
       );
     }
 
-    logger.info("transgender >w>");
-
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     compressor = new Compressor(1, PneumaticsModuleType.REVPH);
