@@ -4,11 +4,18 @@
 
 package frc.robot;
 
+import java.util.Map;
+
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -36,23 +43,30 @@ public class Robot extends TimedRobot {
       dashboardTab.getLayout("Power Distribution Panel", BuiltInLayouts.kList);
     ShuffleboardLayout stateMachineLayout = 
       dashboardTab.getLayout("State Machine", BuiltInLayouts.kList);
-    /*
-    // TODO: Close this lol
-    PowerDistribution pdh = new PowerDistribution(0, ModuleType.kRev);
-    
-    pdhLayout.addDouble("Battery Voltage", pdh::getVoltage)
-      .withWidget(BuiltInWidgets.kGraph)
-      .withProperties(Map.of("Unit", "V"));
-    pdhLayout.addDouble("Total Output Current", pdh::getTotalCurrent)
-      .withWidget(BuiltInWidgets.kGraph)
-      .withProperties(Map.of("Unit", "A"));
-    pdhLayout.addDouble("Total Output Power", pdh::getTotalPower)
-      .withWidget(BuiltInWidgets.kGraph)
-      .withProperties(Map.of("Unit", "W"));
-    pdhLayout.addDouble("PDH Temperature", pdh::getTemperature)
-      .withWidget(BuiltInWidgets.kGraph)
-      .withProperties(Map.of("Unit", "deg C"));
-    */
+
+    if (RobotBase.isReal()) {
+      // This for some reason doesn't work when the CAN id is above like 20 for some reason ;-;
+      // Just please don't touch the CAN id of the pdh, it seems to be an issue with WPILib itself
+      PowerDistribution pdh = new PowerDistribution(15, ModuleType.kRev);
+      
+      pdhLayout.addDouble("Battery Voltage", pdh::getVoltage)
+        .withWidget(BuiltInWidgets.kGraph)
+        .withProperties(Map.of("Unit", "V"));
+      pdhLayout.addDouble("Total Output Current", pdh::getTotalCurrent)
+        .withWidget(BuiltInWidgets.kGraph)
+        .withProperties(Map.of("Unit", "A"));
+      pdhLayout.addDouble("PDH Temperature", pdh::getTemperature)
+        .withWidget(BuiltInWidgets.kGraph)
+        .withProperties(Map.of("Unit", "deg C"));
+
+      // TODO: Find out why this doesn't work.
+      /*
+      pdhLayout.addDouble("Total Output Power", pdh::getTotalPower)
+        .withWidget(BuiltInWidgets.kGraph)
+        .withProperties(Map.of("Unit", "W"));
+      */
+    }
+
     stateMachineLayout.addString("Current State", () -> {
       State currState = rs.getCurrentState();
 
