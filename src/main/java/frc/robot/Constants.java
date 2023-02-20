@@ -21,6 +21,9 @@ public final class Constants {
   public static final int LEFT_ELEVATOR_ID = 6;
   public static final int RIGHT_ELEVATOR_ID = 7;
   public static final int TURRET_ID = 8;
+  public static final int DEPLOY_INTAKE_ID = 9;
+  public static final int LEVER_INTAKE_ID = 10;
+  public static final int ROLLER_INTAKE_ID = 11;
 
   //REVPH Solenoid Chanels
   public static final int LEFT_LOW_DRIVE_SOLENOID = 0;
@@ -36,4 +39,6 @@ public final class Constants {
   public static final int TURRET_ENCODER = 4;
   public static final int LEFT_ELEVATOR_ENCODER = 5;
   public static final int RIGHT_ELEVATOR_ENCODER = 6;
+  public static final int DEPLOY_INTAKE_ENCODER = 7;
+  public static final int LEVER_INTAKE_ENCODER = 8;
 }
