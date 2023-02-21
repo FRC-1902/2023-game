@@ -9,6 +9,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -24,6 +25,11 @@ public class IntakeSubsystem extends SubsystemBase {
   private static final int DEPLOY_DOWN_ENC_POS = 0;
   
   private static final int ENCODER_CPR = 1024;
+  private boolean leverSide;
+  private double leverEncoderPrev;
+
+  //TODO: set/check me
+  private double deployEncoderSetpoint = 0;
 
   public IntakeSubsystem() {
     deployMotor = new CANSparkMax(Constants.DEPLOY_INTAKE_ID, MotorType.kBrushless);
@@ -32,6 +38,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     deployEncoder = new DutyCycleEncoder(Constants.DEPLOY_INTAKE_ENCODER);
     leverEncoder = new DutyCycleEncoder(Constants.LEVER_INTAKE_ENCODER);
+    leverEncoder.setPositionOffset(0);//TODO: set me
+    leverEncoderPrev = leverEncoder.getAbsolutePosition();
 
     //TODO: set me to where intake can't go
     deployEncoder.setPositionOffset(0);
@@ -45,25 +53,22 @@ public class IntakeSubsystem extends SubsystemBase {
     UP,LOAD,DOWN
   }
   /**
-   * Deploys the intake down/up, CALL IN LOOP
+   * Sets the deploy position for the intake
    * @param deployState boolean to set if deployed or not
    */
   public void deployIntake(DeployState deployState){
     //remember that it is in a 2:1 ratio from encoder turns to deployed turns
-    double pow;
     switch(deployState){
       case UP:
-        pow = deployPID.calculate(deployEncoder.getAbsolutePosition(), DEPLOY_UP_ENC_POS);
+        deployEncoderSetpoint = DEPLOY_UP_ENC_POS;
         break;
       case LOAD:
-        pow = deployPID.calculate(deployEncoder.getAbsolutePosition(), DEPLOY_LOAD_ENC_POS);
+        deployEncoderSetpoint = DEPLOY_LOAD_ENC_POS;
         break;
       case DOWN:
-        pow = deployPID.calculate(deployEncoder.getAbsolutePosition(), DEPLOY_DOWN_ENC_POS);
+        deployEncoderSetpoint = DEPLOY_DOWN_ENC_POS;
         break;
-      default: pow = 0;
     }
-    deployMotor.set(pow);
   }
 
   /**
@@ -72,7 +77,30 @@ public class IntakeSubsystem extends SubsystemBase {
   public void setLeverPow(double pow){
     leverMotor.set(pow);
   }
-  
+
+  /**
+   * poll in periodic for all lever code to work
+   */
+  public void updateLeverSide(){
+    double leverEncoderPos = leverEncoder.getAbsolutePosition();
+    if(Math.abs(leverEncoderPos - leverEncoderPrev) >= ENCODER_CPR/4){leverSide = !leverSide;}
+    leverEncoderPrev=leverEncoderPos;
+  }
+
+  /**
+   * Re-maps lever encoder for 2:1 ratio
+   * <p>needs constant polling of IntakeSubsystem.periodic() to work</p>
+   * @return enocder pos 0 to 360
+   */
+  public double getLeverPos(){
+    double pos;
+    pos = (leverEncoder.getAbsolutePosition() / ENCODER_CPR) * 180;
+    if(leverSide){
+      pos += 180;
+    }
+    return pos;
+  }
+
   public static enum LeverDir{
     IN,OUT
   }
@@ -94,14 +122,21 @@ public class IntakeSubsystem extends SubsystemBase {
     rollerMotor.set(pow);
   }
 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
+  /**
+   * Call me periodically when robot is enabled
+   * PIDs intake deploy to setpoint
+   * lever side detection for bad ratio
+   */
+  public void enabledPeriodic(){
+    double deployPow;
+    deployPow = deployPID.calculate(deployEncoder.get(), deployEncoderSetpoint);
+    deployMotor.set(deployPow);
+
+    updateLeverSide();
   }
 
-  @Override
-  public void simulationPeriodic() {
-    // This method will be called once per scheduler run during simulation
+  public void disabledPeriodic(){
+    updateLeverSide();
   }
 
   public static IntakeSubsystem getInstance() {

@@ -124,6 +124,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    //doesn't get auto called with no command scheduler
     elevatorPeriodic();
     turretPeriodic();
 

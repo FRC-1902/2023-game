@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.states.*;
 import frc.robot.states.auto.*;
 import frc.robot.states.teleOp.*;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.Controllers.*;
 
 /**
@@ -29,6 +30,7 @@ public class Robot extends TimedRobot {
   private XboxController driveController;
   private XboxController manipController;
   private Compressor compressor;
+  private IntakeSubsystem intakeSubsystem;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -44,6 +46,7 @@ public class Robot extends TimedRobot {
     driveController = ControllerInstance.driveController;
     manipController = ControllerInstance.manipController;
     rs = RobotStateManager.getInstance();
+    intakeSubsystem = IntakeSubsystem.getInstance();
     rs.addStates(
       new DisabledState("disabled", null),
       new TeleOpState("teleOp", null),
@@ -105,6 +108,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
+    intakeSubsystem.disabledPeriodic();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
@@ -122,7 +126,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    
+    intakeSubsystem.enabledPeriodic();
   }
 
   @Override
@@ -140,7 +144,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-
+    intakeSubsystem.enabledPeriodic();
   }
 
   @Override
