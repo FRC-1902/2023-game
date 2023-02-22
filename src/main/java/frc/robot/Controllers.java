@@ -8,8 +8,12 @@ import edu.wpi.first.wpilibj.XboxController;
 public class Controllers {
     public XboxController driveController;
     public XboxController manipController;
+    public RobotStateManager rs;
 
     private static Controllers instance;
+
+    public static final int DRIVE_CONTROLLER_PORT = 0;
+    public static final int MANIP_CONTROLLER_PORT = 1;
     
     public static Controllers getInstance(){
         if(instance==null){
@@ -19,11 +23,10 @@ public class Controllers {
     }
 
     private Controllers(){
+        rs = RobotStateManager.getInstance();
         driveController = new XboxController(DRIVE_CONTROLLER_PORT);
         manipController = new XboxController(MANIP_CONTROLLER_PORT);
     }
-
-
 
     public enum Button{
         A, B, X, Y,
@@ -100,6 +103,21 @@ public class Controllers {
         }
     }
 
-    public static final int DRIVE_CONTROLLER_PORT = 0;
-    public static final int MANIP_CONTROLLER_PORT = 1;
+    public void eventPeriodic(){
+        for(Map.Entry<Enum<Controllers.Button>, Integer> entry : buttonMap.entrySet()) {
+            if(driveController.getRawButtonPressed(entry.getValue())){
+              rs.handleEvent(new Event((Button) entry.getKey(), Action.PRESSED, ControllerName.DRIVE));
+            }
+            if(driveController.getRawButtonReleased(entry.getValue())){
+              rs.handleEvent(new Event((Button) entry.getKey(), Action.RELEASED, ControllerName.DRIVE));
+            }
+            
+            if(manipController.getRawButtonPressed(entry.getValue())){
+              rs.handleEvent(new Event((Button) entry.getKey(), Action.PRESSED, ControllerName.MANIP));
+            }
+            if(manipController.getRawButtonReleased(entry.getValue())){
+              rs.handleEvent(new Event((Button) entry.getKey(), Action.RELEASED, ControllerName.MANIP));
+            }
+          }
+    }
 }
