@@ -8,8 +8,14 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.WidgetType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -26,13 +32,41 @@ public class TurretvatorSubsystem extends SubsystemBase {
   private double desiredElevatorTicks = 0;
   private double elevatorLeftEncoderOffset = 0;
   private double elevatorRightEncoderOffset = 0;
-  
+
   private boolean initialPeriodic = true;
+
+  private GenericEntry turretPWidget, turretIWidget, turretDWidget, elevatorPWidget, elevatorIWidget, elevatorDWidget;
 
   CANSparkMax elevatorLeft, elevatorRight, turretMotor;
   MotorControllerGroup elevatorMotors;
   DutyCycleEncoder elevatorLeftEncoder, elevatorRightEncoder, turretEncoder;
   PIDController elevatorLeftPID, elevatorRightPID, turretPID, absoluteTurretPID;
+
+  public void initializeShuffleBoardWidgets() {
+    ShuffleboardLayout dashboardLayout = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)
+      .getLayout("Turret PID", BuiltInLayouts.kList)
+      .withSize(4, 4);
+
+    turretPWidget = dashboardLayout
+      .add("Turret PID - Proportional", 0)
+      .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
+    turretIWidget = dashboardLayout
+      .add("Turret PID - Integral", 0)
+      .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
+    turretDWidget = dashboardLayout
+      .add("Turret PID - Derivative", 0)
+      .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
+
+    elevatorPWidget = dashboardLayout
+      .add("Elevator PID - Proportional", 0)
+      .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
+    elevatorIWidget = dashboardLayout
+      .add("Elevator PID - Integral", 0)
+      .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
+    elevatorDWidget = dashboardLayout
+      .add("Elevator PID - Derivative", 0)
+      .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
+  }
 
   public TurretvatorSubsystem() {
     elevatorLeft = new CANSparkMax(Constants.LEFT_ELEVATOR_ID, MotorType.kBrushless);
@@ -83,6 +117,14 @@ public class TurretvatorSubsystem extends SubsystemBase {
   }
 
   private void elevatorPeriodic() {
+    elevatorLeftPID.setP(elevatorPWidget.getDouble(0));
+    elevatorLeftPID.setI(elevatorIWidget.getDouble(0));
+    elevatorLeftPID.setD(elevatorDWidget.getDouble(0));
+
+    elevatorRightPID.setP(elevatorPWidget.getDouble(0));
+    elevatorRightPID.setI(elevatorIWidget.getDouble(0));
+    elevatorRightPID.setD(elevatorDWidget.getDouble(0));
+
     if (initialPeriodic) {
       elevatorLeftEncoderOffset = elevatorLeftEncoder.get();
       elevatorRightEncoderOffset = elevatorRightEncoder.get();
@@ -93,6 +135,10 @@ public class TurretvatorSubsystem extends SubsystemBase {
   }
 
   private void turretPeriodic() {
+    turretPID.setP(turretPWidget.getDouble(0));
+    turretPID.setI(turretIWidget.getDouble(0));
+    turretPID.setD(turretDWidget.getDouble(0));
+
     turretMotor.set(turretPID.calculate(turretEncoder.getAbsolutePosition(), desiredTurretTicks));
   }
 
