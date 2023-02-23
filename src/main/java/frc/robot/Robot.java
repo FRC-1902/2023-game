@@ -22,6 +22,7 @@ import frc.robot.states.auto.*;
 import frc.robot.states.balance.BalanceOnPlatformState;
 import frc.robot.states.teleOp.*;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.TurretvatorSubsystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -36,6 +37,7 @@ public class Robot extends TimedRobot {
   private Controllers controllers;
   private Compressor compressor;
   private IntakeSubsystem intakeSubsystem;
+  private TurretvatorSubsystem turretvatorSubsystem;
 
   public void initializeShuffleBoardWidgets() {
     ShuffleboardTab dashboardTab = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB);
@@ -113,6 +115,8 @@ public class Robot extends TimedRobot {
 
     rs.startRobot("disabled");
     //m_robotContainer = new RobotContainer();
+
+    turretvatorSubsystem = turretvatorSubsystem.getInstance();
   }
 
   /**
@@ -125,6 +129,9 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     rs.periodic();
+
+    turretvatorSubsystem.periodic();
+
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic

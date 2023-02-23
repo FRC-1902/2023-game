@@ -22,18 +22,13 @@ public class TurretvatorSubsystem extends SubsystemBase {
   public static final int elevatorStop = 0; //TODO: set me
 
   private double desiredTurretTicks = 0;
-  private double turretEncoderOffset = 0;
 
   private double desiredElevatorTicks = 0;
   private double elevatorLeftEncoderOffset = 0;
   private double elevatorRightEncoderOffset = 0;
   
-  private boolean turretHasCentered = false;
-
   private boolean initialPeriodic = true;
 
-  // The turret motors have 5.1:1 ratio.
-  // The turret encoders are also attached directly to the motors, while the encoders are attached to the output of the gearbox.
   CANSparkMax elevatorLeft, elevatorRight, turretMotor;
   MotorControllerGroup elevatorMotors;
   DutyCycleEncoder elevatorLeftEncoder, elevatorRightEncoder, turretEncoder;
@@ -75,7 +70,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
       return;
     }
 
-    desiredTurretTicks = degrees * throughboreCPR * 5;
+    desiredTurretTicks = degrees * throughboreCPR / 360;
   }
 
   public void elevatorSet(double rotations) {
@@ -98,33 +93,12 @@ public class TurretvatorSubsystem extends SubsystemBase {
   }
 
   private void turretPeriodic() {
-    // Centers the turret souly off of the absolute position.
-    if (!turretHasCentered) {
-      double currentAbsolutePos = turretEncoder.getAbsolutePosition();
-      double absoluteOffset;
-
-      // Adjusts for rollovers
-      if (currentAbsolutePos / throughboreCPR < 180)
-        absoluteOffset = throughboreCPR;
-      else
-        absoluteOffset = 0;
-    
-      turretMotor.set(turretPID.calculate(currentAbsolutePos + absoluteOffset, 360));
-
-      if (!absoluteTurretPID.atSetpoint())
-        return;
-
-      turretEncoderOffset = turretEncoder.get();
-      turretHasCentered = true;
-      turretPID.reset();
-    }
-
-    turretMotor.set(turretPID.calculate(turretEncoder.get(), desiredTurretTicks));
+    turretMotor.set(turretPID.calculate(turretEncoder.getAbsolutePosition(), desiredTurretTicks));
   }
 
+  // Called from Robot
   @Override
   public void periodic() {
-    //doesn't get auto called with no command scheduler
     elevatorPeriodic();
     turretPeriodic();
 
