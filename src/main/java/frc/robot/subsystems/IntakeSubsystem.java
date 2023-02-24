@@ -24,11 +24,8 @@ public class IntakeSubsystem extends SubsystemBase {
   private static final int DEPLOY_DOWN_ENC_POS = 0;
   
   private static final int ENCODER_CPR = 1024;
-  private boolean leverSide;
+  private boolean leverSide, leverPIDEnabled;
   private double leverEncoderPrev;
-
-  //TODO: set/check me
-  private double deployEncoderSetpoint = 0;
 
   public IntakeSubsystem() {
     deployMotor = new CANSparkMax(Constants.DEPLOY_INTAKE_ID, MotorType.kBrushless);
@@ -46,6 +43,10 @@ public class IntakeSubsystem extends SubsystemBase {
     //TODO: tune me
     deployPID = new PIDController(0, 0, 0);
     leverPID = new PIDController(0, 0, 0);
+
+    //TODO: set me
+    deployPID.setSetpoint(DEPLOY_UP_ENC_POS);
+    leverPID.enableContinuousInput(0, 360);
   }
 
   public static enum DeployState{
@@ -59,13 +60,13 @@ public class IntakeSubsystem extends SubsystemBase {
     //remember that it is in a 2:1 ratio from encoder turns to deployed turns
     switch(deployState){
       case UP:
-        deployEncoderSetpoint = DEPLOY_UP_ENC_POS;
+        deployPID.setSetpoint(DEPLOY_UP_ENC_POS);
         break;
       case LOAD:
-        deployEncoderSetpoint = DEPLOY_LOAD_ENC_POS;
+        deployPID.setSetpoint(DEPLOY_LOAD_ENC_POS);
         break;
       case DOWN:
-        deployEncoderSetpoint = DEPLOY_DOWN_ENC_POS;
+        deployPID.setSetpoint(DEPLOY_DOWN_ENC_POS);
         break;
     }
   }
@@ -74,6 +75,7 @@ public class IntakeSubsystem extends SubsystemBase {
    * @param pow -1 to 1 motor power
    */
   public void setLeverPow(double pow){
+    leverPIDEnabled = false;
     leverMotor.set(pow);
   }
 
@@ -100,18 +102,22 @@ public class IntakeSubsystem extends SubsystemBase {
     return pos;
   }
 
-  public static enum LeverDir{
-    IN,OUT
-  }
-
   /**
    * @param pos angle where 0 is down
    * @param dir LeverDir enum IN/OUT, direction that the lever spins
    */
-  public void setLeverPos(double pos, LeverDir dir){
-    //TODO: write me
-    //remember that it is a 2:1 ratio from encoder turns to lever movement
-    //set from offset ig
+  public void setLeverPos(double pos){
+    leverPIDEnabled = true;
+    leverPID.setSetpoint(pos);
+  }
+
+  /**
+   * Sets if the leverPID runs or not
+   * <p>handled by using setLeverPos() or setLeverPOW() automatically</p>
+   * @param leverPIDEnabled boolean
+   */
+  public void enableLeverPID(boolean leverPIDEnabled){
+    this.leverPIDEnabled = leverPIDEnabled;
   }
 
   /**
@@ -128,8 +134,12 @@ public class IntakeSubsystem extends SubsystemBase {
    */
   public void enabledPeriodic(){
     double deployPow;
-    deployPow = deployPID.calculate(deployEncoder.get(), deployEncoderSetpoint);
+    deployPow = deployPID.calculate(deployEncoder.get());
     deployMotor.set(deployPow);
+
+    if(leverPIDEnabled){
+      leverPID.calculate(getLeverPos());
+    }
 
     updateLeverSide();
   }
