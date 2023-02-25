@@ -1,5 +1,7 @@
 package frc.robot.states.balance;
 
+import java.util.logging.Logger;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -18,6 +20,8 @@ public class BalanceOnPlatformState implements State {
 
   private IMUSubsystem imu;
   private PIDController pitchPID;
+
+  private Logger logger;
 
   private GenericEntry pidPWidget, pidIWidget, pidDWidget;
 
@@ -43,6 +47,8 @@ public class BalanceOnPlatformState implements State {
 
     imu = IMUSubsystem.getInstance();
     pitchPID = new PIDController(0, 0, 0);
+
+    logger = Logger.getLogger("frc.robot.states.balance");
   }
 
   @Override
@@ -57,12 +63,10 @@ public class BalanceOnPlatformState implements State {
 
   @Override
   public void Enter() {
-    System.out.println("entered" + name);
   }
 
   @Override
   public void Leave() {
-    System.out.println("left " + name);
   }
 
   @Override
@@ -75,6 +79,6 @@ public class BalanceOnPlatformState implements State {
       parent.calculatedForwardSpeed += pitchPID.calculate(imu.getPitch(), 0);
     }
 
-    System.out.format("(BalanceOnPlatform) Current forward speed %f\n", parent.calculatedForwardSpeed);
+    logger.fine("Current forward speed " + parent.calculatedForwardSpeed);
   }
 }

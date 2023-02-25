@@ -1,5 +1,7 @@
 package frc.robot.states;
 
+import java.util.logging.Logger;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -24,6 +26,7 @@ public class BalanceState implements State {
   private PIDController yawPID;
   private HeaderWrapper compass;
   private State enteredFromState;
+  private Logger logger;
 
   private double desiredYaw;
 
@@ -53,7 +56,8 @@ public class BalanceState implements State {
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
 
     yawPID = new PIDController(0, 0, 0);
-
+    
+    logger = Logger.getLogger("frc.robot.states");
   }
 
   @Override
@@ -72,8 +76,6 @@ public class BalanceState implements State {
 
   @Override
   public void Enter(State enteredFrom) {
-    System.out.println("entered" + name);
-
     desiredYaw = Constants.PLATFORM_YAW_DEG;
 
     compass.setHeadingOffset(compass.getHeadingOffset() + desiredYaw);
@@ -83,7 +85,6 @@ public class BalanceState implements State {
 
   @Override
   public void Leave() {
-    System.out.println("left " + name);
   }
 
   @Override
@@ -109,7 +110,7 @@ public class BalanceState implements State {
     yawPID.setSetpoint(headingTarget);
     calculatedYawSpeed = yawPID.calculate(currentYaw);
 
-    System.out.format("(BalanceState) Yaw: %3.1f, YawSpeed: %3.1f, Setpoint: %3.1f\n", currentYaw, calculatedYawSpeed, yawPID.getSetpoint());
+    logger.fine(String.format("Yaw: %3.1f, YawSpeed: %3.1f, Setpoint: %3.1f", currentYaw, calculatedYawSpeed, yawPID.getSetpoint()));
 
     drive.arcadeDrive(calculatedForwardSpeed, calculatedYawSpeed);
     drive.shift(DriveSubsystem.ShiftState.LOW);
