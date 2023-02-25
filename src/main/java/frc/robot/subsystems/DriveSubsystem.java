@@ -59,6 +59,7 @@ public class DriveSubsystem extends SubsystemBase {
     rightMotors.set(rightSpeed);
   }
 
+  // Low gear *should* be false, and high gear *should* be true
   public void shift(boolean state) {
     leftSolenoid.set(state);
     rightSolenoid.set(state);

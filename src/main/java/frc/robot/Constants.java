@@ -24,7 +24,7 @@ public final class Constants {
 
   //REVPH Solenoid Chanels
   public static final int LEFT_DRIVE_SOLENOID = 0;
-  public static final int RIGHT_DRIVE_SOLENOID = 2;
+  public static final int RIGHT_DRIVE_SOLENOID = 1;
 
   //DIO ports
   public static final int LEFT_DRIVE_ENCODER_1 = 0;
