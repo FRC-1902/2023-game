@@ -22,6 +22,12 @@ public final class Constants {
   public static final int RIGHT_ELEVATOR_ID = 7;
   public static final int TURRET_ID = 8;
 
+  // Balancing constants
+  public static final double PLATFORM_BALANCE_YAW_THRESHOLD_DEG = 5;
+  public static final double PLATFORM_BALANCE_PITCH_THRESHOLD_DEG = 3;
+  public static final double PLATFORM_YAW_DEG = 0;
+  public static final double PLATFORM_DRIVE_PLATFORM_YAW_DELTA = 5;
+
   //REVPH Solenoid Chanels
   public static final int LEFT_LOW_DRIVE_SOLENOID = 0;
   public static final int LEFT_HIGH_DRIVE_SOLENOID = 1;
@@ -40,4 +46,7 @@ public final class Constants {
   // Logging thingys
   public static final String LOG_DIRECTORY_NAME = "logs/";
   public static final String ARCHIVE_DIRECTORY_NAME = "log-archives/";
+
+  // Shuffleboard junk
+  public static final String MAIN_SHUFFLEBOARD_TAB = "Shuffleboard";
 }

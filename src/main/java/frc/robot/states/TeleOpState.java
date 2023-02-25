@@ -1,6 +1,5 @@
 package frc.robot.states;
 
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import frc.robot.Controllers;
 import frc.robot.Controllers.*;
 import frc.robot.Event;
@@ -43,32 +42,51 @@ public class TeleOpState implements frc.robot.State{
 
   @Override
   public void Periodic(RobotStateManager rs) {
-    driveSub.arcadeDrive(controllers.get(ControllerName.DRIVE, Axis.LY), controllers.get(ControllerName.DRIVE, Axis.RX));
+    double xSpeed = controllers.get(ControllerName.DRIVE, Axis.LY) * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/2.0);
+    double zRotation = controllers.get(ControllerName.DRIVE, Axis.RX) * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/2.0);
+    driveSub.arcadeDrive(xSpeed,zRotation);
   }
 
   @Override
   public boolean handleEvent(Event event, RobotStateManager rs) {
-    switch(event.button){
-  //Shift low
-    case RB:
-      switch(event.action){
-      case PRESSED:
-        driveSub.shift(ShiftState.LOW);
-        return true;
-      default:
+    switch(event.controllerName){
+    //Drive Controller
+    case DRIVE:
+      switch(event.button){
+      //Shift low
+      case RB:
+        switch(event.action){
+        case PRESSED:
+          driveSub.shift(ShiftState.LOW);
+          return true;
+        default: break;
+        }
         break;
-      }
-  //Shift high
-    case LB:
-      switch(event.action){
-      case PRESSED:
-        driveSub.shift(ShiftState.HIGH);
-        return true;
-      default:
+      //Shift high
+      case LB:
+        switch(event.action){
+        case PRESSED:
+          driveSub.shift(ShiftState.HIGH);
+          return true;
+        default: break;
+        }
+        break;
+      // Goes to the balance state
+      case Y:
+        switch (event.action) {
+        case PRESSED:
+          rs.setState("balancePlatform");
+          return true;
+        default:
           break;
+        }
+        break;
+      default: break;
       }
-    default:
-      return false;
+    //Manip Controller
+    case MANIP:
+    default: break;
     }
+    return false;
   }
 }

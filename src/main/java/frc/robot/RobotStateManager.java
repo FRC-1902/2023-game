@@ -24,8 +24,11 @@ public class RobotStateManager{
     private void updateState(){
       if(targetState!=null){
         State ancestor = findCommonAncestor(targetState, currentState);
+        State enteringFrom = currentState;
+
         leaveTo(currentState, ancestor);
-        enterTo(ancestor, targetState);
+        enterTo(ancestor, targetState, enteringFrom);
+
         currentState = targetState;
         targetState = null;
       }
@@ -57,7 +60,7 @@ public class RobotStateManager{
      */
     public void startRobot(String startState){
       currentState = stateMap.get(startState);
-      enterTo(null, currentState);
+      enterTo(null, currentState, null);
     }
      
     public void periodic(){
@@ -91,6 +94,10 @@ public class RobotStateManager{
       }
       return null;
     }
+
+    public State getCurrentState() {
+      return currentState;
+    }
   
     private void leaveTo(State child, State ancestor){
       while(true){
@@ -102,7 +109,7 @@ public class RobotStateManager{
       }
     }
   
-    private void enterTo(State ancestor, State child){
+    private void enterTo(State ancestor, State child, State enteringFrom){
       ArrayList<State> lineage = new ArrayList<State>();
       while(true){
         if(child == ancestor) break;
@@ -115,8 +122,12 @@ public class RobotStateManager{
       }
     }
 
+    public State findState(String name) {
+      return stateMap.get(name);
+    }
+
     /**
-     * @reutrn RobotStateManager instance
+     * @return RobotStateManager instance
     */
     public static RobotStateManager getInstance(){
       if(instance == null){
