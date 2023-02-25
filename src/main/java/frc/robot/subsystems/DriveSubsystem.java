@@ -6,6 +6,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -16,7 +17,7 @@ public class DriveSubsystem extends SubsystemBase {
   private CANSparkMax leftMotor1, leftMotor2, rightMotor1, rightMotor2;
   public Encoder leftEncoder, rightEncoder;
   private MotorControllerGroup leftMotors, rightMotors;
-  private DoubleSolenoid leftSolenoid, rightSolenoid;
+  private Solenoid leftSolenoid, rightSolenoid;
 
   public DriveSubsystem() {
     leftMotor1 = new CANSparkMax(Constants.LEFT_DRIVE_ID_1, MotorType.kBrushless);
@@ -35,8 +36,8 @@ public class DriveSubsystem extends SubsystemBase {
     leftMotors = new MotorControllerGroup(leftMotor1, leftMotor2);
     rightMotors = new MotorControllerGroup(rightMotor1, rightMotor2);
     
-    leftSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, Constants.LEFT_LOW_DRIVE_SOLENOID, Constants.LEFT_HIGH_DRIVE_SOLENOID);
-    rightSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, Constants.RIGHT_LOW_DRIVE_SOLENOID, Constants.RIGHT_HIGH_DRIVE_SOLENOID);
+    leftSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.LEFT_DRIVE_SOLENOID);
+    rightSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.RIGHT_DRIVE_SOLENOID);
   }
 
   @Override
@@ -58,28 +59,17 @@ public class DriveSubsystem extends SubsystemBase {
     rightMotors.set(rightSpeed);
   }
 
-  public static enum ShiftState{
-    HIGH,LOW,DEPRESSURIZED
+  public void shift(boolean state) {
+    leftSolenoid.set(state);
+    rightSolenoid.set(state);
+  }
+  
+  public boolean getLeftShiftState() {
+    return leftSolenoid.get();
   }
 
-  /** shifts drive subystem gearbox
-   * @param state DoubleSolenoid.Value, kForward or kReverse
-   */
-  public void shift(ShiftState state) {
-    switch(state){
-    case HIGH:
-      leftSolenoid.set(DoubleSolenoid.Value.kForward);
-      rightSolenoid.set(DoubleSolenoid.Value.kForward);
-      break;
-    case LOW:
-      leftSolenoid.set(DoubleSolenoid.Value.kReverse);
-      rightSolenoid.set(DoubleSolenoid.Value.kReverse);
-      break;
-    case DEPRESSURIZED:
-      leftSolenoid.set(DoubleSolenoid.Value.kOff);
-      rightSolenoid.set(DoubleSolenoid.Value.kOff);
-      break;
-    }
+  public boolean getRightShiftState() {
+    return rightSolenoid.get();
   }
 
   public static DriveSubsystem getInstance() {
