@@ -112,7 +112,7 @@ public class BalanceState implements State {
     System.out.format("(BalanceState) Yaw: %3.1f, YawSpeed: %3.1f, Setpoint: %3.1f\n", currentYaw, calculatedYawSpeed, yawPID.getSetpoint());
 
     drive.arcadeDrive(calculatedForwardSpeed, calculatedYawSpeed);
-    drive.shift(DriveSubsystem.ShiftState.LOW);
+    drive.shift(false);
     
     calculatedForwardSpeed = 0;
     calculatedYawSpeed = 0;

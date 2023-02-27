@@ -116,7 +116,7 @@ public class Robot extends TimedRobot {
     rs.startRobot("disabled");
     //m_robotContainer = new RobotContainer();
 
-    turretvatorSubsystem = turretvatorSubsystem.getInstance();
+    turretvatorSubsystem = TurretvatorSubsystem.getInstance();
   }
 
   /**

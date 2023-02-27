@@ -5,7 +5,6 @@ import frc.robot.Controllers.*;
 import frc.robot.Event;
 import frc.robot.RobotStateManager;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.DriveSubsystem.ShiftState;
 
 public class TeleOpState implements frc.robot.State{
 
@@ -58,9 +57,9 @@ public class TeleOpState implements frc.robot.State{
         switch(event.action){
         case PRESSED:
           System.out.println("Shifted LOW");
-          driveSub.shift(ShiftState.LOW);
+          driveSub.shift(false);
           return true;
-        default: break;
+        default:
         }
         break;
       //Shift high
@@ -68,9 +67,9 @@ public class TeleOpState implements frc.robot.State{
         switch(event.action){
         case PRESSED:
           System.out.println("Shifted HIGH");
-          driveSub.shift(ShiftState.HIGH);
+          driveSub.shift(true);
           return true;
-        default: break;
+        default:
         }
         break;
       // Goes to the balance state
@@ -80,14 +79,15 @@ public class TeleOpState implements frc.robot.State{
           rs.setState("balancePlatform");
           return true;
         default:
-          break;
         }
         break;
-      default: break;
+      default:
       }
     //Manip Controller
     case MANIP:
-    default: break;
+      switch(event.button){
+      default:
+      }
     }
     return false;
   }

@@ -32,10 +32,8 @@ public final class Constants {
   public static final double PLATFORM_DRIVE_PLATFORM_YAW_DELTA = 5;
 
   //REVPH Solenoid Chanels
-  public static final int LEFT_LOW_DRIVE_SOLENOID = 0;
-  public static final int LEFT_HIGH_DRIVE_SOLENOID = 1;
-  public static final int RIGHT_LOW_DRIVE_SOLENOID = 2;
-  public static final int RIGHT_HIGH_DRIVE_SOLENOID = 3;
+  public static final int LEFT_DRIVE_SOLENOID = 0;
+  public static final int RIGHT_DRIVE_SOLENOID = 1;
 
   //DIO ports
   public static final int LEFT_DRIVE_ENCODER_1 = 0;
