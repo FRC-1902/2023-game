@@ -82,6 +82,8 @@ public class TurretvatorSubsystem extends SubsystemBase {
     //TODO: Tune me
     turretPID = new PIDController(0, 0, 0);
     absoluteTurretPID = new PIDController(0, 0, 0);
+
+    initializeShuffleBoardWidgets();
   }
 
   /**Call in loop to center turret

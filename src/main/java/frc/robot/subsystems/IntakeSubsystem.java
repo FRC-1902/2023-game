@@ -74,8 +74,10 @@ public class IntakeSubsystem extends SubsystemBase {
     dashboardLayout.addDouble("Lever Pos", () -> getLeverPos())
       .withProperties(Map.of("Min", 0, "Max", 360))
       .withWidget(BuiltInWidgets.kNumberBar);
-    dashboardLayout.addDouble("Deploy Pos", () -> deployEncoder.get())
+    dashboardLayout.addDouble("Deploy Pos", () -> deployEncoder.getAbsolutePosition())
       .withProperties(Map.of("Min", 0, "Max", 360))
+      .withWidget(BuiltInWidgets.kNumberBar);
+    dashboardLayout.addDouble("Roller Pow", () -> rollerMotor.get())
       .withWidget(BuiltInWidgets.kNumberBar);
   }
 
