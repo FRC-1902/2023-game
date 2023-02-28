@@ -4,11 +4,18 @@
 
 package frc.robot.subsystems;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -17,15 +24,23 @@ public class IntakeSubsystem extends SubsystemBase {
   private CANSparkMax deployMotor, leverMotor, rollerMotor;
   private DutyCycleEncoder deployEncoder, leverEncoder;
   private PIDController deployPID, leverPID;
-
-  //TODO: set/check me
-  private static final int DEPLOY_UP_ENC_POS = 0;
-  private static final int DEPLOY_LOAD_ENC_POS = 0;
-  private static final int DEPLOY_DOWN_ENC_POS = 0;
   
   private static final int ENCODER_CPR = 1024;
   private boolean leverSide, leverPIDEnabled;
   private double leverEncoderPrev;
+
+  public static enum DeployState{
+    STOW,LOAD,LOADDOWN,DOWN
+  }
+
+  //TODO: set me
+  public Map<Enum<DeployState>, Integer> deployMap = 
+        new HashMap<Enum<DeployState>, Integer>() {{
+            put(DeployState.STOW, 1);
+            put(DeployState.LOAD, 2);
+            put(DeployState.LOADDOWN,3);
+            put(DeployState.DOWN, 4);
+        }};
 
   public IntakeSubsystem() {
     deployMotor = new CANSparkMax(Constants.DEPLOY_INTAKE_ID, MotorType.kBrushless);
@@ -45,30 +60,32 @@ public class IntakeSubsystem extends SubsystemBase {
     leverPID = new PIDController(0, 0, 0);
 
     //TODO: set me
-    deployPID.setSetpoint(DEPLOY_UP_ENC_POS);
+    deployIntake(DeployState.STOW);
     leverPID.enableContinuousInput(0, 360);
+
+    initializeShuffleBoardWidgets();
   }
 
-  public static enum DeployState{
-    UP,LOAD,DOWN
+  public void initializeShuffleBoardWidgets(){
+    ShuffleboardLayout dashboardLayout = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)
+      .getLayout("Intake", BuiltInLayouts.kList)
+      .withSize(4, 4);
+
+    dashboardLayout.addDouble("Lever Pos", () -> getLeverPos())
+      .withProperties(Map.of("Min", 0, "Max", 360))
+      .withWidget(BuiltInWidgets.kNumberBar);
+    dashboardLayout.addDouble("Deploy Pos", () -> deployEncoder.get())
+      .withProperties(Map.of("Min", 0, "Max", 360))
+      .withWidget(BuiltInWidgets.kNumberBar);
   }
+
   /**
    * Sets the deploy position for the intake
    * @param deployState boolean to set if deployed or not
    */
   public void deployIntake(DeployState deployState){
     //remember that it is in a 2:1 ratio from encoder turns to deployed turns
-    switch(deployState){
-      case UP:
-        deployPID.setSetpoint(DEPLOY_UP_ENC_POS);
-        break;
-      case LOAD:
-        deployPID.setSetpoint(DEPLOY_LOAD_ENC_POS);
-        break;
-      case DOWN:
-        deployPID.setSetpoint(DEPLOY_DOWN_ENC_POS);
-        break;
-    }
+    deployPID.setSetpoint(deployMap.get(deployState));
   }
 
   /**

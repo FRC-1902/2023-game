@@ -34,6 +34,7 @@ public class Robot extends TimedRobot {
   // private Command m_autonomousCommand;
   //private RobotContainer m_robotContainer;
   private RobotStateManager rs;
+  private PowerDistribution pdh;
   private Controllers controllers;
   private Compressor compressor;
   private IntakeSubsystem intakeSubsystem;
@@ -50,7 +51,7 @@ public class Robot extends TimedRobot {
     if (RobotBase.isReal()) {
       // This for some reason doesn't work when the CAN id is above like 20 for some reason ;-;
       // Just please don't touch the CAN id of the pdh, it seems to be an issue with WPILib itself
-      PowerDistribution pdh = new PowerDistribution(15, ModuleType.kRev);
+      pdh = new PowerDistribution(15, ModuleType.kRev);
       
       pdhLayout.addDouble("Battery Voltage", pdh::getVoltage)
         .withWidget(BuiltInWidgets.kGraph)
