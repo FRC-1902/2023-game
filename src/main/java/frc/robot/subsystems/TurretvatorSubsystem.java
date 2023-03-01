@@ -28,10 +28,11 @@ public class TurretvatorSubsystem extends SubsystemBase {
 
   private double desiredTurretTicks = 0;
 
-  private double desiredElevatorTicks = 0;
+  private double desiredElevatorDistance = 0;
   private double elevatorEncoderOffset = 0;
 
   private boolean initialPeriodic = true;
+  private boolean hasCentered = false;
 
   private GenericEntry turretPWidget, turretIWidget, turretDWidget, elevatorPWidget, elevatorIWidget, elevatorDWidget;
 
@@ -84,11 +85,19 @@ public class TurretvatorSubsystem extends SubsystemBase {
     initializeShuffleBoardWidgets();
   }
 
-  /**Call in loop to center turret
-   * <p>Centers turret with PID from curret encoder position to turretEncoderCenter</p>
+  /**
+   * Starts to center the turret.
    */
   public void turretCenter(){
     desiredTurretTicks = 0;
+    hasCentered = false;
+  }
+
+  /**
+   * @return whether or not the robot has centered from the last time turretCenter() was called.
+   */
+  public boolean hasCentered() {
+    return hasCentered;
   }
 
   /**
@@ -97,6 +106,11 @@ public class TurretvatorSubsystem extends SubsystemBase {
    * @param degrees degree set (+/- 90)
    */
   public void turretSet(double degrees){
+    if (!hasCentered) {
+      System.out.println("Turret has not centered, ignoring turretSet() call...");
+      return;
+    }
+
     //TODO: test me
     if(Math.abs(degrees) > turretMaxAngle){
       System.out.println("Degree put into TurretvatorSubsystem.turretSet too large!");
@@ -106,17 +120,26 @@ public class TurretvatorSubsystem extends SubsystemBase {
     desiredTurretTicks = degrees * throughboreCPR / 360;
   }
 
-  public void elevatorSet(double rotations) {
-    if (rotations < 0 || rotations > elevatorStop) {
-      System.out.println("Rotation count put into TurretvatorSubsystem.elevatorSet too large!");
-      return;
-    }
-
-    desiredElevatorTicks = rotations * throughboreCPR;
+  /**
+   * Makes the elevator move and maintain a certain distance away from an imaginary 
+   * line normal to the line extending from the front of the robot to the back of it.
+   * @param distance The distance to maintain the elevator from the imaginary line.
+   */
+  public void elevatorSet(double distance) {
+    desiredElevatorDistance = distance;
   }
 
   private void elevatorPeriodic() {
     double elevatorPower;
+
+    // Calculates how much the motors should rotate in order to maintain the same distance.
+    double desiredElevatorRotations = 
+      desiredElevatorDistance / (Math.sin(Math.toRadians(90 - Math.abs(turretEncoder.getAbsolutePosition()))) * Math.cos(Math.toRadians(Constants.ELEVATOR_PITCH_DEG)));
+
+    if (desiredElevatorRotations > elevatorStop || desiredElevatorRotations < 0)
+      System.out.println("Elevator is extended to extreme!");
+
+    desiredElevatorRotations = Math.max(Math.min(desiredElevatorRotations, elevatorStop), 0);
 
     elevatorPID.setP(elevatorPWidget.getDouble(0));
     elevatorPID.setI(elevatorIWidget.getDouble(0));
@@ -129,7 +152,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
       Math.max(
         elevatorPID.calculate(
           elevatorLeftEncoder.get(), 
-          desiredElevatorTicks - elevatorEncoderOffset
+          desiredElevatorRotations * throughboreCPR - elevatorEncoderOffset
         ),
         Constants.MAX_ELEVATOR_MOTOR_POWER
       ),
@@ -146,6 +169,9 @@ public class TurretvatorSubsystem extends SubsystemBase {
     turretPID.setD(turretDWidget.getDouble(0));
 
     turretMotor.set(turretPID.calculate(turretEncoder.getAbsolutePosition(), desiredTurretTicks));
+
+    if (Math.abs(turretEncoder.getAbsolutePosition()) > 0.1)
+      hasCentered = true;
   }
 
   // Called from Robot
