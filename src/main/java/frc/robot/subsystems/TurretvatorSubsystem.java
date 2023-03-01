@@ -130,14 +130,18 @@ public class TurretvatorSubsystem extends SubsystemBase {
   }
 
   private void elevatorPeriodic() {
-    double elevatorPower;
+    if (initialPeriodic)
+      elevatorEncoderOffset = elevatorLeftEncoder.get();
 
     if (!hasCentered)
       return;
 
-    // Calculates how much the motors should rotate in order to maintain the same distance.
+    double elevatorPower;
+    // Calculates how much the motors should rotate in order to maintain a constant distance
     double desiredElevatorRotations = 
-      desiredElevatorDistance / (Math.sin(Math.toRadians(90 - Math.abs(turretEncoder.getAbsolutePosition()))) * Math.cos(Math.toRadians(Constants.ELEVATOR_PITCH_DEG)));
+      desiredElevatorDistance / (Math.cos(Math.toRadians(90 - Math.abs(turretEncoder.getAbsolutePosition()))) *
+        Math.cos(Math.toRadians(Constants.ELEVATOR_PITCH_DEG)) *
+        Constants.ELEVATOR_CM_PER_ROTATION);
 
     if (desiredElevatorRotations > elevatorStop || desiredElevatorRotations < 0)
       System.out.println("Elevator is extended to extreme!");
@@ -147,9 +151,6 @@ public class TurretvatorSubsystem extends SubsystemBase {
     elevatorPID.setP(elevatorPWidget.getDouble(0));
     elevatorPID.setI(elevatorIWidget.getDouble(0));
     elevatorPID.setD(elevatorDWidget.getDouble(0));
-
-    if (initialPeriodic)
-      elevatorEncoderOffset = elevatorLeftEncoder.get();
     
     elevatorPower = Math.min(
       Math.max(
@@ -173,7 +174,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
 
     turretMotor.set(turretPID.calculate(turretEncoder.getAbsolutePosition(), desiredTurretTicks));
 
-    if (Math.abs(turretEncoder.getAbsolutePosition()) > 0.1)
+    if (Math.abs(turretEncoder.getAbsolutePosition()) <= 0.1)
       hasCentered = true;
   }
 

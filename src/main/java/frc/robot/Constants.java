@@ -51,6 +51,6 @@ public final class Constants {
 
   // Elevator junk
   public static final double MAX_ELEVATOR_MOTOR_POWER = 0.25;
-  public static final double CM_PER_ROTATION = 1; // TODO: Set me!
+  public static final double ELEVATOR_CM_PER_ROTATION = 1; // TODO: Set me!
   public static final double ELEVATOR_PITCH_DEG = 15;
 }
