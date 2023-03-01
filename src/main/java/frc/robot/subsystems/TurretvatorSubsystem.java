@@ -132,6 +132,9 @@ public class TurretvatorSubsystem extends SubsystemBase {
   private void elevatorPeriodic() {
     double elevatorPower;
 
+    if (!hasCentered)
+      return;
+
     // Calculates how much the motors should rotate in order to maintain the same distance.
     double desiredElevatorRotations = 
       desiredElevatorDistance / (Math.sin(Math.toRadians(90 - Math.abs(turretEncoder.getAbsolutePosition()))) * Math.cos(Math.toRadians(Constants.ELEVATOR_PITCH_DEG)));
