@@ -29,8 +29,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
   private double desiredTurretTicks = 0;
 
   private double desiredElevatorTicks = 0;
-  private double elevatorLeftEncoderOffset = 0;
-  private double elevatorRightEncoderOffset = 0;
+  private double elevatorEncoderOffset = 0;
 
   private boolean initialPeriodic = true;
 
@@ -39,7 +38,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
   CANSparkMax elevatorLeft, elevatorRight, turretMotor;
   MotorControllerGroup elevatorMotors;
   DutyCycleEncoder elevatorLeftEncoder, elevatorRightEncoder, turretEncoder;
-  PIDController elevatorLeftPID, elevatorRightPID, turretPID, absoluteTurretPID;
+  PIDController elevatorPID, turretPID, absoluteTurretPID;
 
   public void initializeShuffleBoardWidgets() {
     ShuffleboardLayout dashboardLayout = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)
@@ -74,8 +73,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
     elevatorLeftEncoder = new DutyCycleEncoder(Constants.LEFT_ELEVATOR_ENCODER);
     elevatorRightEncoder = new DutyCycleEncoder(Constants.RIGHT_ELEVATOR_ENCODER);
     //TODO: Tune me
-    elevatorLeftPID = new PIDController(0, 0, 0);
-    elevatorRightPID = new PIDController(0, 0, 0);
+    elevatorPID = new PIDController(0, 0, 0);
 
     turretMotor = new CANSparkMax(Constants.TURRET_ID, MotorType.kBrushless);
     turretEncoder = new DutyCycleEncoder(Constants.TURRET_ENCODER);
@@ -118,21 +116,28 @@ public class TurretvatorSubsystem extends SubsystemBase {
   }
 
   private void elevatorPeriodic() {
-    elevatorLeftPID.setP(elevatorPWidget.getDouble(0));
-    elevatorLeftPID.setI(elevatorIWidget.getDouble(0));
-    elevatorLeftPID.setD(elevatorDWidget.getDouble(0));
+    double elevatorPower;
 
-    elevatorRightPID.setP(elevatorPWidget.getDouble(0));
-    elevatorRightPID.setI(elevatorIWidget.getDouble(0));
-    elevatorRightPID.setD(elevatorDWidget.getDouble(0));
+    elevatorPID.setP(elevatorPWidget.getDouble(0));
+    elevatorPID.setI(elevatorIWidget.getDouble(0));
+    elevatorPID.setD(elevatorDWidget.getDouble(0));
 
-    if (initialPeriodic) {
-      elevatorLeftEncoderOffset = elevatorLeftEncoder.get();
-      elevatorRightEncoderOffset = elevatorRightEncoder.get();
-    }
+    if (initialPeriodic)
+      elevatorEncoderOffset = elevatorLeftEncoder.get();
     
-    elevatorLeft.set(elevatorLeftPID.calculate(elevatorLeftEncoder.get(), desiredElevatorTicks - elevatorLeftEncoderOffset));
-    elevatorRight.set(elevatorRightPID.calculate(elevatorRightEncoder.get(), desiredElevatorTicks - elevatorRightEncoderOffset));
+    elevatorPower = Math.min(
+      Math.max(
+        elevatorPID.calculate(
+          elevatorLeftEncoder.get(), 
+          desiredElevatorTicks - elevatorEncoderOffset
+        ),
+        Constants.MAX_ELEVATOR_MOTOR_POWER
+      ),
+      -1 * Constants.MAX_ELEVATOR_MOTOR_POWER
+    );
+    
+    elevatorLeft.set(elevatorPower);
+    elevatorRight.set(elevatorPower);
   }
 
   private void turretPeriodic() {

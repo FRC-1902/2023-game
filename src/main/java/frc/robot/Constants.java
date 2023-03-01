@@ -48,4 +48,7 @@ public final class Constants {
 
   // Shuffleboard junk
   public static final String MAIN_SHUFFLEBOARD_TAB = "Shuffleboard";
+
+  // Elevator junk
+  public static final double MAX_ELEVATOR_MOTOR_POWER = 0.25;
 }
