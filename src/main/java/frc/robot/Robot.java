@@ -39,6 +39,25 @@ public class Robot extends TimedRobot {
   private Compressor compressor;
   private Logger logger;
 
+  public void initializeLogger() {
+    LoggerManager.initializeLogger();
+    logger = Logger.getLogger("frc.robot");
+
+    try {
+      LoggerManager.saveLastBootLogs();
+      LoggerManager.deleteOldLogs();
+      LoggerManager.initializeFileLogger();
+      LoggerManager.deleteOldLogs();
+    }
+    catch (IOException e) {
+      logger.log(
+        Level.SEVERE, 
+        e, 
+        () -> "Error encountered while initializing the file logger facility! The last boot's logs might not have" + 
+          "saved, and anything logged after this point will probably not be saved to disk."
+      );
+    }
+  }
 
   public void initializeShuffleBoardWidgets() {
     ShuffleboardTab dashboardTab = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB);
@@ -86,23 +105,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    LoggerManager.initializeLogger();
-    logger = Logger.getLogger("frc.robot");
-
-    try {
-      LoggerManager.saveLastBootLogs();
-      LoggerManager.deleteOldLogs();
-      LoggerManager.initializeFileLogger();
-      LoggerManager.deleteOldLogs();
-    }
-    catch (IOException e) {
-      logger.log(
-        Level.SEVERE, 
-        e, 
-        () -> "Error encountered while initializing the file logger facility! The last boot's logs might not have" + 
-          "saved, and anything logged after this point will probably not be saved to disk."
-      );
-    }
+    initializeLogger();
 
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
