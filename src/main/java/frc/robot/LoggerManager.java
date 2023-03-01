@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
@@ -96,10 +97,12 @@ public class LoggerManager {
     }
 
     File[] archiveFiles = archiveDirectoryFile.listFiles();
+    Arrays.sort(archiveFiles);
     
-    int i = 0;
-    while (getNonRecursiveDirSize(archiveDirectoryFile) > Constants.MAX_LOG_DIR_SIZE_BYTES && i < archiveFiles.length)
-      archiveFiles[i++].delete();
+    for (int i = 0; getNonRecursiveDirSize(archiveDirectoryFile) > Constants.MAX_LOG_DIR_SIZE_BYTES && i < archiveFiles.length; i++) {
+      logger.fine("Deleting log archive `" + archiveFiles[i] + "` to free space");
+      archiveFiles[i].delete();
+    }
   }
   
   /**
