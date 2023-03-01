@@ -46,6 +46,7 @@ public final class Constants {
   // Logging thingys
   public static final String LOG_DIRECTORY_NAME = "logs/";
   public static final String ARCHIVE_DIRECTORY_NAME = "log-archives/";
+  public static final int MAX_LOG_DIR_SIZE_BYTES = 4 * 1024 * 1024;
 
   // Shuffleboard junk
   public static final String MAIN_SHUFFLEBOARD_TAB = "Shuffleboard";

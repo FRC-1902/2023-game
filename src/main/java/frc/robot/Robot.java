@@ -47,19 +47,18 @@ public class Robot extends TimedRobot {
   private Compressor compressor;
   private Logger logger;
 
+  private Path operatingDirectory = Filesystem.getOperatingDirectory().toPath();
+  private Path archiveDirectory = operatingDirectory.resolve(Constants.ARCHIVE_DIRECTORY_NAME);
+
   /**
    * Backs up the logs saved in ${LAUNCH}/logs into a gzip compressed tar file.
    */
-  public void saveLastBootLogs() throws IOException {
-    Path operatingDirectory = Filesystem.getOperatingDirectory().toPath();
-    Path archiveDirectory = operatingDirectory.resolve(Constants.ARCHIVE_DIRECTORY_NAME);
-    String logArchiveName;
-    ProcessBuilder processBuilder;
-    String[] archiveFiles;
+  private void saveLastBootLogs() throws IOException {
     int greatestLogNumber = -1;
 
     archiveDirectory.toFile().mkdirs();
-    archiveFiles = archiveDirectory.toFile().list();
+
+    String[] archiveFiles = archiveDirectory.toFile().list();
     
     for (String fileName : archiveFiles) {
       Scanner nameMatcher = new Scanner(fileName);
@@ -85,9 +84,9 @@ public class Robot extends TimedRobot {
       nameMatcher.close();
     }
 
-    logArchiveName = String.format("log-archive-%d.tar.gz", greatestLogNumber + 1);
+    String logArchiveName = String.format("log-archive-%d.tar.gz", greatestLogNumber + 1);
 
-    processBuilder = new ProcessBuilder(
+    ProcessBuilder processBuilder = new ProcessBuilder(
       "/usr/bin/tar", 
       "-czf", 
       operatingDirectory
@@ -104,15 +103,37 @@ public class Robot extends TimedRobot {
     );
   }
 
-  public void initializeLogger() {
+  private long getNonRecursiveDirSize(File directory) {
+    long totalSize = 0;
+
+    for (File file : directory.listFiles())
+      totalSize += file.length();
+    
+    return totalSize;
+  }
+
+  private void deleteOldLogs() throws IOException {
+    File archiveDirectoryFile = archiveDirectory.toFile();
+
+    if (!archiveDirectoryFile.exists()) {
+      logger.severe("Archive directory does not exist!");
+      return;
+    }
+
+    File[] archiveFiles = archiveDirectoryFile.listFiles();
+    
+    int i = 0;
+    while (getNonRecursiveDirSize(archiveDirectoryFile) > Constants.MAX_LOG_DIR_SIZE_BYTES && i < archiveFiles.length)
+      archiveFiles[i++].delete();
+  }
+
+  private void initializeLogger() {
     LogManager logManager = LogManager.getLogManager();
-    ConsoleHandler consoleHandler;
-    Logger globalLogger;
     
     // Gets rid of the default console handler so that we can give it our own.
     logManager.reset();
 
-    globalLogger = Logger.getLogger("");
+    Logger globalLogger = Logger.getLogger("");
     
     // Reads the log configuration in `{DEPLOY}/logger_config.txt` into the system configuration.
     try {
@@ -131,7 +152,7 @@ public class Robot extends TimedRobot {
     globalLogger.setLevel(Level.ALL);
 
     // Initializes the handler which logs to the console
-    consoleHandler = new ConsoleHandler();
+    ConsoleHandler consoleHandler = new ConsoleHandler();
     globalLogger.addHandler(consoleHandler);
 
   }
@@ -202,6 +223,7 @@ public class Robot extends TimedRobot {
     try {
       saveLastBootLogs();
       initializeFileLogger();
+      deleteOldLogs();
     }
     catch (IOException e) {
       logger.log(
