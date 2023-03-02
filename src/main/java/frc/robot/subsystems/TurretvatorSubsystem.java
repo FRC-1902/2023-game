@@ -4,12 +4,17 @@
 
 package frc.robot.subsystems;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -21,25 +26,23 @@ import frc.robot.Constants;
 public class TurretvatorSubsystem extends SubsystemBase {
   private static TurretvatorSubsystem instance;
 
-  public static final int throughboreCPR = 8192; //TODO: check me
-  public static final int turretEncoderCenter = throughboreCPR/2; //TODO: set me
+  public static final int throughboreCPR = 1024; //TODO: check me
+  public static final int turretCenter = throughboreCPR/2; //TODO: set me
   public static final int turretMaxAngle = 90;
   public static final int elevatorStop = 0; //TODO: set me
-
-  private double desiredTurretTicks = 0;
 
   private double desiredElevatorDistance = 0;
   private double elevatorEncoderOffset = 0;
 
   private boolean initialPeriodic = true;
-  private boolean hasCentered = false;
 
   private GenericEntry turretPWidget, turretIWidget, turretDWidget, elevatorPWidget, elevatorIWidget, elevatorDWidget;
 
-  CANSparkMax elevatorLeft, elevatorRight, turretMotor;
-  MotorControllerGroup elevatorMotors;
-  DutyCycleEncoder elevatorLeftEncoder, elevatorRightEncoder, turretEncoder;
-  PIDController elevatorPID, turretPID, absoluteTurretPID;
+  private CANSparkMax elevatorLeft, elevatorRight, turretMotor;
+  private MotorControllerGroup elevatorMotors;
+  private DutyCycleEncoder elevatorLeftEncoder, elevatorRightEncoder, turretEncoder;
+  private PIDController elevatorPID, turretPID;
+  private Solenoid gripperSolenoidA, gripperSolenoidB;
 
   public void initializeShuffleBoardWidgets() {
     ShuffleboardLayout dashboardLayout = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)
@@ -75,49 +78,80 @@ public class TurretvatorSubsystem extends SubsystemBase {
     elevatorRightEncoder = new DutyCycleEncoder(Constants.RIGHT_ELEVATOR_ENCODER);
     //TODO: Tune me
     elevatorPID = new PIDController(0, 0, 0);
+    elevatorPID.setTolerance(2); //TODO: set me
 
     turretMotor = new CANSparkMax(Constants.TURRET_ID, MotorType.kBrushless);
     turretEncoder = new DutyCycleEncoder(Constants.TURRET_ENCODER);
     //TODO: Tune me
     turretPID = new PIDController(0, 0, 0);
-    absoluteTurretPID = new PIDController(0, 0, 0);
+    turretPID.enableContinuousInput(0, throughboreCPR);
+    turretPID.setTolerance(2); //TODO: set me
+
+    gripperSolenoidA = new Solenoid(PneumaticsModuleType.REVPH, Constants.GRIPPER_SOLENOID_A);
+    gripperSolenoidB = new Solenoid(PneumaticsModuleType.REVPH, Constants.GRIPPER_SOLENOID_B);
+
 
     initializeShuffleBoardWidgets();
   }
 
   /**
-   * Starts to center the turret.
+   * Sets the gripper's solenoid to opened/closed
+   * @param isClosed gripper closed/opened state
    */
-  public void turretCenter(){
-    desiredTurretTicks = 0;
-    hasCentered = false;
+  public void setGripper(boolean isClosed){
+    gripperSolenoidA.set(isClosed);
+    gripperSolenoidB.set(!isClosed);
   }
 
   /**
-   * @return whether or not the robot has centered from the last time turretCenter() was called.
+   * Starts to center the turret.
    */
-  public boolean hasCentered() {
-    return hasCentered;
+  public void centerTurret(){
+    turretPID.setSetpoint(turretCenter);
+  }
+
+  /**
+   * @return whether or not the turret is centered
+   */
+  public boolean isCentered() {
+    return turretPID.atSetpoint() && turretPID.getSetpoint() == turretCenter;
   }
 
   /**
    * Sets turret to specified degree
    * turns with PID
-   * @param degrees degree set (+/- 90)
+   * @param degrees degree set (+/- max turret angle)
    */
   public void turretSet(double degrees){
-    if (!hasCentered) {
-      System.out.println("Turret has not centered, ignoring turretSet() call...");
-      return;
-    }
-
     //TODO: test me
     if(Math.abs(degrees) > turretMaxAngle){
       System.out.println("Degree put into TurretvatorSubsystem.turretSet too large!");
       return;
     }
 
-    desiredTurretTicks = degrees * throughboreCPR / 360;
+    turretPID.setSetpoint(degrees * throughboreCPR / 360);
+  }
+
+  public static enum ElevatorStage{
+    HIGH, MIDDLE, LOAD, DOWN;
+  }
+
+  //TODO: set me
+  public Map<Enum<ElevatorStage>, Integer> elevatorMap = 
+    new HashMap<Enum<ElevatorStage>, Integer>() {{
+      put(ElevatorStage.HIGH, 4);
+      put(ElevatorStage.MIDDLE,3);
+      put(ElevatorStage.LOAD, 2);
+      put(ElevatorStage.DOWN, 1);
+    }};
+  
+  /**
+   * Makes the elevator move and maintain a certain distance away from an imaginary 
+   * line normal to the line extending from the front of the robot to the back of it.
+   * @param stage ElevatorStage - preset distances to go to
+   */
+  public void elevatorSet(ElevatorStage stage){
+    elevatorSet(elevatorMap.get(stage));
   }
 
   /**
@@ -129,12 +163,16 @@ public class TurretvatorSubsystem extends SubsystemBase {
     desiredElevatorDistance = distance;
   }
 
+  /**
+   * @return if elevator has reached its setpoint
+   */
+  public boolean isExtended(){
+    return elevatorPID.atSetpoint();
+  }
+
   private void elevatorPeriodic() {
     if (initialPeriodic)
       elevatorEncoderOffset = elevatorLeftEncoder.get();
-
-    if (!hasCentered)
-      return;
 
     double elevatorPower;
     // Calculates how much the motors should rotate in order to maintain a constant distance
@@ -151,20 +189,16 @@ public class TurretvatorSubsystem extends SubsystemBase {
     elevatorPID.setP(elevatorPWidget.getDouble(0));
     elevatorPID.setI(elevatorIWidget.getDouble(0));
     elevatorPID.setD(elevatorDWidget.getDouble(0));
-    
+    elevatorPID.setSetpoint(desiredElevatorRotations * throughboreCPR - elevatorEncoderOffset);
     elevatorPower = Math.min(
       Math.max(
-        elevatorPID.calculate(
-          elevatorLeftEncoder.get(), 
-          desiredElevatorRotations * throughboreCPR - elevatorEncoderOffset
-        ),
+        elevatorPID.calculate(elevatorLeftEncoder.get()),
         Constants.MAX_ELEVATOR_MOTOR_POWER
       ),
       -1 * Constants.MAX_ELEVATOR_MOTOR_POWER
     );
     
-    elevatorLeft.set(elevatorPower);
-    elevatorRight.set(elevatorPower);
+    elevatorMotors.set(elevatorPower);
   }
 
   private void turretPeriodic() {
@@ -172,10 +206,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
     turretPID.setI(turretIWidget.getDouble(0));
     turretPID.setD(turretDWidget.getDouble(0));
 
-    turretMotor.set(turretPID.calculate(turretEncoder.getAbsolutePosition(), desiredTurretTicks));
-
-    if (Math.abs(turretEncoder.getAbsolutePosition()) <= 0.1)
-      hasCentered = true;
+    turretMotor.set(turretPID.calculate(turretEncoder.getAbsolutePosition()));
   }
 
   // Called from Robot

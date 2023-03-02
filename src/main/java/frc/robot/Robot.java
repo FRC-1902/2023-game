@@ -67,13 +67,6 @@ public class Robot extends TimedRobot {
       pdhLayout.addDouble("PDH Temperature", pdh::getTemperature)
         .withWidget(BuiltInWidgets.kGraph)
         .withProperties(Map.of("Unit", "deg C"));
-
-      // TODO: Find out why this doesn't work.
-      /*
-      pdhLayout.addDouble("Total Output Power", pdh::getTotalPower)
-        .withWidget(BuiltInWidgets.kGraph)
-        .withProperties(Map.of("Unit", "W"));
-      */
     }
 
     stateMachineLayout.addString("Current State", () -> {

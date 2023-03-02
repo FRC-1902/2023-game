@@ -34,6 +34,8 @@ public final class Constants {
   //REVPH Solenoid Chanels
   public static final int LEFT_DRIVE_SOLENOID = 0;
   public static final int RIGHT_DRIVE_SOLENOID = 1;
+  public static final int GRIPPER_SOLENOID_A = 3;
+  public static final int GRIPPER_SOLENOID_B = 4;
 
   //DIO ports
   public static final int LEFT_DRIVE_ENCODER_1 = 0;

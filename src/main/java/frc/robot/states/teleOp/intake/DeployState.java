@@ -28,6 +28,7 @@ public class DeployState implements frc.robot.State{
   @Override
   public void Enter() {
     System.out.println("entered " + name);
+    //intakeSub.setLeverPos();//TODO: set me
     intakeSub.deployIntake(DeployStage.DOWN);
   }
 
@@ -69,6 +70,7 @@ public class DeployState implements frc.robot.State{
         }
         break;
     //TODO: fix me
+    //back
       case RB:
         if(event.action == Action.PRESSED){
           rs.setState(parent);

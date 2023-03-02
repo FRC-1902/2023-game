@@ -73,7 +73,7 @@ public class TeleOpState implements frc.robot.State{
         }
         break;
       // Goes to the balance state
-      case Y:
+      case B:
         switch (event.action) {
         case PRESSED:
           rs.setState("balancePlatform");

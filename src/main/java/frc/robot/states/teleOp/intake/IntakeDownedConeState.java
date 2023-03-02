@@ -3,13 +3,16 @@ package frc.robot.states.teleOp.intake;
 import frc.robot.Event;
 import frc.robot.RobotStateManager;
 import frc.robot.Controllers.Action;
+import frc.robot.subsystems.IntakeSubsystem;
 
 public class IntakeDownedConeState implements frc.robot.State{
   private String name, parent;
+  private IntakeSubsystem intakeSub;
   //TODO: write me
   public IntakeDownedConeState(String name, String parent){
     this.name = name;
     this.parent = parent;
+    intakeSub = IntakeSubsystem.getInstance();
   }
 
   @Override
@@ -46,6 +49,7 @@ public class IntakeDownedConeState implements frc.robot.State{
     //back
       case B:
         if(event.action == Action.RELEASED){
+          intakeSub.setRollerPow(0);
           rs.setState(parent);
           return true;
         }

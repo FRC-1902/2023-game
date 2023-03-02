@@ -38,7 +38,7 @@ public class CenterTurretState implements State{
 
     @Override
     public void Periodic(RobotStateManager rs) {
-        tvSub.turretCenter();
+        tvSub.centerTurret();
     }
 
     @Override

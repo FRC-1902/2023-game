@@ -59,9 +59,9 @@ public class IntakeSubsystem extends SubsystemBase {
     deployPID = new PIDController(0, 0, 0);
     leverPID = new PIDController(0, 0, 0);
 
-    //TODO: set me
     deployIntake(DeployStage.STOW);
     leverPID.enableContinuousInput(0, 360);
+    deployPID.enableContinuousInput(0, ENCODER_CPR);
     deployPID.setTolerance(2);
 
     initializeShuffleBoardWidgets();
@@ -99,6 +99,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   /**
+   * //TODO: specify power to direction correlation
    * @param pow -1 to 1 motor power
    */
   public void setLeverPow(double pow){
@@ -161,7 +162,7 @@ public class IntakeSubsystem extends SubsystemBase {
    */
   public void enabledPeriodic(){
     double deployPow;
-    deployPow = deployPID.calculate(deployEncoder.get());
+    deployPow = deployPID.calculate(deployEncoder.getAbsolutePosition());
     deployMotor.set(deployPow);
 
     if(leverPIDEnabled){
