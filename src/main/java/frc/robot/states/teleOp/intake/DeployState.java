@@ -47,24 +47,28 @@ public class DeployState implements frc.robot.State{
     //Manip Controller
     case MANIP:
       switch(event.button){
-      case A:
+    //intake cube/cone
+      case Y:
         if(event.action == Action.PRESSED && intakeSub.isDeployed()){
           rs.setState("intakeCube");
           return true;
         }
         break;
+    //intake downed cone
       case B:
         if(event.action == Action.PRESSED && intakeSub.isDeployed()){
           rs.setState("intakeDownedCone");
           return true;
         }
         break;
-      case X:
+    //intake downed inward cone
+      case A:
         if(event.action == Action.PRESSED && intakeSub.isDeployed()){
           rs.setState("intakeDownedInwardCone");
           return true;
         }
         break;
+    //TODO: fix me
       case RB:
         if(event.action == Action.PRESSED){
           rs.setState(parent);

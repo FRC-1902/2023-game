@@ -43,12 +43,14 @@ public class IntakeDownedConeState implements frc.robot.State{
     //Manip Controller
     case MANIP:
       switch(event.button){
+    //back
       case B:
         if(event.action == Action.RELEASED){
-          rs.setState("deployIntake");
+          rs.setState(parent);
           return true;
         }
         break;
+    //load piece
       case RB:
         if(event.action == Action.PRESSED){
           rs.setState("loadPiece");
