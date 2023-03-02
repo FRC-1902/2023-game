@@ -1,7 +1,9 @@
 package frc.robot.states.teleOp;
 
+import frc.robot.Event;
 import frc.robot.RobotStateManager;
 import frc.robot.State;
+import frc.robot.Controllers.Action;
 import frc.robot.subsystems.TurretvatorSubsystem;
 
 public class CenterTurretState implements State{
@@ -38,4 +40,23 @@ public class CenterTurretState implements State{
     public void Periodic(RobotStateManager rs) {
         tvSub.turretCenter();
     }
+
+    @Override
+  public boolean handleEvent(Event event, RobotStateManager rs) {
+    switch(event.controllerName){
+    //Manip Controller
+    case MANIP:
+      switch(event.button){
+      case RB:
+        if(event.action == Action.PRESSED){
+          rs.setState("deployIntake");
+          return true;
+        }
+        break;
+      default:
+      }
+    default:
+    }
+    return false;
+  }
 }

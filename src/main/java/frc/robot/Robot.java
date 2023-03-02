@@ -21,6 +21,11 @@ import frc.robot.states.*;
 import frc.robot.states.auto.*;
 import frc.robot.states.balance.BalanceOnPlatformState;
 import frc.robot.states.teleOp.*;
+import frc.robot.states.teleOp.intake.DeployState;
+import frc.robot.states.teleOp.intake.IntakeCubeState;
+import frc.robot.states.teleOp.intake.IntakeDownedConeState;
+import frc.robot.states.teleOp.intake.IntakeDownedInwardConeState;
+import frc.robot.states.teleOp.intake.LoadPieceState;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.TurretvatorSubsystem;
 
@@ -36,7 +41,7 @@ public class Robot extends TimedRobot {
   private RobotStateManager rs;
   private PowerDistribution pdh;
   private Controllers controllers;
-  private Compressor compressor;
+  private Compressor compressor;  
   private IntakeSubsystem intakeSubsystem;
   private TurretvatorSubsystem turretvatorSubsystem;
 
@@ -97,7 +102,12 @@ public class Robot extends TimedRobot {
     rs.addStates(
       new DisabledState("disabled", null),
       new TeleOpState("teleOp", null),
-      new CenterTurretState("driveTeleOp", "teleOp"),
+      new CenterTurretState("centerTurret", "teleOp"),
+      new DeployState("deployIntake", "centerTurret"),
+      new IntakeCubeState("intakeCube", "deployIntake"),
+      new IntakeDownedConeState("intakeDownedCone", "deployIntake"),
+      new IntakeDownedInwardConeState("intakeDownedInwardCone", "deployIntake"),
+      new LoadPieceState("loadPiece", "centerTurret"),
       new BalanceState("balance", null),
       new AutoState("auto", null),
       new PickupState("pickup", "auto"),

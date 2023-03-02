@@ -29,17 +29,17 @@ public class IntakeSubsystem extends SubsystemBase {
   private boolean leverSide, leverPIDEnabled;
   private double leverEncoderPrev;
 
-  public static enum DeployState{
+  public static enum DeployStage{
     STOW,LOAD,LOADDOWN,DOWN
   }
 
   //TODO: set me
-  public Map<Enum<DeployState>, Integer> deployMap = 
-        new HashMap<Enum<DeployState>, Integer>() {{
-            put(DeployState.STOW, 1);
-            put(DeployState.LOAD, 2);
-            put(DeployState.LOADDOWN,3);
-            put(DeployState.DOWN, 4);
+  public Map<Enum<DeployStage>, Integer> deployMap = 
+        new HashMap<Enum<DeployStage>, Integer>() {{
+            put(DeployStage.STOW, 1);
+            put(DeployStage.LOAD, 2);
+            put(DeployStage.LOADDOWN,3);
+            put(DeployStage.DOWN, 4);
         }};
 
   public IntakeSubsystem() {
@@ -60,8 +60,9 @@ public class IntakeSubsystem extends SubsystemBase {
     leverPID = new PIDController(0, 0, 0);
 
     //TODO: set me
-    deployIntake(DeployState.STOW);
+    deployIntake(DeployStage.STOW);
     leverPID.enableContinuousInput(0, 360);
+    deployPID.setTolerance(2);
 
     initializeShuffleBoardWidgets();
   }
@@ -85,9 +86,16 @@ public class IntakeSubsystem extends SubsystemBase {
    * Sets the deploy position for the intake
    * @param deployState boolean to set if deployed or not
    */
-  public void deployIntake(DeployState deployState){
+  public void deployIntake(DeployStage deployStage){
     //remember that it is in a 2:1 ratio from encoder turns to deployed turns
-    deployPID.setSetpoint(deployMap.get(deployState));
+    deployPID.setSetpoint(deployMap.get(deployStage));
+  }
+
+  /**
+   * @return if intake is within threshold from PID setpoint
+   */
+  public boolean isDeployed(){
+    return deployPID.atSetpoint();
   }
 
   /**
