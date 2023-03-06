@@ -14,16 +14,16 @@ package frc.robot;
  */
 public final class Constants {
   //CAN IDs (leave 0 blank to avoid confliction with new devices)
-  public static final int LEFT_DRIVE_ID_1 = 2;
-  public static final int LEFT_DRIVE_ID_2 = 3;
-  public static final int RIGHT_DRIVE_ID_1 = 4;
-  public static final int RIGHT_DRIVE_ID_2 = 5;
-  public static final int LEFT_ELEVATOR_ID = 6;
-  public static final int RIGHT_ELEVATOR_ID = 7;
-  public static final int TURRET_ID = 8;
-  public static final int DEPLOY_INTAKE_ID = 9;
+  public static final int LEFT_DRIVE_ID_1 = 9;
+  public static final int LEFT_DRIVE_ID_2 = 8;
+  public static final int RIGHT_DRIVE_ID_1 = 12;
+  public static final int RIGHT_DRIVE_ID_2 = 11;
+  public static final int LEFT_ELEVATOR_ID = 4;
+  public static final int RIGHT_ELEVATOR_ID = 5;
+  public static final int TURRET_ID = 13;
+  public static final int DEPLOY_INTAKE_ID = 6;
   public static final int LEVER_INTAKE_ID = 10;
-  public static final int ROLLER_INTAKE_ID = 11;
+  public static final int ROLLER_INTAKE_ID = 7;
 
   // Balancing constants
   public static final double PLATFORM_BALANCE_YAW_THRESHOLD_DEG = 5;
@@ -50,6 +50,7 @@ public final class Constants {
 
   // Shuffleboard junk
   public static final String MAIN_SHUFFLEBOARD_TAB = "Shuffleboard";
+  public static final String PID_SHUFFLEBOARD_TAB = "PID";
 
   // Elevator junk
   public static final double MAX_ELEVATOR_MOTOR_POWER = 0.25;

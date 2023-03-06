@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -25,21 +26,22 @@ public class IntakeSubsystem extends SubsystemBase {
   private DutyCycleEncoder deployEncoder, leverEncoder;
   private PIDController deployPID, leverPID;
   
-  private static final int ENCODER_CPR = 1024;
+  private static final int ENCODER_CPR = 1;
   private boolean leverSide, leverPIDEnabled;
   private double leverEncoderPrev;
 
   public static enum DeployStage{
-    STOW,LOAD,LOADDOWN,DOWN
+    STOW,START, LOAD,LOADDOWN,DOWN
   }
 
   //TODO: set me
-  public Map<Enum<DeployStage>, Integer> deployMap = 
-        new HashMap<Enum<DeployStage>, Integer>() {{
-            put(DeployStage.STOW, 1);
-            put(DeployStage.LOAD, 2);
-            put(DeployStage.LOADDOWN,3);
-            put(DeployStage.DOWN, 4);
+  public Map<Enum<DeployStage>, Double> deployMap = 
+        new HashMap<Enum<DeployStage>, Double>() {{
+            put(DeployStage.STOW, 0.0029);
+            put(DeployStage.START, 0.1474);
+            put(DeployStage.LOAD, 0.3055);
+            put(DeployStage.LOADDOWN, 0.3618);
+            put(DeployStage.DOWN, 0.4803);
         }};
 
   public IntakeSubsystem() {
@@ -47,16 +49,17 @@ public class IntakeSubsystem extends SubsystemBase {
     leverMotor = new CANSparkMax(Constants.LEVER_INTAKE_ID, MotorType.kBrushless);
     rollerMotor = new CANSparkMax(Constants.ROLLER_INTAKE_ID, MotorType.kBrushless);
 
+    deployMotor.setIdleMode(IdleMode.kBrake);
+
     deployEncoder = new DutyCycleEncoder(Constants.DEPLOY_INTAKE_ENCODER);
     leverEncoder = new DutyCycleEncoder(Constants.LEVER_INTAKE_ENCODER);
-    leverEncoder.setPositionOffset(0);//TODO: set me
     leverEncoderPrev = leverEncoder.getAbsolutePosition();
 
     //TODO: set me to where intake can't go
-    deployEncoder.setPositionOffset(0);
+    deployEncoder.setPositionOffset(0.6);
 
     //TODO: tune me
-    deployPID = new PIDController(0, 0, 0);
+    deployPID = new PIDController(0.001, 0, 0);
     leverPID = new PIDController(0, 0, 0);
 
     deployIntake(DeployStage.STOW);
@@ -70,9 +73,12 @@ public class IntakeSubsystem extends SubsystemBase {
   public void initializeShuffleBoardWidgets(){
     ShuffleboardLayout dashboardLayout = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)
       .getLayout("Intake", BuiltInLayouts.kList)
-      .withSize(4, 4);
+      .withSize(4, 1);
 
     dashboardLayout.addDouble("Lever Pos", () -> getLeverPos())
+      .withProperties(Map.of("Min", 0, "Max", 360))
+      .withWidget(BuiltInWidgets.kNumberBar);
+      dashboardLayout.addDouble("Lever Pow", () -> leverMotor.get())
       .withProperties(Map.of("Min", 0, "Max", 360))
       .withWidget(BuiltInWidgets.kNumberBar);
     dashboardLayout.addDouble("Deploy Pos", () -> deployEncoder.getAbsolutePosition())
@@ -97,6 +103,8 @@ public class IntakeSubsystem extends SubsystemBase {
   public boolean isDeployed(){
     return deployPID.atSetpoint();
   }
+
+  public double getDeployEncoder(){return deployEncoder.getAbsolutePosition();}
 
   /**
    * //TODO: specify power to direction correlation
@@ -184,3 +192,8 @@ public class IntakeSubsystem extends SubsystemBase {
     return instance;
   }
 }
+//intake to scorer 0.3055 grab 
+//deployed 0.4803
+//load down 0.3618
+//start 0.1474
+//highest 0.0029

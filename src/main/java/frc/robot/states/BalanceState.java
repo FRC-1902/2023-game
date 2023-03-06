@@ -37,7 +37,7 @@ public class BalanceState implements State {
     compass = new HeaderWrapper(0);
     drive = DriveSubsystem.getInstance();
 
-    ShuffleboardLayout pidTuningTab = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)
+    ShuffleboardLayout pidTuningTab = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)
       .getLayout("Balance Yaw PID", BuiltInLayouts.kList)
       .withSize(2, 3);
     
