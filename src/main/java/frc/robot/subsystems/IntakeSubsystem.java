@@ -26,15 +26,14 @@ public class IntakeSubsystem extends SubsystemBase {
   private DutyCycleEncoder deployEncoder, leverEncoder;
   private PIDController deployPID, leverPID;
   
-  private static final int ENCODER_CPR = 1;
-  private boolean leverSide, leverPIDEnabled;
+  private static final double ENCODER_CPR = 1.0;
+  private boolean leverSide, leverPIDEnabled, deployPIDEnabled;
   private double leverEncoderPrev;
 
   public static enum DeployStage{
-    STOW,START, LOAD,LOADDOWN,DOWN
+    STOW,START,LOAD,LOADDOWN,DOWN
   }
 
-  //TODO: set me
   public Map<Enum<DeployStage>, Double> deployMap = 
         new HashMap<Enum<DeployStage>, Double>() {{
             put(DeployStage.STOW, 0.0029);
@@ -55,17 +54,18 @@ public class IntakeSubsystem extends SubsystemBase {
     leverEncoder = new DutyCycleEncoder(Constants.LEVER_INTAKE_ENCODER);
     leverEncoderPrev = leverEncoder.getAbsolutePosition();
 
-    //TODO: set me to where intake can't go
-    deployEncoder.setPositionOffset(0.6);
-
     //TODO: tune me
-    deployPID = new PIDController(0.001, 0, 0);
-    leverPID = new PIDController(0, 0, 0);
+    //TODO: find way to map for gravity on deploy
+    deployPID = new PIDController(0.5, 0, 0);
+    leverPID = new PIDController(0.2, 0, 0);
 
-    deployIntake(DeployStage.STOW);
+    deployPIDEnabled = false;
+    //deployIntake(DeployStage.STOW);
+    
     leverPID.enableContinuousInput(0, 360);
+    leverPID.setTolerance(2);
     deployPID.enableContinuousInput(0, ENCODER_CPR);
-    deployPID.setTolerance(2);
+    deployPID.setTolerance(0.05);
 
     initializeShuffleBoardWidgets();
   }
@@ -94,6 +94,7 @@ public class IntakeSubsystem extends SubsystemBase {
    */
   public void deployIntake(DeployStage deployStage){
     //remember that it is in a 2:1 ratio from encoder turns to deployed turns
+    deployPIDEnabled = true;
     deployPID.setSetpoint(deployMap.get(deployStage));
   }
 
@@ -107,8 +108,7 @@ public class IntakeSubsystem extends SubsystemBase {
   public double getDeployEncoder(){return deployEncoder.getAbsolutePosition();}
 
   /**
-   * //TODO: specify power to direction correlation
-   * @param pow -1 to 1 motor power
+   * @param pow -1 to 1 motor power (positive is outward)
    */
   public void setLeverPow(double pow){
     leverPIDEnabled = false;
@@ -119,8 +119,8 @@ public class IntakeSubsystem extends SubsystemBase {
    * poll in periodic for all lever code to work
    */
   public void updateLeverSide(){
-    double leverEncoderPos = leverEncoder.getAbsolutePosition();
-    if(Math.abs(leverEncoderPos - leverEncoderPrev) >= ENCODER_CPR/4){leverSide = !leverSide;}
+    double leverEncoderPos =  leverEncoder.getAbsolutePosition();
+    if(Math.abs(leverEncoderPos - leverEncoderPrev) >= ENCODER_CPR/3.0){leverSide = !leverSide;}
     leverEncoderPrev=leverEncoderPos;
   }
 
@@ -136,6 +136,10 @@ public class IntakeSubsystem extends SubsystemBase {
       pos += 180;
     }
     return pos;
+  }
+
+  public boolean isLeverAtSetpoint(){
+    return leverPID.atSetpoint();
   }
 
   /**
@@ -169,15 +173,17 @@ public class IntakeSubsystem extends SubsystemBase {
    * lever side detection for bad ratio
    */
   public void enabledPeriodic(){
-    double deployPow;
-    deployPow = deployPID.calculate(deployEncoder.getAbsolutePosition());
-    deployMotor.set(deployPow);
-
-    if(leverPIDEnabled){
-      leverPID.calculate(getLeverPos());
+    updateLeverSide();
+    if(deployPIDEnabled){
+      double deployPow;
+      deployPow = deployPID.calculate(deployEncoder.getAbsolutePosition());
+      deployMotor.set(deployPow);
     }
 
-    updateLeverSide();
+    if(leverPIDEnabled){
+      leverMotor.set(leverPID.calculate(getLeverPos()));
+    }
+
   }
 
   public void disabledPeriodic(){
@@ -192,8 +198,3 @@ public class IntakeSubsystem extends SubsystemBase {
     return instance;
   }
 }
-//intake to scorer 0.3055 grab 
-//deployed 0.4803
-//load down 0.3618
-//start 0.1474
-//highest 0.0029

@@ -16,6 +16,7 @@ public class TestState implements State{
     private DriveSubsystem driveSub;
     private IntakeSubsystem intakeSub;
     private IMUSubsystem imu;
+    private int stage;
     
     public TestState(String name, String parent){
         this.name = name;
@@ -39,6 +40,8 @@ public class TestState implements State{
     @Override
     public void Enter() {
         System.out.println("entered " + name);
+        intakeSub.deployIntake(DeployStage.STOW);
+        stage = 0;
     }
 
     @Override
@@ -48,8 +51,25 @@ public class TestState implements State{
 
     @Override
     public void Periodic(RobotStateManager rs) {
-        System.out.println(intakeSub.getDeployEncoder());
-        intakeSub.deployIntake(DeployStage.STOW);
+        switch(stage){
+        case 0:
+            if(intakeSub.isDeployed()){
+                intakeSub.setLeverPos(50);
+                stage ++;
+            }else{break;}
+        case 1:
+            if(intakeSub.isLeverAtSetpoint()){
+                intakeSub.deployIntake(DeployStage.DOWN);
+                stage ++;
+            }else{break;}
+        case 2:
+            if(intakeSub.isDeployed()){
+                System.out.println("FINISHED");
+            }
+        }
+        
+        
+        //intakeSub.deployIntake(DeployStage.STOW);
     }
 
     public void handleEvent(Event event, RobotStateManager rs){
