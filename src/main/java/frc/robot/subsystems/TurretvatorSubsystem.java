@@ -26,8 +26,8 @@ import frc.robot.Constants;
 public class TurretvatorSubsystem extends SubsystemBase {
   private static TurretvatorSubsystem instance;
 
-  public static final int throughboreCPR = 1024; //TODO: check me
-  public static final int turretCenter = throughboreCPR/2; //TODO: set me
+  public static final double throughboreCPR = 1; //TODO: check me
+  public static final double turretCenter = 0.05069575126739378; //TODO: set me
   public static final int turretMaxAngle = 90;
   public static final int elevatorStop = 0; //TODO: set me
 
@@ -45,7 +45,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
   private Solenoid gripperSolenoidA, gripperSolenoidB;
 
   public void initializeShuffleBoardWidgets() {
-    ShuffleboardLayout dashboardLayout = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)
+    ShuffleboardLayout dashboardLayout = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)
       .getLayout("Turret PID", BuiltInLayouts.kList)
       .withSize(4, 4);
 
@@ -84,7 +84,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
     turretEncoder = new DutyCycleEncoder(Constants.TURRET_ENCODER);
     //TODO: Tune me
     turretPID = new PIDController(0, 0, 0);
-    turretPID.enableContinuousInput(0, throughboreCPR);
+    //turretPID.enableContinuousInput(0, throughboreCPR);
     turretPID.setTolerance(2); //TODO: set me
 
     gripperSolenoidA = new Solenoid(PneumaticsModuleType.REVPH, Constants.GRIPPER_SOLENOID_A);
@@ -177,7 +177,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
     double elevatorPower;
     // Calculates how much the motors should rotate in order to maintain a constant distance
     double desiredElevatorRotations = 
-      desiredElevatorDistance / (Math.cos(Math.toRadians(90 - Math.abs(turretEncoder.getAbsolutePosition()))) *
+      desiredElevatorDistance / (Math.cos(Math.PI / 2 - Math.abs(turretEncoder.getAbsolutePosition() * throughboreCPR) * Math.PI) *
         Math.cos(Math.toRadians(Constants.ELEVATOR_PITCH_DEG)) *
         Constants.ELEVATOR_CM_PER_ROTATION);
 
@@ -206,14 +206,23 @@ public class TurretvatorSubsystem extends SubsystemBase {
     turretPID.setI(turretIWidget.getDouble(0));
     turretPID.setD(turretDWidget.getDouble(0));
 
-    turretMotor.set(turretPID.calculate(turretEncoder.getAbsolutePosition()));
+    turretMotor.set(turretPID.calculate((turretEncoder.getAbsolutePosition()) * 360 / throughboreCPR));
+  }
+
+  public void gripperSet(boolean isDeployed) {
+    gripperSolenoidA.set(isDeployed);
+    gripperSolenoidB.set(isDeployed);
   }
 
   // Called from Robot
   @Override
   public void periodic() {
-    elevatorPeriodic();
-    turretPeriodic();
+    //elevatorPeriodic();
+    //turretPeriodic();
+
+    
+
+    System.out.println(turretEncoder.getAbsolutePosition());
 
     initialPeriodic = false;
   }
