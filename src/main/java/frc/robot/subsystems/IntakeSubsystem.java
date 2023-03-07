@@ -35,20 +35,20 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public Map<Enum<DeployStage>, Double> deployMap = 
-        new HashMap<Enum<DeployStage>, Double>() {{
-            put(DeployStage.STOW, 0.0029);
-            put(DeployStage.START, 0.1474);
-            put(DeployStage.LOAD, 0.3055);
-            put(DeployStage.LOADDOWN, 0.3618);
-            put(DeployStage.DOWN, 0.4803);
-        }};
+    new HashMap<Enum<DeployStage>, Double>() {{
+        put(DeployStage.STOW, 0.0029);
+        put(DeployStage.START, 0.1474);
+        put(DeployStage.LOAD, 0.3055);
+        put(DeployStage.LOADDOWN, 0.3618);
+        put(DeployStage.DOWN, 0.4803);
+    }};
 
   public IntakeSubsystem() {
     deployMotor = new CANSparkMax(Constants.DEPLOY_INTAKE_ID, MotorType.kBrushless);
     leverMotor = new CANSparkMax(Constants.LEVER_INTAKE_ID, MotorType.kBrushless);
     rollerMotor = new CANSparkMax(Constants.ROLLER_INTAKE_ID, MotorType.kBrushless);
 
-    deployMotor.setIdleMode(IdleMode.kBrake);
+    //deployMotor.setIdleMode(IdleMode.kBrake);
 
     deployEncoder = new DutyCycleEncoder(Constants.DEPLOY_INTAKE_ENCODER);
     leverEncoder = new DutyCycleEncoder(Constants.LEVER_INTAKE_ENCODER);
@@ -56,7 +56,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     //TODO: tune me
     //TODO: find way to map for gravity on deploy
-    deployPID = new PIDController(0.5, 0, 0);
+    deployPID = new PIDController(0.5, 0.1, 0.1);
     leverPID = new PIDController(0.2, 0, 0);
 
     deployPIDEnabled = false;
@@ -65,7 +65,7 @@ public class IntakeSubsystem extends SubsystemBase {
     leverPID.enableContinuousInput(0, 360);
     leverPID.setTolerance(2);
     deployPID.enableContinuousInput(0, ENCODER_CPR);
-    deployPID.setTolerance(0.05);
+    deployPID.setTolerance(0.0056);
 
     initializeShuffleBoardWidgets();
   }
@@ -174,16 +174,27 @@ public class IntakeSubsystem extends SubsystemBase {
    */
   public void enabledPeriodic(){
     updateLeverSide();
+    //TODO: validate gravity code, just committed by end of night
     if(deployPIDEnabled){
+      
+      double Kcos = 0.125;
+      double xPositionOfIntake =  Math.sin(deployEncoder.getAbsolutePosition() * Math.PI);
+      double powerFromGravity = xPositionOfIntake * Kcos;
+      if (deployEncoder.getAbsolutePosition() > .6) powerFromGravity *= -1;
+
       double deployPow;
       deployPow = deployPID.calculate(deployEncoder.getAbsolutePosition());
+      
+      deployPow += -powerFromGravity;
+      System.out.format("power from gravity %.3f\n deploy pow %.3f\n",powerFromGravity, deployPow);
+
       deployMotor.set(deployPow);
     }
 
     if(leverPIDEnabled){
       leverMotor.set(leverPID.calculate(getLeverPos()));
     }
-
+    System.out.println(deployEncoder.getAbsolutePosition());
   }
 
   public void disabledPeriodic(){
