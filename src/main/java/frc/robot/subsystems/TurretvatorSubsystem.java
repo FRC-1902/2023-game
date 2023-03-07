@@ -23,6 +23,21 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
+class NonWrappingDutyCycleEncoder extends DutyCycleEncoder {
+  private double cpr;
+
+  public NonWrappingDutyCycleEncoder(int canID, double cpr) {
+    super(canID);
+
+    this.cpr = cpr;
+  }
+
+  public double getAbsolutePosition() {
+    double encoder = super.getAbsolutePosition();
+    return (encoder <= cpr / 2) ? encoder : (encoder - cpr);
+  }
+}
+
 public class TurretvatorSubsystem extends SubsystemBase {
   private static TurretvatorSubsystem instance;
 
@@ -40,7 +55,8 @@ public class TurretvatorSubsystem extends SubsystemBase {
 
   private CANSparkMax elevatorLeft, elevatorRight, turretMotor;
   private MotorControllerGroup elevatorMotors;
-  private DutyCycleEncoder elevatorLeftEncoder, elevatorRightEncoder, turretEncoder;
+  private DutyCycleEncoder elevatorLeftEncoder, elevatorRightEncoder;
+  private NonWrappingDutyCycleEncoder turretEncoder;
   private PIDController elevatorPID, turretPID;
   private Solenoid gripperSolenoidA, gripperSolenoidB;
 
@@ -81,11 +97,11 @@ public class TurretvatorSubsystem extends SubsystemBase {
     elevatorPID.setTolerance(2); //TODO: set me
 
     turretMotor = new CANSparkMax(Constants.TURRET_ID, MotorType.kBrushless);
-    turretEncoder = new DutyCycleEncoder(Constants.TURRET_ENCODER);
+    turretEncoder = new NonWrappingDutyCycleEncoder(Constants.TURRET_ENCODER, throughboreCPR);
     //TODO: Tune me
     turretPID = new PIDController(0, 0, 0);
  
-    turretPID.enableContinuousInput(0, throughboreCPR);
+    //turretPID.enableContinuousInput(0, throughboreCPR);
     turretPID.setTolerance(2); //TODO: set me
 
     gripperSolenoidA = new Solenoid(PneumaticsModuleType.REVPH, Constants.GRIPPER_SOLENOID_A);
