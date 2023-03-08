@@ -176,10 +176,18 @@ public class TurretvatorSubsystem extends SubsystemBase {
 
     double elevatorPower;
     // Calculates how much the motors should rotate in order to maintain a constant distance
+    // double desiredElevatorRotations = 
+    //   desiredElevatorDistance / (Math.cos(Math.PI / 2 - Math.abs(turretEncoder.getAbsolutePosition() * throughboreCPR) * Math.PI) *
+    //     Math.cos(Math.toRadians(Constants.ELEVATOR_PITCH_DEG)) *
+    //     Constants.ELEVATOR_CM_PER_ROTATION);
+
+    // assuming 0 is straight ahead
+    double turretInRadiansZeroForward = turretEncoder.getAbsolutePosition() * 2* Math.PI;
     double desiredElevatorRotations = 
-      desiredElevatorDistance / (Math.cos(Math.PI / 2 - Math.abs(turretEncoder.getAbsolutePosition() * throughboreCPR) * Math.PI) *
-        Math.cos(Math.toRadians(Constants.ELEVATOR_PITCH_DEG)) *
-        Constants.ELEVATOR_CM_PER_ROTATION);
+      desiredElevatorDistance 
+      / (Constants.ELEVATOR_CM_PER_ROTATION 
+        * Math.cos(turretInRadiansZeroForward) 
+        * Math.cos(Math.toRadians(Constants.ELEVATOR_PITCH_DEG)));
 
     if (desiredElevatorRotations > elevatorStop || desiredElevatorRotations < 0)
       System.out.println("Elevator is extended to extreme!");
@@ -190,8 +198,8 @@ public class TurretvatorSubsystem extends SubsystemBase {
     elevatorPID.setI(elevatorIWidget.getDouble(0));
     elevatorPID.setD(elevatorDWidget.getDouble(0));
     elevatorPID.setSetpoint(desiredElevatorRotations * throughboreCPR - elevatorEncoderOffset);
-    elevatorPower = Math.min(
-      Math.max(
+    elevatorPower = Math.max(
+      Math.min(
         elevatorPID.calculate(elevatorLeftEncoder.get()),
         Constants.MAX_ELEVATOR_MOTOR_POWER
       ),
