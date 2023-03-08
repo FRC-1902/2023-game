@@ -21,9 +21,9 @@ public final class Constants {
   public static final int LEFT_ELEVATOR_ID = 4;
   public static final int RIGHT_ELEVATOR_ID = 5;
   public static final int TURRET_ID = 13;
-  public static final int DEPLOY_INTAKE_ID = 6;
-  public static final int LEVER_INTAKE_ID = 10;
-  public static final int ROLLER_INTAKE_ID = 7;
+  // public static final int DEPLOY_INTAKE_ID = 6;
+  // public static final int LEVER_INTAKE_ID = 10;
+  // public static final int ROLLER_INTAKE_ID = 7;
 
   // Balancing constants
   public static final double PLATFORM_BALANCE_YAW_THRESHOLD_DEG = 5;
@@ -45,8 +45,8 @@ public final class Constants {
   public static final int TURRET_ENCODER = 4;
   public static final int LEFT_ELEVATOR_ENCODER = 5;
   public static final int RIGHT_ELEVATOR_ENCODER = 6;
-  public static final int DEPLOY_INTAKE_ENCODER = 7;
-  public static final int LEVER_INTAKE_ENCODER = 8;
+  // public static final int DEPLOY_INTAKE_ENCODER = 7;
+  // public static final int LEVER_INTAKE_ENCODER = 8;
 
   // Shuffleboard junk
   public static final String MAIN_SHUFFLEBOARD_TAB = "Shuffleboard";
