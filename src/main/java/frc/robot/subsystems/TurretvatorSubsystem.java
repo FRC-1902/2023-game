@@ -228,7 +228,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
 
   public void gripperSet(boolean isDeployed) {
     gripperSolenoidA.set(isDeployed);
-    gripperSolenoidB.set(isDeployed);
+    gripperSolenoidB.set(!isDeployed);
   }
 
   // Called from Robot

@@ -194,7 +194,6 @@ public class IntakeSubsystem extends SubsystemBase {
     if(leverPIDEnabled){
       leverMotor.set(leverPID.calculate(getLeverPos()));
     }
-    System.out.println(deployEncoder.getAbsolutePosition());
   }
 
   public void disabledPeriodic(){
