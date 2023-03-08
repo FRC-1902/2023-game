@@ -84,7 +84,8 @@ public class TurretvatorSubsystem extends SubsystemBase {
     turretEncoder = new DutyCycleEncoder(Constants.TURRET_ENCODER);
     //TODO: Tune me
     turretPID = new PIDController(0, 0, 0);
-    //turretPID.enableContinuousInput(0, throughboreCPR);
+ 
+    turretPID.enableContinuousInput(0, throughboreCPR);
     turretPID.setTolerance(2); //TODO: set me
 
     gripperSolenoidA = new Solenoid(PneumaticsModuleType.REVPH, Constants.GRIPPER_SOLENOID_A);
