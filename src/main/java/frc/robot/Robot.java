@@ -21,12 +21,12 @@ import frc.robot.states.*;
 import frc.robot.states.auto.*;
 import frc.robot.states.balance.BalanceOnPlatformState;
 import frc.robot.states.teleOp.*;
-import frc.robot.states.teleOp.intake.DeployState;
-import frc.robot.states.teleOp.intake.IntakeCubeState;
-import frc.robot.states.teleOp.intake.IntakeDownedConeState;
-import frc.robot.states.teleOp.intake.IntakeDownedInwardConeState;
-import frc.robot.states.teleOp.intake.LoadPieceState;
-import frc.robot.subsystems.IntakeSubsystem;
+// import frc.robot.states.teleOp.intake.DeployState;
+// import frc.robot.states.teleOp.intake.IntakeCubeState;
+// import frc.robot.states.teleOp.intake.IntakeDownedConeState;
+// import frc.robot.states.teleOp.intake.IntakeDownedInwardConeState;
+// import frc.robot.states.teleOp.intake.LoadPieceState;
+// import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.TurretvatorSubsystem;
 
 /**
@@ -42,7 +42,7 @@ public class Robot extends TimedRobot {
   private PowerDistribution pdh;
   private Controllers controllers;
   private Compressor compressor;  
-  private IntakeSubsystem intakeSubsystem;
+  // private IntakeSubsystem intakeSubsystem;
   private TurretvatorSubsystem turretvatorSubsystem;
 
   public void initializeShuffleBoardWidgets() {
@@ -91,16 +91,16 @@ public class Robot extends TimedRobot {
     controllers = Controllers.getInstance();
 
     rs = RobotStateManager.getInstance();
-    intakeSubsystem = IntakeSubsystem.getInstance();
+    // intakeSubsystem = IntakeSubsystem.getInstance();
     rs.addStates(
       new DisabledState("disabled", null),
       new TeleOpState("teleOp", null),
       new CenterTurretState("centerTurret", "teleOp"),
-      new DeployState("deployIntake", "centerTurret"),
-      new IntakeCubeState("intakeCube", "deployIntake"),
-      new IntakeDownedConeState("intakeDownedCone", "deployIntake"),
-      new IntakeDownedInwardConeState("intakeDownedInwardCone", "deployIntake"),
-      new LoadPieceState("loadPiece", "centerTurret"),
+      // new DeployState("deployIntake", "centerTurret"),
+      // new IntakeCubeState("intakeCube", "deployIntake"),
+      // new IntakeDownedConeState("intakeDownedCone", "deployIntake"),
+      // new IntakeDownedInwardConeState("intakeDownedInwardCone", "deployIntake"),
+      // new LoadPieceState("loadPiece", "centerTurret"),
       new BalanceState("balance", null),
       new AutoState("auto", null),
       new PickupState("pickup", "auto"),
@@ -152,7 +152,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    intakeSubsystem.disabledPeriodic();
+    // intakeSubsystem.disabledPeriodic();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
@@ -170,7 +170,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    intakeSubsystem.enabledPeriodic();
+    // intakeSubsystem.enabledPeriodic();
   }
 
   @Override
@@ -189,7 +189,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     controllers.eventPeriodic();
-    intakeSubsystem.enabledPeriodic();
+    // intakeSubsystem.enabledPeriodic();
   }
 
   @Override
@@ -209,7 +209,7 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {
     controllers.eventPeriodic();
-    intakeSubsystem.enabledPeriodic();
+    // intakeSubsystem.enabledPeriodic();
   }
 
   /** This function is called once when the robot is first started up. */

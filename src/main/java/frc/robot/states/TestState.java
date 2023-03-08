@@ -6,16 +6,16 @@ import frc.robot.RobotStateManager;
 import frc.robot.State;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IMUSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
+// import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.TurretvatorSubsystem;
-import frc.robot.subsystems.IntakeSubsystem.DeployStage;
+// import frc.robot.subsystems.IntakeSubsystem.DeployStage;
 import frc.robot.Controllers.*;
 
 public class TestState implements State{
     private String name, parent;
     private TurretvatorSubsystem tvSub;
     private DriveSubsystem driveSub;
-    private IntakeSubsystem intakeSub;
+    // private IntakeSubsystem intakeSub;
     private IMUSubsystem imu;
     private int stage;
     
@@ -24,7 +24,7 @@ public class TestState implements State{
         this.parent = parent;
         tvSub = TurretvatorSubsystem.getInstance();
         driveSub = DriveSubsystem.getInstance();
-        intakeSub = IntakeSubsystem.getInstance();
+        // intakeSub = IntakeSubsystem.getInstance();
         imu = IMUSubsystem.getInstance();
     }
 
