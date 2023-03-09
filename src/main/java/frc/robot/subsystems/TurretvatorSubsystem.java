@@ -22,9 +22,6 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Controllers;
-import frc.robot.Controllers.ControllerName;
-import frc.robot.Controllers.Axis;
 
 public class TurretvatorSubsystem extends SubsystemBase {
   private static TurretvatorSubsystem instance;
@@ -36,11 +33,11 @@ public class TurretvatorSubsystem extends SubsystemBase {
 
   private double desiredElevatorDistance = 0;
   private double elevatorEncoderOffset = 0;
-
   private boolean initialPeriodic = true;
 
-  private GenericEntry turretPWidget, turretIWidget, turretDWidget, elevatorPWidget, elevatorIWidget, elevatorDWidget;
+  private long turretRampTime;
 
+  private GenericEntry turretPWidget, turretIWidget, turretDWidget, elevatorPWidget, elevatorIWidget, elevatorDWidget;
   private CANSparkMax elevatorLeft, elevatorRight, turretMotor;
   private MotorControllerGroup elevatorMotors;
   private DutyCycleEncoder elevatorLeftEncoder, elevatorRightEncoder;
@@ -208,12 +205,27 @@ public class TurretvatorSubsystem extends SubsystemBase {
   }
 
   private void turretPeriodic() {
+    double turretPow;
+
     turretPID.setP(turretPWidget.getDouble(0.9) * 10);
     turretPID.setI(turretIWidget.getDouble(0) * 10);
     turretPID.setD(turretDWidget.getDouble(0) * 10);
 
-    turretMotor.set(turretPID.calculate(turretEncoder.getAbsolutePosition() - 0.393));
+    
     //TODO: add wraparound protection!
+    //TODO: finish ramp soak on turret
+    
+    turretPow = turretPID.calculate(turretEncoder.getAbsolutePosition() - 0.393);
+    
+    //ramp soak for smooth startup
+    if(turretPID.atSetpoint()){
+      turretRampTime = System.currentTimeMillis();
+    }
+    //if(System.currentTimeMillis() - turretRampTime <= 2000.0 && !turretPID.atSetpoint()){
+    //  turretPow *= 1/((Math.abs(System.currentTimeMillis() - turretRampTime)+1.0)/2000.0);
+    //}
+
+    turretMotor.set(turretPow);
   }
 
   // Called from Robot
