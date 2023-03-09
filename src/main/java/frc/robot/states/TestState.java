@@ -52,53 +52,11 @@ public class TestState implements State{
 
     @Override
     public void Periodic(RobotStateManager rs) {
-        /*
-        switch(stage){
-        case 0:
-            if(intakeSub.isDeployed()){
-                intakeSub.setLeverPos(50);
-                stage ++;
-            }else{break;}
-        case 1:
-            if(intakeSub.isLeverAtSetpoint()){
-                intakeSub.deployIntake(DeployStage.DOWN);
-                stage ++;
-            }else{break;}
-        case 2:
-            if(intakeSub.isDeployed()){
-                System.out.println("FINISHED");
-            }
-        }*/
-        //System.out.println(intakeSub.getDeployEncoder());
-
-        
-        //intakeSub.deployIntake(DeployStage.STOW);
+        tvSub.elevatorSet(0.0);
     }
 
     @Override
     public boolean handleEvent(Event event, RobotStateManager rs){
-        switch(event.controllerName){
-            case MANIP:
-                switch(event.button){
-                    case X:
-                        if(event.action == Action.PRESSED){
-                            tvSub.gripperSet(false);
-                            System.out.println("gripper set false");
-                            return true;
-                        }
-                        break;
-                    case Y:
-                        if(event.action == Action.PRESSED){
-                            tvSub.gripperSet(true);
-                            System.out.println("gripper set true");
-                            return true;
-                        }
-                        
-                        break;
-                }
-                break;
-
-        }
         return false;
     }
 }

@@ -10,13 +10,16 @@ public class TeleOpState implements frc.robot.State{
 
   private String name, parent;
   private DriveSubsystem driveSub;
+  private TurretvatorSubsystem tvSub;
   private Controllers controllers;
   
   public TeleOpState(String name, String parent){
     this.name = name;
     this.parent = parent;
     driveSub = DriveSubsystem.getInstance();
+    tvSub = TurretvatorSubsystem.getInstance();
     controllers = Controllers.getInstance();
+    
   }
 
   @Override
@@ -85,10 +88,27 @@ public class TeleOpState implements frc.robot.State{
       }
     //Manip Controller
     case MANIP:
-      switch(event.button){
-      default:
-      }
-    }
-    return false;
+            switch(event.button){
+                case B:
+                    if(event.action == Action.PRESSED){
+                        tvSub.gripperSet(false);
+                        System.out.println("gripper set false");
+                        return true;
+                    }
+                    break;
+                case X:
+                    if(event.action == Action.PRESSED){
+                        tvSub.gripperSet(true);
+                        System.out.println("gripper set true");
+                        return true;
+                    }
+                    break;
+              default:
+                break;
+            }
+            break;
+
+        }
+        return false;
   }
 }
