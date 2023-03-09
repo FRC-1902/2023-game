@@ -22,21 +22,9 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-
-class NonWrappingDutyCycleEncoder extends DutyCycleEncoder {
-  private double cpr;
-
-  public NonWrappingDutyCycleEncoder(int canID, double cpr) {
-    super(canID);
-
-    this.cpr = cpr;
-  }
-
-  public double getAbsolutePosition() {
-    double encoder = super.getAbsolutePosition();
-    return (encoder <= cpr / 2) ? encoder : (encoder - cpr);
-  }
-}
+import frc.robot.Controllers;
+import frc.robot.Controllers.ControllerName;
+import frc.robot.Controllers.Axis;
 
 public class TurretvatorSubsystem extends SubsystemBase {
   private static TurretvatorSubsystem instance;
@@ -56,7 +44,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
   private CANSparkMax elevatorLeft, elevatorRight, turretMotor;
   private MotorControllerGroup elevatorMotors;
   private DutyCycleEncoder elevatorLeftEncoder, elevatorRightEncoder;
-  private NonWrappingDutyCycleEncoder turretEncoder;
+  private DutyCycleEncoder turretEncoder;
   private PIDController elevatorPID, turretPID;
   private Solenoid gripperSolenoidA, gripperSolenoidB;
 
@@ -66,7 +54,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
       .withSize(4, 4);
 
     turretPWidget = dashboardLayout
-      .add("Turret PID - Proportional", 0)
+      .add("Turret PID - Proportional", 0.9)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
     turretIWidget = dashboardLayout
       .add("Turret PID - Integral", 0)
@@ -97,12 +85,13 @@ public class TurretvatorSubsystem extends SubsystemBase {
     elevatorPID.setTolerance(2); //TODO: set me
 
     turretMotor = new CANSparkMax(Constants.TURRET_ID, MotorType.kBrushless);
-    turretEncoder = new NonWrappingDutyCycleEncoder(Constants.TURRET_ENCODER, throughboreCPR);
+    turretMotor.setInverted(true);
+    turretEncoder = new DutyCycleEncoder(Constants.TURRET_ENCODER);
     //TODO: Tune me
     turretPID = new PIDController(0, 0, 0);
  
-    //turretPID.enableContinuousInput(0, throughboreCPR);
-    turretPID.setTolerance(2); //TODO: set me
+    turretPID.enableContinuousInput(0, throughboreCPR);
+    turretPID.setTolerance(0.001); //TODO: set me
 
     gripperSolenoidA = new Solenoid(PneumaticsModuleType.REVPH, Constants.GRIPPER_SOLENOID_A);
     gripperSolenoidB = new Solenoid(PneumaticsModuleType.REVPH, Constants.GRIPPER_SOLENOID_B);
@@ -139,7 +128,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
    * turns with PID
    * @param degrees degree set (+/- max turret angle)
    */
-  public void turretSet(double degrees){
+  public void setTurret(double degrees){
     //TODO: test me
     if(Math.abs(degrees) > turretMaxAngle){
       System.out.println("Degree put into TurretvatorSubsystem.turretSet too large!");
@@ -219,27 +208,19 @@ public class TurretvatorSubsystem extends SubsystemBase {
   }
 
   private void turretPeriodic() {
-    turretPID.setP(turretPWidget.getDouble(0));
-    turretPID.setI(turretIWidget.getDouble(0));
-    turretPID.setD(turretDWidget.getDouble(0));
+    turretPID.setP(turretPWidget.getDouble(0.9) * 10);
+    turretPID.setI(turretIWidget.getDouble(0) * 10);
+    turretPID.setD(turretDWidget.getDouble(0) * 10);
 
-    turretMotor.set(turretPID.calculate((turretEncoder.getAbsolutePosition()) * 360 / throughboreCPR));
-  }
-
-  public void gripperSet(boolean isDeployed) {
-    gripperSolenoidA.set(isDeployed);
-    gripperSolenoidB.set(!isDeployed);
+    turretMotor.set(turretPID.calculate(turretEncoder.getAbsolutePosition() - 0.393));
+    //TODO: add wraparound protection!
   }
 
   // Called from Robot
   @Override
   public void periodic() {
     //elevatorPeriodic();
-    //turretPeriodic();
-
-    
-
-    System.out.println(turretEncoder.getAbsolutePosition());
+    turretPeriodic();
 
     initialPeriodic = false;
   }

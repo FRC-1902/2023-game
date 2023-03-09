@@ -1,5 +1,6 @@
 package frc.robot.states;
 
+import frc.robot.Controllers;
 import frc.robot.Event;
 import edu.wpi.first.wpilibj.RobotState;
 import frc.robot.RobotStateManager;
@@ -15,17 +16,17 @@ public class TestState implements State{
     private String name, parent;
     private TurretvatorSubsystem tvSub;
     private DriveSubsystem driveSub;
-    // private IntakeSubsystem intakeSub;
     private IMUSubsystem imu;
     private int stage;
+    private Controllers controllers;
     
     public TestState(String name, String parent){
         this.name = name;
         this.parent = parent;
         tvSub = TurretvatorSubsystem.getInstance();
         driveSub = DriveSubsystem.getInstance();
-        // intakeSub = IntakeSubsystem.getInstance();
         imu = IMUSubsystem.getInstance();
+        controllers = Controllers.getInstance();
     }
 
     @Override
@@ -41,8 +42,6 @@ public class TestState implements State{
     @Override
     public void Enter() {
         System.out.println("entered " + name);
-        //intakeSub.deployIntake(DeployStage.STOW);
-        //stage = 0;
     }
 
     @Override
@@ -52,7 +51,7 @@ public class TestState implements State{
 
     @Override
     public void Periodic(RobotStateManager rs) {
-        tvSub.elevatorSet(0.0);
+        tvSub.setTurret(controllers.get(ControllerName.MANIP, Axis.RX) *  90);
     }
 
     @Override

@@ -134,7 +134,6 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     rs.periodic();
 
-    //turretvatorSubsystem.periodic();
 
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
@@ -170,6 +169,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
+    turretvatorSubsystem.periodic();
     // intakeSubsystem.enabledPeriodic();
   }
 
@@ -189,6 +189,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     controllers.eventPeriodic();
+    turretvatorSubsystem.periodic();
     // intakeSubsystem.enabledPeriodic();
   }
 
@@ -208,6 +209,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {
+    turretvatorSubsystem.periodic();
     controllers.eventPeriodic();
     // intakeSubsystem.enabledPeriodic();
   }
