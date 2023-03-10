@@ -29,7 +29,6 @@ public class TurretvatorSubsystem extends SubsystemBase {
   private static TurretvatorSubsystem instance;
 
   public static final double throughboreCPR = 1; //TODO: check me
-  public static final double turretCenter = 0.05069575126739378; //TODO: set me
   public static final int turretMaxAngle = 90;
   public static final double elevatorStop = 4.5; //TODO: set me
 
@@ -118,14 +117,14 @@ public class TurretvatorSubsystem extends SubsystemBase {
    * Starts to center the turret.
    */
   public void centerTurret(){
-    turretPID.setSetpoint(turretCenter);
+    turretPID.setSetpoint(0);
   }
 
   /**
    * @return whether or not the turret is centered
    */
   public boolean isCentered() {
-    return turretPID.atSetpoint() && turretPID.getSetpoint() == turretCenter;
+    return turretPID.atSetpoint() && turretPID.getSetpoint() == 0;
   }
 
   /**
@@ -188,7 +187,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
     double elevatorPower;
     // Calculates how much the motors should rotate in order to maintain a constant distance
     // double desiredElevatorRotations = 
-    //   desiredElevatorDistance / (Math.cos((turretEncoder.getAbsolutePosition()-turretCenter) * throughboreCPR * Math.PI * 2) *
+    //   desiredElevatorDistance / (Math.cos((turretEncoder.getAbsolutePosition() - 0.393 + 1)%1 * throughboreCPR * Math.PI * 2) *
     //   Math.cos(Math.toRadians(Constants.ELEVATOR_PITCH_DEG)) *
     //   Constants.ELEVATOR_CM_PER_ROTATION);
     double desiredElevatorRotations = desiredElevatorDistance; 
@@ -230,7 +229,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
     //TODO: add wraparound protection!
     //TODO: finish ramp soak on turret
     
-    turretPow = turretPID.calculate(turretEncoder.getAbsolutePosition() - 0.393);
+    turretPow = turretPID.calculate((turretEncoder.getAbsolutePosition() - 0.393 + 1)%1);
     
     //ramp soak for smooth startup
     if(turretPID.atSetpoint()){
@@ -252,7 +251,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
 
     
     // elevatorMotors.set(ly/2.0 + addPower);
-    // turretPeriodic();
+    turretPeriodic();
     //Medium l 3.302 r -2.610
 
     initialPeriodic = false;

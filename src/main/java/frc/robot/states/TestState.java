@@ -51,7 +51,7 @@ public class TestState implements State{
 
     @Override
     public void Periodic(RobotStateManager rs) {
-        tvSub.setTurret(controllers.get(ControllerName.MANIP, Axis.RX) *  90);
+        tvSub.setTurret(controllers.get(ControllerName.MANIP, Axis.RX) *  -90);
     }
 
     @Override
