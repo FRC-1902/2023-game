@@ -15,6 +15,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -52,6 +53,12 @@ public class TurretvatorSubsystem extends SubsystemBase {
 
   private boolean turretKillSwitchInterlock = false;
   private boolean elevatorKillSwitchInterlock = false;
+
+  private boolean initialPeriodic = true;
+
+  // 5 Second timeout
+  private long killSwitchTimeout = 5000000;
+  private long killSwitchActivationTime;
 
   public void initializeShuffleBoardWidgets() {
     ShuffleboardLayout dashboardLayout = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)
@@ -106,7 +113,6 @@ public class TurretvatorSubsystem extends SubsystemBase {
     gripperSolenoidA = new Solenoid(PneumaticsModuleType.REVPH, Constants.GRIPPER_SOLENOID_A);
     gripperSolenoidB = new Solenoid(PneumaticsModuleType.REVPH, Constants.GRIPPER_SOLENOID_B);
     
-    elevatorEncoderOffset = elevatorLeftEncoder.get();
 
     initializeShuffleBoardWidgets();
   }
@@ -198,6 +204,9 @@ public class TurretvatorSubsystem extends SubsystemBase {
     //   Constants.ELEVATOR_CM_PER_ROTATION);
     double desiredElevatorRotations = desiredElevatorDistance; 
 
+    if (initialPeriodic)
+      elevatorEncoderOffset = elevatorLeftEncoder.get();
+
     if (desiredElevatorRotations > elevatorStop || desiredElevatorRotations < 0)
       System.out.println("Elevator is extended to extreme!");
 
@@ -258,6 +267,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
       
       if (elevatorKillSwitchHits >= 10) {
         System.out.println("==== ELEVATOR INTERLOCK ENGAGED ====");
+        killSwitchActivationTime = RobotController.getFPGATime();
         elevatorKillSwitchInterlock = true;
       }
     }
@@ -271,9 +281,22 @@ public class TurretvatorSubsystem extends SubsystemBase {
       // Detects wrap around
       if (Math.abs(lastTurretEncoderValue - turretEncoder.getAbsolutePosition()) > 0.35) {
         System.out.println("==== TURRET INTERLOCK ENGAGED ====");
+        killSwitchActivationTime = RobotController.getFPGATime();
         turretKillSwitchInterlock = true;
       }
     }
+
+    initialPeriodic = false;
+
+    if (RobotController.getFPGATime() - killSwitchActivationTime > killSwitchTimeout && (turretKillSwitchInterlock || elevatorKillSwitchInterlock)) {
+      System.out.println("==== ALL INTERLOCKS RELEASED ====");
+      turretKillSwitchInterlock = false;
+      elevatorKillSwitchInterlock = false;
+
+      initialPeriodic = true;
+    }
+
+    //Medium l 3.302 r -2.610
 
     lastElevatorEncoderValue = elevatorLeftEncoder.get();
     lastTurretEncoderValue = turretEncoder.getAbsolutePosition();
