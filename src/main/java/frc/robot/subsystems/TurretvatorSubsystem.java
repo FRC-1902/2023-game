@@ -118,7 +118,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
    * Starts to center the turret.
    */
   public void centerTurret(){
-    turretPID.setSetpoint(turretCenter);
+    turretPID.setSetpoint(0);
   }
 
   /**
@@ -188,7 +188,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
     double elevatorPower;
     // Calculates how much the motors should rotate in order to maintain a constant distance
     // double desiredElevatorRotations = 
-    //   desiredElevatorDistance / (Math.cos((turretEncoder.getAbsolutePosition()-turretCenter) * throughboreCPR * Math.PI * 2) *
+    //   desiredElevatorDistance / (Math.cos((turretEncoder.getAbsolutePosition() - turretCenter + 1)%1 * throughboreCPR * Math.PI * 2) *
     //   Math.cos(Math.toRadians(Constants.ELEVATOR_PITCH_DEG)) *
     //   Constants.ELEVATOR_CM_PER_ROTATION);
     double desiredElevatorRotations = desiredElevatorDistance; 
@@ -230,7 +230,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
     //TODO: add wraparound protection!
     //TODO: finish ramp soak on turret
     
-    turretPow = turretPID.calculate(turretEncoder.getAbsolutePosition() - 0.393);
+    turretPow = turretPID.calculate((turretEncoder.getAbsolutePosition() - turretCenter + 1)%1);
     
     //ramp soak for smooth startup
     if(turretPID.atSetpoint()){
