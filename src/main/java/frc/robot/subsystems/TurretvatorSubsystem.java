@@ -15,8 +15,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -25,14 +23,13 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Controllers;
 
 public class TurretvatorSubsystem extends SubsystemBase {
   private static TurretvatorSubsystem instance;
 
-  public static final double throughboreCPR = 1; //TODO: check me
+  public static final double throughboreCPR = 1;
   public static final int turretMaxAngle = 90;
-  public static final double elevatorStop = 4.5; //TODO: set me
+  public static final double elevatorStop = 4.5;
 
   private double desiredElevatorDistance = 0;
   private double elevatorEncoderOffset = 0;
@@ -104,7 +101,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
     turretPID = new PIDController(0, 0, 0);
  
     turretPID.enableContinuousInput(0, throughboreCPR);
-    turretPID.setTolerance(0.001); //TODO: set me
+    turretPID.setTolerance(0.001);
 
     gripperSolenoidA = new Solenoid(PneumaticsModuleType.REVPH, Constants.GRIPPER_SOLENOID_A);
     gripperSolenoidB = new Solenoid(PneumaticsModuleType.REVPH, Constants.GRIPPER_SOLENOID_B);
@@ -143,7 +140,6 @@ public class TurretvatorSubsystem extends SubsystemBase {
    * @param degrees degree set (+/- max turret angle)
    */
   public void setTurret(double degrees){
-    //TODO: test me
     if(Math.abs(degrees) > turretMaxAngle){
       System.out.println("Degree put into TurretvatorSubsystem.turretSet too large!");
       return;
@@ -156,7 +152,6 @@ public class TurretvatorSubsystem extends SubsystemBase {
     HIGH, MIDDLE, LOAD, DOWN;
   }
 
-  //TODO: set me
   public Map<Enum<ElevatorStage>, Double> elevatorMap = 
     new HashMap<Enum<ElevatorStage>, Double>() {{
       put(ElevatorStage.HIGH, 4.418);
@@ -195,6 +190,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
 
   private void elevatorPeriodic() {
     double elevatorPower;
+    //TODO: add me
     // Calculates how much the motors should rotate in order to maintain a constant distance
     // double desiredElevatorRotations = 
     //   desiredElevatorDistance / (Math.cos((turretEncoder.getAbsolutePosition() - 0.393 + 1)%1 * throughboreCPR * Math.PI * 2) *
@@ -219,12 +215,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
       -1 * Constants.MAX_ELEVATOR_MOTOR_POWER
     );
 
-    elevatorPower = elevatorPower < -0.1 ? -0.1 : elevatorPower; 
-    
-    // System.out.format("desired: %.3f current: %.3f elevator power: %.3f\n", 
-    //   desiredElevatorRotations, 
-    //   elevatorLeftEncoder.get() - elevatorEncoderOffset, 
-    //   elevatorPower);
+    elevatorPower = elevatorPower < -0.1 ? -0.1 : elevatorPower;
     
     elevatorMotors.set(elevatorPower + .08);
   }
@@ -235,10 +226,8 @@ public class TurretvatorSubsystem extends SubsystemBase {
     turretPID.setP(turretPWidget.getDouble(0.9) * 10);
     turretPID.setI(turretIWidget.getDouble(0) * 10);
     turretPID.setD(turretDWidget.getDouble(0) * 10);
-
-    
-    //TODO: add wraparound protection!
-    //TODO: finish ramp soak on turret
+ 
+    //XX: add wraparound protection, just setting to -45 and 45 for wraparound protecting atm
     
     turretPow = turretPID.calculate((turretEncoder.getAbsolutePosition() - 0.393 + 1)%1);
     
@@ -272,12 +261,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
         elevatorKillSwitchInterlock = true;
       }
     }
-    // System.out.format("Left Encoder: %.3f, Right Encoder: %.3f\n", elevatorLeftEncoder.get(), elevatorRightEncoder.get());
-    // double ly = -Controllers.getInstance().get(Controllers.ControllerName.MANIP, Controllers.Axis.LY);
-    // double addPower = .08;//elevatorDWidget.getDouble(0);
 
-    
-    // elevatorMotors.set(ly/2.0 + addPower);
     if (turretKillSwitchInterlock) {
       turretMotor.set(0);
     }
@@ -291,15 +275,8 @@ public class TurretvatorSubsystem extends SubsystemBase {
       }
     }
 
-    //Medium l 3.302 r -2.610
-
     lastElevatorEncoderValue = elevatorLeftEncoder.get();
     lastTurretEncoderValue = turretEncoder.getAbsolutePosition();
-  }
-
-  @Override
-  public void simulationPeriodic() {
-    // This method will be called once per scheduler run during simulation
   }
 
   public static TurretvatorSubsystem getInstance() {
