@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -22,6 +23,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Controllers;
 
 public class TurretvatorSubsystem extends SubsystemBase {
   private static TurretvatorSubsystem instance;
@@ -29,10 +31,11 @@ public class TurretvatorSubsystem extends SubsystemBase {
   public static final double throughboreCPR = 1; //TODO: check me
   public static final double turretCenter = 0.05069575126739378; //TODO: set me
   public static final int turretMaxAngle = 90;
-  public static final int elevatorStop = 0; //TODO: set me
+  public static final double elevatorStop = 4.5; //TODO: set me
 
   private double desiredElevatorDistance = 0;
   private double elevatorEncoderOffset = 0;
+  private double constantElevatorPower = 0.08;
   private boolean initialPeriodic = true;
 
   private long turretRampTime;
@@ -74,12 +77,17 @@ public class TurretvatorSubsystem extends SubsystemBase {
   public TurretvatorSubsystem() {
     elevatorLeft = new CANSparkMax(Constants.LEFT_ELEVATOR_ID, MotorType.kBrushless);
     elevatorRight = new CANSparkMax(Constants.RIGHT_ELEVATOR_ID, MotorType.kBrushless);
+    elevatorLeft.setInverted(false);
+    elevatorRight.setInverted(true);
+    elevatorLeft.setIdleMode(IdleMode.kCoast);
+    elevatorRight.setIdleMode(IdleMode.kCoast);
+    
     elevatorMotors = new MotorControllerGroup(elevatorLeft, elevatorRight);
     elevatorLeftEncoder = new DutyCycleEncoder(Constants.LEFT_ELEVATOR_ENCODER);
     elevatorRightEncoder = new DutyCycleEncoder(Constants.RIGHT_ELEVATOR_ENCODER);
     //TODO: Tune me
     elevatorPID = new PIDController(0, 0, 0);
-    elevatorPID.setTolerance(2); //TODO: set me
+    elevatorPID.setTolerance(0.01); //TODO: set me
 
     turretMotor = new CANSparkMax(Constants.TURRET_ID, MotorType.kBrushless);
     turretMotor.setInverted(true);
@@ -140,12 +148,12 @@ public class TurretvatorSubsystem extends SubsystemBase {
   }
 
   //TODO: set me
-  public Map<Enum<ElevatorStage>, Integer> elevatorMap = 
-    new HashMap<Enum<ElevatorStage>, Integer>() {{
-      put(ElevatorStage.HIGH, 4);
-      put(ElevatorStage.MIDDLE,3);
-      put(ElevatorStage.LOAD, 2);
-      put(ElevatorStage.DOWN, 1);
+  public Map<Enum<ElevatorStage>, Double> elevatorMap = 
+    new HashMap<Enum<ElevatorStage>, Double>() {{
+      put(ElevatorStage.HIGH, 4.418);
+      put(ElevatorStage.MIDDLE, 3.034);
+      put(ElevatorStage.LOAD, 0.0);
+      put(ElevatorStage.DOWN, 0.0);
     }};
   
   /**
@@ -179,29 +187,36 @@ public class TurretvatorSubsystem extends SubsystemBase {
 
     double elevatorPower;
     // Calculates how much the motors should rotate in order to maintain a constant distance
-    double desiredElevatorRotations = 
-      desiredElevatorDistance / (Math.cos((turretEncoder.getAbsolutePosition()-turretCenter) * throughboreCPR * Math.PI * 2) *
-      Math.cos(Math.toRadians(Constants.ELEVATOR_PITCH_DEG)) *
-      Constants.ELEVATOR_CM_PER_ROTATION);
+    // double desiredElevatorRotations = 
+    //   desiredElevatorDistance / (Math.cos((turretEncoder.getAbsolutePosition()-turretCenter) * throughboreCPR * Math.PI * 2) *
+    //   Math.cos(Math.toRadians(Constants.ELEVATOR_PITCH_DEG)) *
+    //   Constants.ELEVATOR_CM_PER_ROTATION);
+    double desiredElevatorRotations = desiredElevatorDistance; 
 
     if (desiredElevatorRotations > elevatorStop || desiredElevatorRotations < 0)
       System.out.println("Elevator is extended to extreme!");
 
     desiredElevatorRotations = Math.max(Math.min(desiredElevatorRotations, elevatorStop), 0);
 
-    elevatorPID.setP(elevatorPWidget.getDouble(0));
+    elevatorPID.setP(0.2);
     elevatorPID.setI(elevatorIWidget.getDouble(0));
     elevatorPID.setD(elevatorDWidget.getDouble(0));
-    elevatorPID.setSetpoint(desiredElevatorRotations * throughboreCPR - elevatorEncoderOffset);
-    elevatorPower = Math.min(
-      Math.max(
-        elevatorPID.calculate(elevatorLeftEncoder.get()),
+    elevatorPID.setSetpoint(desiredElevatorRotations);
+    elevatorPower = Math.max(
+      Math.min(
+        elevatorPID.calculate(elevatorLeftEncoder.get() - elevatorEncoderOffset),
         Constants.MAX_ELEVATOR_MOTOR_POWER
       ),
       -1 * Constants.MAX_ELEVATOR_MOTOR_POWER
     );
+
+    elevatorPower = elevatorPower < -0.1 ? -0.1 : elevatorPower; 
     
-    elevatorMotors.set(elevatorPower);
+    System.out.format("desired: %.3f current: %.3f elevator power: %.3f\n", 
+      desiredElevatorRotations, 
+      elevatorLeftEncoder.get() - elevatorEncoderOffset, 
+      elevatorPower);
+      elevatorMotors.set(elevatorPower + .08);
   }
 
   private void turretPeriodic() {
@@ -224,15 +239,21 @@ public class TurretvatorSubsystem extends SubsystemBase {
     //if(System.currentTimeMillis() - turretRampTime <= 2000.0 && !turretPID.atSetpoint()){
     //  turretPow *= 1/((Math.abs(System.currentTimeMillis() - turretRampTime)+1.0)/2000.0);
     //}
-
     turretMotor.set(turretPow);
   }
 
   // Called from Robot
   @Override
   public void periodic() {
-    //elevatorPeriodic();
-    turretPeriodic();
+    elevatorPeriodic();
+    // System.out.format("Left Encoder: %.3f, Right Encoder: %.3f\n", elevatorLeftEncoder.get(), elevatorRightEncoder.get());
+    // double ly = -Controllers.getInstance().get(Controllers.ControllerName.MANIP, Controllers.Axis.LY);
+    // double addPower = .08;//elevatorDWidget.getDouble(0);
+
+    
+    // elevatorMotors.set(ly/2.0 + addPower);
+    // turretPeriodic();
+    //Medium l 3.302 r -2.610
 
     initialPeriodic = false;
   }

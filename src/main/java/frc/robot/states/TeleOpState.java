@@ -2,9 +2,11 @@ package frc.robot.states;
 
 import frc.robot.Controllers;
 import frc.robot.Controllers.*;
+import frc.robot.states.auto.TurretState;
 import frc.robot.Event;
 import frc.robot.RobotStateManager;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.TurretvatorSubsystem.ElevatorStage;
 
 public class TeleOpState implements frc.robot.State{
 
@@ -47,6 +49,14 @@ public class TeleOpState implements frc.robot.State{
     double xSpeed = controllers.get(ControllerName.DRIVE, Axis.LY) * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/2.0);
     double zRotation = controllers.get(ControllerName.DRIVE, Axis.RX) * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/2.0);
     driveSub.arcadeDrive(xSpeed,zRotation);
+
+    if(controllers.getDPAD(ControllerName.MANIP) == 180) {
+      tvSub.elevatorSet(ElevatorStage.DOWN);
+    } else if ( controllers.getDPAD(ControllerName.MANIP) == 270){
+      tvSub.elevatorSet(ElevatorStage.MIDDLE);
+    } else if ( controllers.getDPAD(ControllerName.MANIP) == 0){
+      tvSub.elevatorSet(ElevatorStage.HIGH);
+    }
   }
 
   @Override
@@ -103,8 +113,6 @@ public class TeleOpState implements frc.robot.State{
                         return true;
                     }
                     break;
-              default:
-                break;
             }
             break;
 

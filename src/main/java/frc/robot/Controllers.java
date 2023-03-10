@@ -103,6 +103,17 @@ public class Controllers {
         }
     }
 
+    public int getDPAD(ControllerName name) {
+        switch(name) {
+            case DRIVE:
+                return driveController.getPOV();
+            case MANIP:
+                return manipController.getPOV();
+            default:
+                return 0;
+        }
+    }
+
     public void eventPeriodic(){
         for(Map.Entry<Enum<Controllers.Button>, Integer> entry : buttonMap.entrySet()) {
             if(driveController.getRawButtonPressed(entry.getValue())){
