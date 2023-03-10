@@ -15,6 +15,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -35,7 +37,6 @@ public class TurretvatorSubsystem extends SubsystemBase {
   private double desiredElevatorDistance = 0;
   private double elevatorEncoderOffset = 0;
   private double constantElevatorPower = 0.08;
-  private boolean initialPeriodic = true;
 
   private long turretRampTime;
 
@@ -46,6 +47,14 @@ public class TurretvatorSubsystem extends SubsystemBase {
   private DutyCycleEncoder turretEncoder;
   private PIDController elevatorPID, turretPID;
   private Solenoid gripperSolenoidA, gripperSolenoidB;
+
+  private double lastElevatorEncoderValue;
+  private double lastTurretEncoderValue;
+
+  private int elevatorKillSwitchHits = 0;
+
+  private boolean turretKillSwitchInterlock = false;
+  private boolean elevatorKillSwitchInterlock = false;
 
   public void initializeShuffleBoardWidgets() {
     ShuffleboardLayout dashboardLayout = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)
@@ -99,7 +108,8 @@ public class TurretvatorSubsystem extends SubsystemBase {
 
     gripperSolenoidA = new Solenoid(PneumaticsModuleType.REVPH, Constants.GRIPPER_SOLENOID_A);
     gripperSolenoidB = new Solenoid(PneumaticsModuleType.REVPH, Constants.GRIPPER_SOLENOID_B);
-
+    
+    elevatorEncoderOffset = elevatorLeftEncoder.get();
 
     initializeShuffleBoardWidgets();
   }
@@ -184,9 +194,6 @@ public class TurretvatorSubsystem extends SubsystemBase {
   }
 
   private void elevatorPeriodic() {
-    if (initialPeriodic)
-      elevatorEncoderOffset = elevatorLeftEncoder.get();
-
     double elevatorPower;
     // Calculates how much the motors should rotate in order to maintain a constant distance
     // double desiredElevatorRotations = 
@@ -218,7 +225,8 @@ public class TurretvatorSubsystem extends SubsystemBase {
     //   desiredElevatorRotations, 
     //   elevatorLeftEncoder.get() - elevatorEncoderOffset, 
     //   elevatorPower);
-      elevatorMotors.set(elevatorPower + .08);
+    
+    elevatorMotors.set(elevatorPower + .08);
   }
 
   private void turretPeriodic() {
@@ -235,29 +243,58 @@ public class TurretvatorSubsystem extends SubsystemBase {
     turretPow = turretPID.calculate((turretEncoder.getAbsolutePosition() - 0.393 + 1)%1);
     
     //ramp soak for smooth startup
-    if(turretPID.atSetpoint()){
-      turretRampTime = System.currentTimeMillis();
-    }
-    //if(System.currentTimeMillis() - turretRampTime <= 2000.0 && !turretPID.atSetpoint()){
-    //  turretPow *= 1/((Math.abs(System.currentTimeMillis() - turretRampTime)+1.0)/2000.0);
-    //}
+    if (turretPID.atSetpoint())
+      turretRampTime = System.currentTimeMillis() + 2000;
+    
+    if (turretRampTime - System.currentTimeMillis() >= 0 && !turretPID.atSetpoint())
+      turretPow *= 1/((turretRampTime - System.currentTimeMillis()) / 2000 + 1);
+
     turretMotor.set(turretPow);
   }
 
   // Called from Robot
   @Override
   public void periodic() {
-    elevatorPeriodic();
+
+    if (elevatorKillSwitchInterlock) {
+      elevatorMotors.set(0);
+    }
+    else {
+      elevatorPeriodic();
+      
+      if (Math.abs(lastElevatorEncoderValue - elevatorLeftEncoder.get()) < 0.05 && Math.abs(elevatorMotors.get()) > 0.1)
+        elevatorKillSwitchHits++;
+      else
+        elevatorKillSwitchHits = 0;
+      
+      if (elevatorKillSwitchHits >= 10) {
+        System.out.println("==== ELEVATOR INTERLOCK ENGAGED ====");
+        elevatorKillSwitchInterlock = true;
+      }
+    }
     // System.out.format("Left Encoder: %.3f, Right Encoder: %.3f\n", elevatorLeftEncoder.get(), elevatorRightEncoder.get());
     // double ly = -Controllers.getInstance().get(Controllers.ControllerName.MANIP, Controllers.Axis.LY);
     // double addPower = .08;//elevatorDWidget.getDouble(0);
 
     
     // elevatorMotors.set(ly/2.0 + addPower);
-    turretPeriodic();
+    if (turretKillSwitchInterlock) {
+      turretMotor.set(0);
+    }
+    else {
+      turretPeriodic();
+
+      // Detects wrap around
+      if (Math.abs(lastTurretEncoderValue - turretEncoder.getAbsolutePosition()) > 0.35) {
+        System.out.println("==== TURRET INTERLOCK ENGAGED ====");
+        turretKillSwitchInterlock = true;
+      }
+    }
+
     //Medium l 3.302 r -2.610
 
-    initialPeriodic = false;
+    lastElevatorEncoderValue = elevatorLeftEncoder.get();
+    lastTurretEncoderValue = turretEncoder.getAbsolutePosition();
   }
 
   @Override
