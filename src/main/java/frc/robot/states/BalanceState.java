@@ -119,7 +119,7 @@ public class BalanceState implements State {
   }
 
   public boolean handleEvent(Event event, RobotStateManager rs) {
-    if (event.controllerName == ControllerName.DRIVE && event.button == Button.Y && event.action == Action.RELEASED) {
+    if (event.controllerName == ControllerName.DRIVE && event.button == Button.B && event.action == Action.RELEASED) {
       rs.setState(enteredFromState.getName());
       return true;
     }

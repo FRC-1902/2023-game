@@ -52,7 +52,7 @@ public class TeleOpState implements frc.robot.State{
 
     tvSub.addElevator(-controllers.get(ControllerName.MANIP, Axis.RY)/50.0);
 
-    tvSub.setTurret(controllers.get(ControllerName.MANIP, Axis.RX) *  -45.0);
+    tvSub.setTurret(controllers.get(ControllerName.MANIP, Axis.LX) *  -45.0);
     // if(controllers.getDPAD(ControllerName.MANIP) == 180) {
     //   tvSub.elevatorSet(ElevatorStage.DOWN);
     // } else if ( controllers.getDPAD(ControllerName.MANIP) == 270){
@@ -97,51 +97,55 @@ public class TeleOpState implements frc.robot.State{
         default:
         }
         break;
-      default:
+      default: break;
       }
+      break;
     //Manip Controller
     case MANIP:
-            switch(event.button){
-                case B:
-                    if(event.action == Action.PRESSED){
-                        tvSub.setGripper(false);
-                        System.out.println("gripper set false");
-                        return true;
-                    }
-                    break;
-                case X:
-                    if(event.action == Action.PRESSED){
-                        tvSub.setGripper(true);
-                        System.out.println("gripper set true");
-                        return true;
-                    }
-                    break;
-                case A:
-                    if(event.action == Action.PRESSED){
-                      tvSub.elevatorSet(ElevatorStage.DOWN);
-                    }
-                    break;
-                case Y:
-                    if(event.action == Action.PRESSED){
-                      tvSub.elevatorSet(ElevatorStage.MIDDLE);
-                    }
-                    break;
-                case RB:
-                    if(event.action == Action.PRESSED){
-                      tvSub.elevatorSet(ElevatorStage.HIGH);
-                    }
-                    break;
-                case LB:
-                    if(event.action == Action.PRESSED){
-                      tvSub.elevatorSet(ElevatorStage.LOAD);
-                    }
-                    break; 
-                default:
-                    break;
-            }
-            break;
-
-        }
-        return false;
+      switch(event.button){
+        case B:
+          if(event.action == Action.PRESSED){
+            tvSub.setGripper(false);
+            System.out.println("gripper set false");
+            return true;
+          }
+          break;
+        case X:
+          if(event.action == Action.PRESSED){
+            tvSub.setGripper(true);
+            System.out.println("gripper set true");
+            return true;
+          }
+          break;
+        case A:
+          if(event.action == Action.PRESSED){
+            tvSub.elevatorSet(ElevatorStage.DOWN);
+            return true;
+          }
+          break;
+        case Y:
+          if(event.action == Action.PRESSED){
+            tvSub.elevatorSet(ElevatorStage.MIDDLE);
+            return true;
+          }
+          break;
+        case RB:
+          if(event.action == Action.PRESSED){
+            tvSub.elevatorSet(ElevatorStage.HIGH);
+            return true;
+          }
+          break;
+        case LB:
+          if(event.action == Action.PRESSED){
+            tvSub.elevatorSet(ElevatorStage.LOAD);
+            return true;
+          }
+            break; 
+        default:
+          break;
+      }
+      break;
+    }
+    return false;
   }
 }
