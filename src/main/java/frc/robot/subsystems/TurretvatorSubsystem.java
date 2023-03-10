@@ -173,6 +173,9 @@ public class TurretvatorSubsystem extends SubsystemBase {
     desiredElevatorDistance = distance;
   }
 
+  public void addElevator(double distance) {
+    desiredElevatorDistance += distance;
+  }
   /**
    * @return if elevator has reached its setpoint
    */
@@ -195,7 +198,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
     if (desiredElevatorRotations > elevatorStop || desiredElevatorRotations < 0)
       System.out.println("Elevator is extended to extreme!");
 
-    desiredElevatorRotations = Math.max(Math.min(desiredElevatorRotations, elevatorStop), 0);
+    desiredElevatorRotations = Math.max(Math.min(desiredElevatorRotations, elevatorStop), 0.0);
 
     elevatorPID.setP(0.2);
     elevatorPID.setI(elevatorIWidget.getDouble(0));
@@ -211,10 +214,10 @@ public class TurretvatorSubsystem extends SubsystemBase {
 
     elevatorPower = elevatorPower < -0.1 ? -0.1 : elevatorPower; 
     
-    System.out.format("desired: %.3f current: %.3f elevator power: %.3f\n", 
-      desiredElevatorRotations, 
-      elevatorLeftEncoder.get() - elevatorEncoderOffset, 
-      elevatorPower);
+    // System.out.format("desired: %.3f current: %.3f elevator power: %.3f\n", 
+    //   desiredElevatorRotations, 
+    //   elevatorLeftEncoder.get() - elevatorEncoderOffset, 
+    //   elevatorPower);
       elevatorMotors.set(elevatorPower + .08);
   }
 

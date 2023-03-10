@@ -50,13 +50,16 @@ public class TeleOpState implements frc.robot.State{
     double zRotation = controllers.get(ControllerName.DRIVE, Axis.RX) * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/2.0);
     driveSub.arcadeDrive(xSpeed,zRotation);
 
-    if(controllers.getDPAD(ControllerName.MANIP) == 180) {
-      tvSub.elevatorSet(ElevatorStage.DOWN);
-    } else if ( controllers.getDPAD(ControllerName.MANIP) == 270){
-      tvSub.elevatorSet(ElevatorStage.MIDDLE);
-    } else if ( controllers.getDPAD(ControllerName.MANIP) == 0){
-      tvSub.elevatorSet(ElevatorStage.HIGH);
-    }
+    tvSub.addElevator(-controllers.get(ControllerName.MANIP, Axis.RY)/50.0);
+
+    tvSub.setTurret(controllers.get(ControllerName.MANIP, Axis.RX) *  -45.0);
+    // if(controllers.getDPAD(ControllerName.MANIP) == 180) {
+    //   tvSub.elevatorSet(ElevatorStage.DOWN);
+    // } else if ( controllers.getDPAD(ControllerName.MANIP) == 270){
+    //   tvSub.elevatorSet(ElevatorStage.MIDDLE);
+    // } else if ( controllers.getDPAD(ControllerName.MANIP) == 0){
+    //   tvSub.elevatorSet(ElevatorStage.HIGH);
+    // }
   }
 
   @Override
@@ -112,6 +115,28 @@ public class TeleOpState implements frc.robot.State{
                         System.out.println("gripper set true");
                         return true;
                     }
+                    break;
+                case A:
+                    if(event.action == Action.PRESSED){
+                      tvSub.elevatorSet(ElevatorStage.DOWN);
+                    }
+                    break;
+                case Y:
+                    if(event.action == Action.PRESSED){
+                      tvSub.elevatorSet(ElevatorStage.MIDDLE);
+                    }
+                    break;
+                case RB:
+                    if(event.action == Action.PRESSED){
+                      tvSub.elevatorSet(ElevatorStage.HIGH);
+                    }
+                    break;
+                case LB:
+                    if(event.action == Action.PRESSED){
+                      tvSub.elevatorSet(ElevatorStage.LOAD);
+                    }
+                    break; 
+                default:
                     break;
             }
             break;
