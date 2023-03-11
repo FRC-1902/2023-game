@@ -61,27 +61,31 @@ public class TurretvatorSubsystem extends SubsystemBase {
   private long killSwitchActivationTime;
 
   public void initializeShuffleBoardWidgets() {
-    ShuffleboardLayout dashboardLayout = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)
+    ShuffleboardLayout turretLayout = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)
       .getLayout("Turret PID", BuiltInLayouts.kList)
-      .withSize(4, 4);
-
-    turretPWidget = dashboardLayout
+      .withSize(2, 3);
+    
+    turretPWidget = turretLayout
       .add("Turret PID - Proportional", 0.9)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
-    turretIWidget = dashboardLayout
+    turretIWidget = turretLayout
       .add("Turret PID - Integral", 0)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
-    turretDWidget = dashboardLayout
+    turretDWidget = turretLayout
       .add("Turret PID - Derivative", 0)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
 
-    elevatorPWidget = dashboardLayout
+    ShuffleboardLayout elevatorLayout = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)
+      .getLayout("Elevator PID", BuiltInLayouts.kList)
+      .withSize(2, 3);
+
+    elevatorPWidget = elevatorLayout
       .add("Elevator PID - Proportional", 0)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
-    elevatorIWidget = dashboardLayout
+    elevatorIWidget = elevatorLayout
       .add("Elevator PID - Integral", 0)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
-    elevatorDWidget = dashboardLayout
+    elevatorDWidget = elevatorLayout
       .add("Elevator PID - Derivative", 0)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
   }

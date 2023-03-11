@@ -4,6 +4,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -26,6 +27,8 @@ public class DriveSubsystem extends SubsystemBase {
   private final double driveWidth;
   private double currentLeftCommand;
 
+  private GenericEntry pidPWidget, pidIWidget, pidDWidget;
+
   public void initializeShuffleboardWidgets() {
     ShuffleboardLayout dashboardLayout = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)
       .getLayout("Drive Train", BuiltInLayouts.kList)
@@ -40,6 +43,21 @@ public class DriveSubsystem extends SubsystemBase {
     dashboardLayout.addDouble("Right Drive Encoder Velocity", rightEncoder::getRate)
       .withWidget(BuiltInWidgets.kGraph);
     dashboardLayout.addBoolean("Right Drive Shift State", () -> rightSolenoid.get());
+
+    ShuffleboardLayout pidTuningTab = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)
+      .getLayout("Low Gear Auto PID", BuiltInLayouts.kList)
+      .withSize(2, 3);
+    
+    //TODO: tune me once robot is built
+    pidPWidget = pidTuningTab
+      .add("Auto Drive PID - Proportional", 0.0)
+      .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
+    pidIWidget = pidTuningTab
+      .add("Auto Drive PID - Integral", 0.0)
+      .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
+    pidDWidget = pidTuningTab
+      .add("Auto Drive PID - Derivative", 0.0)
+      .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
   }
 
   private double[] currentCommand() {
@@ -117,9 +135,9 @@ public class DriveSubsystem extends SubsystemBase {
     double diffV = (driveWidth * Math.PI)*(1/(2*Math.PI))*angularVelocity;
     //TODO:Fix angular velocity
     
-    
-    // System.out.println(leftSolenoid.get());
-
+    lowVelocityController.setP(pidPWidget.getDouble(0));
+    lowVelocityController.setI(pidIWidget.getDouble(0));
+    lowVelocityController.setD(pidDWidget.getDouble(0));
     
     if(getLeftShiftState()){
       leftPower = highVelocityController.calculate(leftEncoder.getRate(), velocity - diffV);
