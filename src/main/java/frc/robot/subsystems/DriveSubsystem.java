@@ -52,10 +52,11 @@ public class DriveSubsystem extends SubsystemBase {
 
     leftEncoder = new Encoder(Constants.LEFT_DRIVE_ENCODER_1, Constants.LEFT_DRIVE_ENCODER_2);
     rightEncoder = new Encoder(Constants.RIGHT_DRIVE_ENCODER_1, Constants.RIGHT_DRIVE_ENCODER_2);
+    
     leftEncoder.setDistancePerPulse(0.0002337788);
     rightEncoder.setDistancePerPulse(0.0002337788);
-    leftEncoder.setReverseDirection(false);
-    rightEncoder.setReverseDirection(true);
+    leftEncoder.setReverseDirection(true);
+    rightEncoder.setReverseDirection(false);
 
     leftMotors = new MotorControllerGroup(leftMotor1, leftMotor2);
     rightMotors = new MotorControllerGroup(rightMotor1, rightMotor2);
