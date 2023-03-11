@@ -4,10 +4,14 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -17,10 +21,23 @@ public class DriveSubsystem extends SubsystemBase {
   private CANSparkMax leftMotor1, leftMotor2, rightMotor1, rightMotor2;
   public Encoder leftEncoder, rightEncoder;
   private MotorControllerGroup leftMotors, rightMotors;
-  private DoubleSolenoid leftSolenoid, rightSolenoid;
+  private Solenoid leftSolenoid, rightSolenoid;
   private PIDController highVelocityController, lowVelocityController;
-  private ShiftState currentShiftState;
   private final double driveWidth;
+
+  public void initializeShuffleboardWidgets() {
+    ShuffleboardLayout dashboardLayout = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)
+      .getLayout("Drive Train", BuiltInLayouts.kList)
+      .withSize(4, 4);
+
+    dashboardLayout.addDouble("Left Drive Encoder Velocity", leftEncoder::getRate)
+      .withWidget(BuiltInWidgets.kGraph);
+    dashboardLayout.addBoolean("Left Drive Shift State", () -> leftSolenoid.get());
+
+    dashboardLayout.addDouble("Right Drive Encoder Velocity", rightEncoder::getRate)
+      .withWidget(BuiltInWidgets.kGraph);
+    dashboardLayout.addBoolean("Right Drive Shift State", () -> rightSolenoid.get());
+  }
 
   public DriveSubsystem() {
     leftMotor1 = new CANSparkMax(Constants.LEFT_DRIVE_ID_1, MotorType.kBrushless);
@@ -43,8 +60,10 @@ public class DriveSubsystem extends SubsystemBase {
     leftMotors = new MotorControllerGroup(leftMotor1, leftMotor2);
     rightMotors = new MotorControllerGroup(rightMotor1, rightMotor2);
     
-    leftSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, Constants.LEFT_LOW_DRIVE_SOLENOID, Constants.LEFT_HIGH_DRIVE_SOLENOID);
-    rightSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, Constants.RIGHT_LOW_DRIVE_SOLENOID, Constants.RIGHT_HIGH_DRIVE_SOLENOID);
+    leftSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.LEFT_DRIVE_SOLENOID);
+    rightSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.RIGHT_DRIVE_SOLENOID);
+
+    initializeShuffleboardWidgets();
 
     //TODO:tune me
     highVelocityController = new PIDController(.25,0,0);
@@ -89,58 +108,30 @@ public class DriveSubsystem extends SubsystemBase {
     
     System.out.println(leftSolenoid.get());
 
-    switch(currentShiftState){
-    case HIGH:
+    
+    if(getLeftShiftState()){
       leftPower = highVelocityController.calculate(leftEncoder.getRate(), velocity - diffV);
       rightPower = highVelocityController.calculate(rightEncoder.getRate(), velocity + diffV);
-      break;
-    case LOW:
+    }else{
       leftPower = lowVelocityController.calculate(leftEncoder.getRate(), velocity - diffV);
       rightPower = lowVelocityController.calculate(rightEncoder.getRate(), velocity + diffV);
-      break;
-    default:
-      throw new AssertionError("Illegal shifting state to drive in: " + currentShiftState);
     }
 
     tankDrive(leftPower,rightPower);
   }
 
-  public static enum ShiftState{
-    HIGH,LOW,DEPRESSURIZED
+  // Low gear *should* be false, and high gear *should* be true
+  public void shift(boolean state) {
+    leftSolenoid.set(state);
+    rightSolenoid.set(state);
+  }
+  
+  public boolean getLeftShiftState() {
+    return leftSolenoid.get();
   }
 
-  /**shifts drive subystem gearbox
-   * @param state DoubleSolenoid.Value, kForward or kReverse
-   */
-  public void shift(ShiftState state) {
-    if(state == getShiftState()){return;}
-
-    switch(state){
-    case HIGH:
-      leftSolenoid.set(DoubleSolenoid.Value.kForward);
-      rightSolenoid.set(DoubleSolenoid.Value.kForward);
-      currentShiftState = ShiftState.HIGH;
-      break;
-    case LOW:
-      leftSolenoid.set(DoubleSolenoid.Value.kReverse);
-      rightSolenoid.set(DoubleSolenoid.Value.kReverse);
-      currentShiftState = ShiftState.LOW;
-      break;
-    case DEPRESSURIZED:
-      leftSolenoid.set(DoubleSolenoid.Value.kOff);
-      rightSolenoid.set(DoubleSolenoid.Value.kOff);
-      currentShiftState = ShiftState.DEPRESSURIZED;
-      break;
-    default:
-      throw new AssertionError("Illegal shifting state: " + state);
-    }
-  }
-
-  /**
-   * @return the current ShiftState of the drivetrain
-   */
-  public ShiftState getShiftState(){
-    return currentShiftState;
+  public boolean getRightShiftState() {
+    return rightSolenoid.get();
   }
 
   public static DriveSubsystem getInstance() {
