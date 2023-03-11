@@ -24,11 +24,14 @@ public class DriveSubsystem extends SubsystemBase {
   private Solenoid leftSolenoid, rightSolenoid;
   private PIDController highVelocityController, lowVelocityController;
   private final double driveWidth;
+  private double currentLeftCommand;
 
   public void initializeShuffleboardWidgets() {
     ShuffleboardLayout dashboardLayout = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)
       .getLayout("Drive Train", BuiltInLayouts.kList)
       .withSize(4, 4);
+
+    dashboardLayout.addDoubleArray("Left Drive Command", this::currentCommand).withWidget(BuiltInWidgets.kGraph);
 
     dashboardLayout.addDouble("Left Drive Encoder Velocity", leftEncoder::getRate)
       .withWidget(BuiltInWidgets.kGraph);
@@ -37,6 +40,10 @@ public class DriveSubsystem extends SubsystemBase {
     dashboardLayout.addDouble("Right Drive Encoder Velocity", rightEncoder::getRate)
       .withWidget(BuiltInWidgets.kGraph);
     dashboardLayout.addBoolean("Right Drive Shift State", () -> rightSolenoid.get());
+  }
+
+  private double[] currentCommand() {
+    return new double[] {currentLeftCommand, leftEncoder.getRate()};
   }
 
   public DriveSubsystem() {
@@ -68,9 +75,11 @@ public class DriveSubsystem extends SubsystemBase {
 
     //TODO:tune me
     highVelocityController = new PIDController(.25,0,0);
-    lowVelocityController = new PIDController(.05,0,0);
+    lowVelocityController = new PIDController(.2,0,0);
 
     driveWidth = 0.5461;
+
+    currentLeftCommand = 0.0;
   }
 
   @Override
@@ -88,6 +97,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void tankDrive(double leftSpeed, double rightSpeed) {
+    // currentLeftCommand = -leftSpeed;
     leftMotors.set(leftSpeed);
     rightMotors.set(rightSpeed);
   }
@@ -98,6 +108,7 @@ public class DriveSubsystem extends SubsystemBase {
    * @param angularVelocity m/s of angular change
    */
   public void velocityPID(double velocity, double angularVelocity){
+    currentLeftCommand = velocity;
     double leftPower, rightPower;
 
     velocity *= -1;
@@ -107,7 +118,7 @@ public class DriveSubsystem extends SubsystemBase {
     //TODO:Fix angular velocity
     
     
-    System.out.println(leftSolenoid.get());
+    // System.out.println(leftSolenoid.get());
 
     
     if(getLeftShiftState()){
