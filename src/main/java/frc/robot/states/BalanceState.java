@@ -37,7 +37,7 @@ public class BalanceState implements State {
     compass = new HeaderWrapper(0);
     drive = DriveSubsystem.getInstance();
 
-    ShuffleboardLayout pidTuningTab = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)
+    ShuffleboardLayout pidTuningTab = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)
       .getLayout("Balance Yaw PID", BuiltInLayouts.kList)
       .withSize(2, 3);
     
@@ -112,14 +112,14 @@ public class BalanceState implements State {
     System.out.format("(BalanceState) Yaw: %3.1f, YawSpeed: %3.1f, Setpoint: %3.1f\n", currentYaw, calculatedYawSpeed, yawPID.getSetpoint());
 
     drive.arcadeDrive(calculatedForwardSpeed, calculatedYawSpeed);
-    drive.shift(DriveSubsystem.ShiftState.LOW);
+    drive.shift(false);
     
     calculatedForwardSpeed = 0;
     calculatedYawSpeed = 0;
   }
 
   public boolean handleEvent(Event event, RobotStateManager rs) {
-    if (event.controllerName == ControllerName.DRIVE && event.button == Button.Y && event.action == Action.RELEASED) {
+    if (event.controllerName == ControllerName.DRIVE && event.button == Button.B && event.action == Action.RELEASED) {
       rs.setState(enteredFromState.getName());
       return true;
     }

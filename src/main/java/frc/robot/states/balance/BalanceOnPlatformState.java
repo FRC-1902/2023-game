@@ -25,7 +25,7 @@ public class BalanceOnPlatformState implements State {
     this.name = name;
     this.parent = (BalanceState) RobotStateManager.getInstance().findState("balance");
 
-    ShuffleboardLayout pidTuningTab = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)
+    ShuffleboardLayout pidTuningTab = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)
       .getLayout("Balance On Platform PID", BuiltInLayouts.kList)
       .withSize(2, 3);
     

@@ -11,6 +11,9 @@ public class Controllers {
     public RobotStateManager rs;
 
     private static Controllers instance;
+
+    public static final int DRIVE_CONTROLLER_PORT = 0;
+    public static final int MANIP_CONTROLLER_PORT = 1;
     
     public static Controllers getInstance(){
         if(instance==null){
@@ -24,8 +27,6 @@ public class Controllers {
         driveController = new XboxController(DRIVE_CONTROLLER_PORT);
         manipController = new XboxController(MANIP_CONTROLLER_PORT);
     }
-
-
 
     public enum Button{
         A, B, X, Y,
@@ -102,9 +103,19 @@ public class Controllers {
         }
     }
 
+    public int getDPAD(ControllerName name) {
+        switch(name) {
+            case DRIVE:
+                return driveController.getPOV();
+            case MANIP:
+                return manipController.getPOV();
+            default:
+                return 0;
+        }
+    }
+
     public void eventPeriodic(){
         for(Map.Entry<Enum<Controllers.Button>, Integer> entry : buttonMap.entrySet()) {
-      
             if(driveController.getRawButtonPressed(entry.getValue())){
               rs.handleEvent(new Event((Button) entry.getKey(), Action.PRESSED, ControllerName.DRIVE));
             }
@@ -120,7 +131,4 @@ public class Controllers {
             }
           }
     }
-
-    public static final int DRIVE_CONTROLLER_PORT = 0;
-    public static final int MANIP_CONTROLLER_PORT = 1;
 }

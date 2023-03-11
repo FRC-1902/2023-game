@@ -59,8 +59,6 @@ public class IMUSubsystem extends SubsystemBase {
    */
   public double getPitch() {
     double[] xyz = bno055.getVector();
-    // TODO: Remove the `+ 5`; this was only used for testing because the brassboard
-    // was at a slant.
     return xyz[2];
   }
 

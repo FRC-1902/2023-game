@@ -2,22 +2,26 @@ package frc.robot.states;
 
 import frc.robot.Controllers;
 import frc.robot.Controllers.*;
+import frc.robot.states.auto.TurretState;
 import frc.robot.Event;
 import frc.robot.RobotStateManager;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.DriveSubsystem.ShiftState;
+import frc.robot.subsystems.TurretvatorSubsystem.ElevatorStage;
 
 public class TeleOpState implements frc.robot.State{
 
   private String name, parent;
   private DriveSubsystem driveSub;
+  private TurretvatorSubsystem tvSub;
   private Controllers controllers;
   
   public TeleOpState(String name, String parent){
     this.name = name;
     this.parent = parent;
     driveSub = DriveSubsystem.getInstance();
+    tvSub = TurretvatorSubsystem.getInstance();
     controllers = Controllers.getInstance();
+    
   }
 
   @Override
@@ -45,6 +49,17 @@ public class TeleOpState implements frc.robot.State{
     double xSpeed = controllers.get(ControllerName.DRIVE, Axis.LY) * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/2.0);
     double zRotation = controllers.get(ControllerName.DRIVE, Axis.RX) * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/2.0);
     driveSub.arcadeDrive(xSpeed,zRotation);
+
+    tvSub.addElevator(-controllers.get(ControllerName.MANIP, Axis.RY)/50.0);
+
+    tvSub.setTurret(controllers.get(ControllerName.MANIP, Axis.LX) *  -45.0);
+    // if(controllers.getDPAD(ControllerName.MANIP) == 180) {
+    //   tvSub.elevatorSet(ElevatorStage.DOWN);
+    // } else if ( controllers.getDPAD(ControllerName.MANIP) == 270){
+    //   tvSub.elevatorSet(ElevatorStage.MIDDLE);
+    // } else if ( controllers.getDPAD(ControllerName.MANIP) == 0){
+    //   tvSub.elevatorSet(ElevatorStage.HIGH);
+    // }
   }
 
   @Override
@@ -58,9 +73,9 @@ public class TeleOpState implements frc.robot.State{
         switch(event.action){
         case PRESSED:
           System.out.println("Shifted LOW");
-          driveSub.shift(ShiftState.LOW);
+          driveSub.shift(false);
           return true;
-        default: break;
+        default:
         }
         break;
       //Shift high
@@ -68,26 +83,68 @@ public class TeleOpState implements frc.robot.State{
         switch(event.action){
         case PRESSED:
           System.out.println("Shifted HIGH");
-          driveSub.shift(ShiftState.HIGH);
+          driveSub.shift(true);
           return true;
-        default: break;
+        default:
         }
         break;
       // Goes to the balance state
-      case Y:
+      case B:
         switch (event.action) {
         case PRESSED:
           rs.setState("balancePlatform");
           return true;
         default:
-          break;
         }
         break;
       default: break;
       }
+      break;
     //Manip Controller
     case MANIP:
-    default: break;
+      switch(event.button){
+        case B:
+          if(event.action == Action.PRESSED){
+            tvSub.setGripper(false);
+            System.out.println("gripper set false");
+            return true;
+          }
+          break;
+        case X:
+          if(event.action == Action.PRESSED){
+            tvSub.setGripper(true);
+            System.out.println("gripper set true");
+            return true;
+          }
+          break;
+        case A:
+          if(event.action == Action.PRESSED){
+            tvSub.elevatorSet(ElevatorStage.DOWN);
+            return true;
+          }
+          break;
+        case Y:
+          if(event.action == Action.PRESSED){
+            tvSub.elevatorSet(ElevatorStage.MIDDLE);
+            return true;
+          }
+          break;
+        case RB:
+          if(event.action == Action.PRESSED){
+            tvSub.elevatorSet(ElevatorStage.HIGH);
+            return true;
+          }
+          break;
+        case LB:
+          if(event.action == Action.PRESSED){
+            tvSub.elevatorSet(ElevatorStage.LOAD);
+            return true;
+          }
+            break; 
+        default:
+          break;
+      }
+      break;
     }
     return false;
   }

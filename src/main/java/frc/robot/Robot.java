@@ -10,9 +10,7 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -23,6 +21,14 @@ import frc.robot.states.*;
 import frc.robot.states.auto.*;
 import frc.robot.states.balance.BalanceOnPlatformState;
 import frc.robot.states.teleOp.*;
+// import frc.robot.states.teleOp.intake.DeployState;
+// import frc.robot.states.teleOp.intake.IntakeCubeState;
+// import frc.robot.states.teleOp.intake.IntakeDownedConeState;
+// import frc.robot.states.teleOp.intake.IntakeDownedInwardConeState;
+// import frc.robot.states.teleOp.intake.LoadPieceState;
+// import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.TurretvatorSubsystem;
+
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -33,8 +39,11 @@ public class Robot extends TimedRobot {
   // private Command m_autonomousCommand;
   //private RobotContainer m_robotContainer;
   private RobotStateManager rs;
+  private PowerDistribution pdh;
   private Controllers controllers;
-  private Compressor compressor;
+  private Compressor compressor;  
+  // private IntakeSubsystem intakeSubsystem;
+  private TurretvatorSubsystem turretvatorSubsystem;
 
   public void initializeShuffleBoardWidgets() {
     ShuffleboardTab dashboardTab = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB);
@@ -47,7 +56,7 @@ public class Robot extends TimedRobot {
     if (RobotBase.isReal()) {
       // This for some reason doesn't work when the CAN id is above like 20 for some reason ;-;
       // Just please don't touch the CAN id of the pdh, it seems to be an issue with WPILib itself
-      PowerDistribution pdh = new PowerDistribution(15, ModuleType.kRev);
+      pdh = new PowerDistribution(15, ModuleType.kRev);
       
       pdhLayout.addDouble("Battery Voltage", pdh::getVoltage)
         .withWidget(BuiltInWidgets.kGraph)
@@ -58,13 +67,6 @@ public class Robot extends TimedRobot {
       pdhLayout.addDouble("PDH Temperature", pdh::getTemperature)
         .withWidget(BuiltInWidgets.kGraph)
         .withProperties(Map.of("Unit", "deg C"));
-
-      // TODO: Find out why this doesn't work.
-      /*
-      pdhLayout.addDouble("Total Output Power", pdh::getTotalPower)
-        .withWidget(BuiltInWidgets.kGraph)
-        .withProperties(Map.of("Unit", "W"));
-      */
     }
 
     stateMachineLayout.addString("Current State", () -> {
@@ -89,10 +91,16 @@ public class Robot extends TimedRobot {
     controllers = Controllers.getInstance();
 
     rs = RobotStateManager.getInstance();
+    // intakeSubsystem = IntakeSubsystem.getInstance();
     rs.addStates(
       new DisabledState("disabled", null),
       new TeleOpState("teleOp", null),
-      new CenterTurretState("driveTeleOp", "teleOp"),
+      new CenterTurretState("centerTurret", "teleOp"),
+      // new DeployState("deployIntake", "centerTurret"),
+      // new IntakeCubeState("intakeCube", "deployIntake"),
+      // new IntakeDownedConeState("intakeDownedCone", "deployIntake"),
+      // new IntakeDownedInwardConeState("intakeDownedInwardCone", "deployIntake"),
+      // new LoadPieceState("loadPiece", "centerTurret"),
       new BalanceState("balance", null),
       new AutoState("auto", null),
       new PickupState("pickup", "auto"),
@@ -111,6 +119,8 @@ public class Robot extends TimedRobot {
 
     rs.startRobot("disabled");
     //m_robotContainer = new RobotContainer();
+
+    turretvatorSubsystem = TurretvatorSubsystem.getInstance();
   }
 
   /**
@@ -123,6 +133,8 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     rs.periodic();
+
+
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
@@ -139,6 +151,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
+    // intakeSubsystem.disabledPeriodic();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
@@ -156,7 +169,8 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    
+    turretvatorSubsystem.periodic();
+    // intakeSubsystem.enabledPeriodic();
   }
 
   @Override
@@ -175,6 +189,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     controllers.eventPeriodic();
+    turretvatorSubsystem.periodic();
+    // intakeSubsystem.enabledPeriodic();
   }
 
   @Override
@@ -193,7 +209,9 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {
+    turretvatorSubsystem.periodic();
     controllers.eventPeriodic();
+    // intakeSubsystem.enabledPeriodic();
   }
 
   /** This function is called once when the robot is first started up. */
