@@ -260,7 +260,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
     else {
       elevatorPeriodic();
       
-      if (Math.abs(lastElevatorEncoderValue - elevatorLeftEncoder.get()) < 0.05 && Math.abs(elevatorMotors.get()) > 0.1)
+      if (Math.abs(lastElevatorEncoderValue - elevatorLeftEncoder.get()) < 0.005 && Math.abs(elevatorMotors.get()) > 0.4)
         elevatorKillSwitchHits++;
       else
         elevatorKillSwitchHits = 0;
