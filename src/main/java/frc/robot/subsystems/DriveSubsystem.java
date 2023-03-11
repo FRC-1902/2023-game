@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.PID;
 
 public class DriveSubsystem extends SubsystemBase {
   private static DriveSubsystem instance;
@@ -23,7 +24,8 @@ public class DriveSubsystem extends SubsystemBase {
   public Encoder leftEncoder, rightEncoder;
   private MotorControllerGroup leftMotors, rightMotors;
   private Solenoid leftSolenoid, rightSolenoid;
-  private PIDController highVelocityController, lowVelocityController;
+  private PID highLeftVelocityController, lowLeftVelocityController, highRightVelocityController,
+      lowRightVelocityController;
   private final double driveWidth;
   private double currentLeftCommand;
 
@@ -31,17 +33,17 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void initializeShuffleboardWidgets() {
     ShuffleboardLayout dashboardLayout = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)
-      .getLayout("Drive Train", BuiltInLayouts.kList)
-      .withSize(4, 4);
+        .getLayout("Drive Train", BuiltInLayouts.kList)
+        .withSize(4, 4);
 
     dashboardLayout.addDoubleArray("Left Drive Command", this::currentCommand).withWidget(BuiltInWidgets.kGraph);
 
     dashboardLayout.addDouble("Left Drive Encoder Velocity", leftEncoder::getRate)
-      .withWidget(BuiltInWidgets.kGraph);
+        .withWidget(BuiltInWidgets.kGraph);
     dashboardLayout.addBoolean("Left Drive Shift State", () -> leftSolenoid.get());
 
     dashboardLayout.addDouble("Right Drive Encoder Velocity", rightEncoder::getRate)
-      .withWidget(BuiltInWidgets.kGraph);
+        .withWidget(BuiltInWidgets.kGraph);
     dashboardLayout.addBoolean("Right Drive Shift State", () -> rightSolenoid.get());
 
     ShuffleboardLayout pidTuningTab = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)
@@ -61,7 +63,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   private double[] currentCommand() {
-    return new double[] {currentLeftCommand, leftEncoder.getRate()};
+    return new double[] { currentLeftCommand, leftEncoder.getRate() };
   }
 
   public DriveSubsystem() {
@@ -77,7 +79,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     leftEncoder = new Encoder(Constants.LEFT_DRIVE_ENCODER_1, Constants.LEFT_DRIVE_ENCODER_2);
     rightEncoder = new Encoder(Constants.RIGHT_DRIVE_ENCODER_1, Constants.RIGHT_DRIVE_ENCODER_2);
-    
+
     leftEncoder.setDistancePerPulse(0.0002337788);
     rightEncoder.setDistancePerPulse(0.0002337788);
     leftEncoder.setReverseDirection(true);
@@ -85,19 +87,37 @@ public class DriveSubsystem extends SubsystemBase {
 
     leftMotors = new MotorControllerGroup(leftMotor1, leftMotor2);
     rightMotors = new MotorControllerGroup(rightMotor1, rightMotor2);
-    
+
     leftSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.LEFT_DRIVE_SOLENOID);
     rightSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.RIGHT_DRIVE_SOLENOID);
 
     initializeShuffleboardWidgets();
 
-    //TODO:tune me
-    highVelocityController = new PIDController(.25,0,0);
-    lowVelocityController = new PIDController(.2,0,0);
+    // TODO:tune me
+    // highVelocityController = new PIDController(.25,0,0);
+    // lowVelocityController = new PIDController(.2,0,0);
+    highLeftVelocityController = new PID(leftEncoder::getRate, .25, 0.0, 0.0);
+    lowLeftVelocityController = new PID(leftEncoder::getRate, .2, 0.0, 0.0);
+    highRightVelocityController = new PID(rightEncoder::getRate, .25, 0.0, 0.0);
+    lowRightVelocityController = new PID(rightEncoder::getRate, .2, 0.0, 0.0);
 
     driveWidth = 0.5461;
 
     currentLeftCommand = 0.0;
+  }
+
+  public void isPIDsEnabled(boolean isEnabled) {
+    if (isEnabled) {
+      highLeftVelocityController.startThread();
+      highRightVelocityController.startThread();
+      lowLeftVelocityController.startThread();
+      lowRightVelocityController.startThread();
+    } else {
+      highLeftVelocityController.stopThread();
+      highRightVelocityController.stopThread();
+      lowLeftVelocityController.stopThread();
+      lowRightVelocityController.stopThread();
+    }
   }
 
   @Override
@@ -122,32 +142,52 @@ public class DriveSubsystem extends SubsystemBase {
 
   /**
    * PID to hit a specific velocity for your drivetrain
-   * @param velocity m/s that you want to hit
+   * 
+   * @param velocity        m/s that you want to hit
    * @param angularVelocity m/s of angular change
    */
-  public void velocityPID(double velocity, double angularVelocity){
+  public void velocityPID(double velocity, double angularVelocity) {
     currentLeftCommand = velocity;
     double leftPower, rightPower;
 
     velocity *= -1;
     angularVelocity *= -1;
 
-    double diffV = (driveWidth * Math.PI)*(1/(2*Math.PI))*angularVelocity;
+   
     //TODO:Fix angular velocity
     
-    lowVelocityController.setP(pidPWidget.getDouble(0));
-    lowVelocityController.setI(pidIWidget.getDouble(0));
-    lowVelocityController.setD(pidDWidget.getDouble(0));
+    double diffV = (driveWidth * Math.PI) * (1 / (2 * Math.PI)) * angularVelocity;
+
+    lowLeftVelocityController.setP(0.26);
+    lowLeftVelocityController.setI(pidIWidget.getDouble(0));
+    lowLeftVelocityController.setD(pidDWidget.getDouble(0));    
+    lowRightVelocityController.setP(0.26);
+    lowRightVelocityController.setI(pidIWidget.getDouble(0));
+    lowRightVelocityController.setD(pidDWidget.getDouble(0));
+    highLeftVelocityController.setP(pidPWidget.getDouble(0));
+    highLeftVelocityController.setI(pidIWidget.getDouble(0));
+    highLeftVelocityController.setD(pidDWidget.getDouble(0));    
+    highRightVelocityController.setP(pidPWidget.getDouble(0));
+    highRightVelocityController.setI(pidIWidget.getDouble(0));
+    highRightVelocityController.setD(pidDWidget.getDouble(0));
     
-    if(getLeftShiftState()){
-      leftPower = highVelocityController.calculate(leftEncoder.getRate(), velocity - diffV);
-      rightPower = highVelocityController.calculate(rightEncoder.getRate(), velocity + diffV);
-    }else{
-      leftPower = lowVelocityController.calculate(leftEncoder.getRate(), velocity - diffV);
-      rightPower = lowVelocityController.calculate(rightEncoder.getRate(), velocity + diffV);
+    // TODO:Fix angular velocity
+
+    // System.out.println(leftSolenoid.get());
+
+    if (getLeftShiftState()) {
+      highLeftVelocityController.setSetpoint(velocity - diffV);
+      highRightVelocityController.setSetpoint(velocity + diffV);
+      leftPower = highLeftVelocityController.getOutput();
+      rightPower = highRightVelocityController.getOutput();
+    } else {
+      lowLeftVelocityController.setSetpoint(velocity - diffV);
+      lowRightVelocityController.setSetpoint(velocity + diffV);
+      leftPower = lowLeftVelocityController.getOutput();
+      rightPower = lowRightVelocityController.getOutput();
     }
 
-    tankDrive(leftPower,rightPower);
+    tankDrive(leftPower, rightPower);
   }
 
   // Low gear *should* be false, and high gear *should* be true
@@ -155,7 +195,7 @@ public class DriveSubsystem extends SubsystemBase {
     leftSolenoid.set(state);
     rightSolenoid.set(state);
   }
-  
+
   public boolean getLeftShiftState() {
     return leftSolenoid.get();
   }
