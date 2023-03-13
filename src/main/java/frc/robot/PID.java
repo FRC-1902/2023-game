@@ -10,6 +10,9 @@ public class PID implements Runnable {
     private double I;
     private double kD;
     private double D;
+    private double kF;
+    private double F;
+
     private Double setPoint;
     private DoubleSupplier getSensor;
     private double lastSensor;
@@ -17,13 +20,14 @@ public class PID implements Runnable {
     private double currentOutput;
     private boolean isRunning;
 
-    public PID(DoubleSupplier doubleSupplier, double kP, double kI, double kD) {
+    public PID(DoubleSupplier doubleSupplier, double kP, double kI, double kD, double kF) {
         getSensor = doubleSupplier;
         setPoint = 0.0;
         lastSensor = 0.0;
         this.kP = kP;
         this.kI = kI;
         this.kD = kD;
+        this.kF = kF;
         isRunning = false;
     }
 
@@ -37,6 +41,9 @@ public class PID implements Runnable {
 
     public void setD(double kD) {
         this.kD = kD;
+    }    
+    public void setF(double kF) {
+        this.kF = kF;
     }
 
     public void startThread() {
@@ -56,9 +63,7 @@ public class PID implements Runnable {
     }
 
     public void setSetpoint(double setPoint) {
-        synchronized (this.setPoint) {
-            this.setPoint = setPoint;
-        }
+        this.setPoint = setPoint;
     }
 
     public double getOutput() {
@@ -68,19 +73,18 @@ public class PID implements Runnable {
     @Override
     public void run() {
         while (isRunning) {
-            synchronized (setPoint) {
+            try {
                 double currentSensor = getSensor.getAsDouble();
                 long currentTime = System.currentTimeMillis();
                 P = setPoint - currentSensor;
                 I += P;
                 D = (currentSensor - lastSensor) / (currentTime - lastFrameTime);
+                F = setPoint;
 
-                currentOutput = P * kP + I * kI + D * kD;
+              currentOutput = P * kP + I * kI - D * kD + F * kF;
                 lastFrameTime = System.currentTimeMillis();
 
                 System.out.printf("P: %.02f | I: %.02f | D: %.02f | Out: %.02f \n", P, I, D, currentOutput);
-            }
-            try {
                 Thread.sleep(20);
             } catch (InterruptedException e) {
                 e.printStackTrace();

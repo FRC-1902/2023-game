@@ -29,7 +29,7 @@ public class DriveSubsystem extends SubsystemBase {
   private final double driveWidth;
   private double currentLeftCommand;
 
-  private GenericEntry pidPWidget, pidIWidget, pidDWidget;
+  private GenericEntry pidPWidget, pidIWidget, pidDWidget, pidFWidget;
 
   public void initializeShuffleboardWidgets() {
     ShuffleboardLayout dashboardLayout = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)
@@ -59,6 +59,9 @@ public class DriveSubsystem extends SubsystemBase {
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
     pidDWidget = pidTuningTab
       .add("Auto Drive PID - Derivative", 0.0)
+      .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
+    pidFWidget = pidTuningTab
+      .add("Auto Drive PID - FeedForward", 0.0)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
   }
 
@@ -96,10 +99,10 @@ public class DriveSubsystem extends SubsystemBase {
     // TODO:tune me
     // highVelocityController = new PIDController(.25,0,0);
     // lowVelocityController = new PIDController(.2,0,0);
-    highLeftVelocityController = new PID(leftEncoder::getRate, .25, 0.0, 0.0);
-    lowLeftVelocityController = new PID(leftEncoder::getRate, .2, 0.0, 0.0);
-    highRightVelocityController = new PID(rightEncoder::getRate, .25, 0.0, 0.0);
-    lowRightVelocityController = new PID(rightEncoder::getRate, .2, 0.0, 0.0);
+    highLeftVelocityController = new PID(leftEncoder::getRate, 0.0, 0.0, 0.0, 0.1);
+    lowLeftVelocityController = new PID(leftEncoder::getRate, 0.0, 0.0, 0.0, 0.1);
+    highRightVelocityController = new PID(rightEncoder::getRate, 0.0, 0.0, 0.0, 0.1);
+    lowRightVelocityController = new PID(rightEncoder::getRate, 0.0, 0.0, 0.0, 0.1);
 
     driveWidth = 0.5461;
 
@@ -158,18 +161,22 @@ public class DriveSubsystem extends SubsystemBase {
     
     double diffV = (driveWidth * Math.PI) * (1 / (2 * Math.PI)) * angularVelocity;
 
-    lowLeftVelocityController.setP(0.26);
+    lowLeftVelocityController.setP(pidPWidget.getDouble(0));
     lowLeftVelocityController.setI(pidIWidget.getDouble(0));
     lowLeftVelocityController.setD(pidDWidget.getDouble(0));    
-    lowRightVelocityController.setP(0.26);
+    lowLeftVelocityController.setF(pidFWidget.getDouble(0));    
+    lowRightVelocityController.setP(pidPWidget.getDouble(0));
     lowRightVelocityController.setI(pidIWidget.getDouble(0));
     lowRightVelocityController.setD(pidDWidget.getDouble(0));
+    lowRightVelocityController.setF(pidFWidget.getDouble(0));
     highLeftVelocityController.setP(pidPWidget.getDouble(0));
     highLeftVelocityController.setI(pidIWidget.getDouble(0));
     highLeftVelocityController.setD(pidDWidget.getDouble(0));    
+    highLeftVelocityController.setF(pidFWidget.getDouble(0));    
     highRightVelocityController.setP(pidPWidget.getDouble(0));
     highRightVelocityController.setI(pidIWidget.getDouble(0));
     highRightVelocityController.setD(pidDWidget.getDouble(0));
+    highRightVelocityController.setF(pidFWidget.getDouble(0));
     
     // TODO:Fix angular velocity
 
