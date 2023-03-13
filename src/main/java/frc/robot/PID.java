@@ -2,6 +2,8 @@ package frc.robot;
 
 import java.util.function.DoubleSupplier;
 
+import javax.swing.InternalFrameFocusTraversalPolicy;
+
 import edu.wpi.first.math.MathUtil;
 
 public class PID implements Runnable {
@@ -27,6 +29,8 @@ public class PID implements Runnable {
     private double tolerance;
     private boolean isAtSetpoint;
 
+    private boolean isVelocity;
+
     public PID(DoubleSupplier doubleSupplier, double kP, double kI, double kD, double kF) {
         getSensor = doubleSupplier;
         setPoint = 0.0;
@@ -39,6 +43,22 @@ public class PID implements Runnable {
         isRunning = false;
         isContinuous = false;
         isAtSetpoint = false;
+        isVelocity = false;
+    }
+
+    public PID(DoubleSupplier doubleSupplier, double kP, double kI, double kD, double kF, boolean isVelocity) {
+        getSensor = doubleSupplier;
+        setPoint = 0.0;
+        lastSensor = 0.0; 
+        tolerance = 0.0;
+        this.kP = kP;
+        this.kI = kI;
+        this.kD = kD;
+        this.kF = kF;
+        isRunning = false;
+        isContinuous = false;
+        isAtSetpoint = false;
+        this.isVelocity = isVelocity;
     }
 
     public void setP(double kP) {
@@ -90,6 +110,12 @@ public class PID implements Runnable {
             isRunning = true;
             I = 0;
             lastFrameTime = System.currentTimeMillis();
+
+            if(isVelocity){
+                setPoint = 0.0;
+            }else{
+                setPoint = getSensor.getAsDouble();
+            }
         
             thread.start();
             System.out.println("Starting Thread");

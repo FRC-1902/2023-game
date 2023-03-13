@@ -223,11 +223,11 @@ public class TurretvatorSubsystem extends SubsystemBase {
     double elevatorPower;
     //TODO: add me
     // Calculates how much the motors should rotate in order to maintain a constant distance
-    // double desiredElevatorRotations = 
-    //   desiredElevatorDistance / (Math.cos((turretEncoder.getAbsolutePosition() - 0.393 + 1)%1 * throughboreCPR * Math.PI * 2) *
-    //   Math.cos(Math.toRadians(Constants.ELEVATOR_PITCH_DEG)) *
-    //   Constants.ELEVATOR_CM_PER_ROTATION);
-    double desiredElevatorRotations = desiredElevatorDistance; 
+    double desiredElevatorRotations = 
+      desiredElevatorDistance / (Math.cos((turretEncoder.getAbsolutePosition() - 0.393 + 1)%1 * throughboreCPR * Math.PI * 2) *
+      Math.cos(Math.toRadians(Constants.ELEVATOR_PITCH_DEG)) *
+      Constants.ELEVATOR_CM_PER_ROTATION);
+    //double desiredElevatorRotations = desiredElevatorDistance; 
 
     if (initialPeriodic)
       elevatorEncoderOffset = elevatorLeftEncoder.get();

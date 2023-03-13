@@ -99,10 +99,10 @@ public class DriveSubsystem extends SubsystemBase {
     // TODO:tune me
     // highVelocityController = new PIDController(.25,0,0);
     // lowVelocityController = new PIDController(.2,0,0);
-    highLeftVelocityController = new PID(leftEncoder::getRate, 0.0, 0.0, 0.0, 0.1);
-    lowLeftVelocityController = new PID(leftEncoder::getRate, 0.0, 0.0, 0.0, 0.1);
-    highRightVelocityController = new PID(rightEncoder::getRate, 0.0, 0.0, 0.0, 0.1);
-    lowRightVelocityController = new PID(rightEncoder::getRate, 0.0, 0.0, 0.0, 0.1);
+    highLeftVelocityController = new PID(leftEncoder::getRate, 0.0, 0.0, 0.0, 0.1, true);
+    lowLeftVelocityController = new PID(leftEncoder::getRate, 0.0, 0.0, 0.0, 0.1, true);
+    highRightVelocityController = new PID(rightEncoder::getRate, 0.0, 0.0, 0.0, 0.1, true);
+    lowRightVelocityController = new PID(rightEncoder::getRate, 0.0, 0.0, 0.0, 0.1, true);
 
     driveWidth = 0.5461;
 
