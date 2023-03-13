@@ -119,6 +119,9 @@ public class TurretvatorSubsystem extends SubsystemBase {
     
 
     initializeShuffleBoardWidgets();
+
+    lastElevatorEncoderValue = elevatorLeftEncoder.get();
+    lastTurretEncoderValue = turretEncoder.getAbsolutePosition();
   }
 
   /**
