@@ -109,7 +109,7 @@ public class DriveSubsystem extends SubsystemBase {
     currentLeftCommand = 0.0;
   }
 
-  public void isPIDsEnabled(boolean isEnabled) {
+  public void setPIDEnable(boolean isEnabled) {
     if (isEnabled) {
       highLeftVelocityController.startThread();
       highRightVelocityController.startThread();
