@@ -110,10 +110,10 @@ public class TurretvatorSubsystem extends SubsystemBase {
     elevatorRightEncoder = new DutyCycleEncoder(Constants.RIGHT_ELEVATOR_ENCODER);
     
     elevatorPID = new PID(() -> {
-      System.out.format("Encoder %.03f | Offset %.03f \n", elevatorLeftEncoder.get(), elevatorEncoderOffset);
+      // System.out.format("Encoder %.03f | Offset %.03f \n", elevatorLeftEncoder.get(), elevatorEncoderOffset);
       return elevatorLeftEncoder.get() - elevatorEncoderOffset; 
     },0.22, 0.0, 0.0, 0.0);
-    elevatorPID.setTolerance(0.01); //TODO: set me
+    elevatorPID.setTolerance(0.05); //TODO: set me
 
     turretMotor = new CANSparkMax(Constants.TURRET_ID, MotorType.kBrushless);
     turretMotor.setInverted(true);
@@ -179,7 +179,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
 
   public Map<Enum<ElevatorStage>, Double> elevatorMap = 
     new HashMap<Enum<ElevatorStage>, Double>() {{
-      put(ElevatorStage.HIGH, 4.418);
+      put(ElevatorStage.HIGH, 3.6);
       put(ElevatorStage.MIDDLE, 3.034);
       put(ElevatorStage.LOAD, 0.0);
       put(ElevatorStage.DOWN, 0.0);
