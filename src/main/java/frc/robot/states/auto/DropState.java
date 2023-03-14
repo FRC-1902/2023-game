@@ -49,7 +49,7 @@ public class DropState implements State{
                 break;
             case 1:// extend elavator
                 System.out.println("Entered HIGH");
-                tvSub.elevatorSet(ElevatorStage.HIGH); 
+                tvSub.elevatorSet(3.6); 
                 if(tvSub.isExtended()){
                     loopStartTime = System.currentTimeMillis();
                     state++;

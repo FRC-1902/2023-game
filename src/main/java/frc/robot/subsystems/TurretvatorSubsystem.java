@@ -179,7 +179,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
 
   public Map<Enum<ElevatorStage>, Double> elevatorMap = 
     new HashMap<Enum<ElevatorStage>, Double>() {{
-      put(ElevatorStage.HIGH, 3.6);
+      put(ElevatorStage.HIGH, 4.418);
       put(ElevatorStage.MIDDLE, 3.034);
       put(ElevatorStage.LOAD, 0.0);
       put(ElevatorStage.DOWN, 0.0);
