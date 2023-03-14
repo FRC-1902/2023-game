@@ -139,6 +139,10 @@ public class PID implements Runnable {
         return currentOutput;
     }
 
+    public double getSensorInput(){
+        return getSensor.getAsDouble();
+    }
+
     @Override
     public void run() {
         while (isRunning) {

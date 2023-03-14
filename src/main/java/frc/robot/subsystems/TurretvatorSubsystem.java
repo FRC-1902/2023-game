@@ -117,7 +117,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
     turretEncoder = new DutyCycleEncoder(Constants.TURRET_ENCODER);
     //TODO: Tune me
     //(turretEncoder.getAbsolutePosition() - 0.393 + 1) % 1
-    turretPID = new PID(() -> ((turretEncoder.getAbsolutePosition() - 0.393 + 1) % 1), 0.0, 0.0, 0.0, 0.0);
+    turretPID = new PID(() -> ((turretEncoder.getAbsolutePosition() - 0.643 + 1) % 1), 0.0, 0.0, 0.0, 0.0);
  
     turretPID.enableContinuousInput(0, throughboreCPR);
     turretPID.setTolerance(0.001);
