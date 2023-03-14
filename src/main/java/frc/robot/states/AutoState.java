@@ -2,13 +2,16 @@ package frc.robot.states;
 
 import frc.robot.RobotStateManager;
 import frc.robot.State;
+import frc.robot.subsystems.DriveSubsystem;
 
 public class AutoState implements State{
     private String name, parent;
+    private DriveSubsystem ds;
     
     public AutoState(String name, String parent){
         this.name = name;
         this.parent = parent;
+        ds = DriveSubsystem.getInstance();
     }
 
     @Override
@@ -24,6 +27,7 @@ public class AutoState implements State{
     @Override
     public void Enter() {
         System.out.println("entered " + name);
+        ds.shift(false);
     }
 
     @Override
@@ -35,6 +39,8 @@ public class AutoState implements State{
     public void Periodic(RobotStateManager rs) {
         /**
          * if intake is filled -> grab  
+         * 
+         * maintain odometry
          */
     }
 

@@ -20,7 +20,7 @@ public class IMUSubsystem extends SubsystemBase {
   public IMUSubsystem() {
     ShuffleboardLayout dashboardTab = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)
         .getLayout("BNO055 Telemetry", BuiltInLayouts.kList)
-        .withSize(4, 4);
+        .withSize(3, 3);
 
     dashboardTab.addDouble("BNO055 Yaw", () -> getHeading())
         .withProperties(Map.of("Min", -180, "Max", 180))

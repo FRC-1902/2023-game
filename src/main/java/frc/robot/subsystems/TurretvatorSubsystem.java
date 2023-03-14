@@ -11,7 +11,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.PIDController;
+import frc.robot.PID;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -38,12 +38,12 @@ public class TurretvatorSubsystem extends SubsystemBase {
 
   private long turretRampTime;
 
-  private GenericEntry turretPWidget, turretIWidget, turretDWidget, elevatorPWidget, elevatorIWidget, elevatorDWidget;
+  private GenericEntry turretPWidget, turretIWidget, turretDWidget, turretFWidget, elevatorPWidget, elevatorIWidget, elevatorDWidget, elevatorFWidget;
   private CANSparkMax elevatorLeft, elevatorRight, turretMotor;
   private MotorControllerGroup elevatorMotors;
   private DutyCycleEncoder elevatorLeftEncoder, elevatorRightEncoder;
   private DutyCycleEncoder turretEncoder;
-  private PIDController elevatorPID, turretPID;
+  private PID elevatorPID, turretPID;
   private Solenoid gripperSolenoidA, gripperSolenoidB;
 
   private double lastElevatorEncoderValue;
@@ -55,34 +55,45 @@ public class TurretvatorSubsystem extends SubsystemBase {
   private boolean elevatorKillSwitchInterlock = false;
 
   private boolean initialPeriodic = true;
+  private boolean isPIDEnabled = false;
 
   // 5 Second timeout
   private long killSwitchTimeout = 5000000;
   private long killSwitchActivationTime;
 
   public void initializeShuffleBoardWidgets() {
-    ShuffleboardLayout dashboardLayout = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)
+    ShuffleboardLayout turretLayout = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)
       .getLayout("Turret PID", BuiltInLayouts.kList)
-      .withSize(4, 4);
-
-    turretPWidget = dashboardLayout
+      .withSize(2, 3);
+    
+    turretPWidget = turretLayout
       .add("Turret PID - Proportional", 0.9)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
-    turretIWidget = dashboardLayout
+    turretIWidget = turretLayout
       .add("Turret PID - Integral", 0)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
-    turretDWidget = dashboardLayout
+    turretDWidget = turretLayout
       .add("Turret PID - Derivative", 0)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
+    turretFWidget = turretLayout
+      .add("Turret PID - FeedForward", 0)
+      .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
 
-    elevatorPWidget = dashboardLayout
+    ShuffleboardLayout elevatorLayout = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)
+      .getLayout("Elevator PID", BuiltInLayouts.kList)
+      .withSize(2, 3);
+
+    elevatorPWidget = elevatorLayout
       .add("Elevator PID - Proportional", 0)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
-    elevatorIWidget = dashboardLayout
+    elevatorIWidget = elevatorLayout
       .add("Elevator PID - Integral", 0)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
-    elevatorDWidget = dashboardLayout
+    elevatorDWidget = elevatorLayout
       .add("Elevator PID - Derivative", 0)
+      .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
+    elevatorFWidget = elevatorLayout
+      .add("Elevator PID - FeedForward", 0)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
   }
 
@@ -98,14 +109,15 @@ public class TurretvatorSubsystem extends SubsystemBase {
     elevatorLeftEncoder = new DutyCycleEncoder(Constants.LEFT_ELEVATOR_ENCODER);
     elevatorRightEncoder = new DutyCycleEncoder(Constants.RIGHT_ELEVATOR_ENCODER);
     //TODO: Tune me
-    elevatorPID = new PIDController(0, 0, 0);
+    elevatorPID = new PID(() -> (elevatorLeftEncoder.get() - elevatorEncoderOffset),0.0, 0.0, 0.0, 0.0);
     elevatorPID.setTolerance(0.01); //TODO: set me
 
     turretMotor = new CANSparkMax(Constants.TURRET_ID, MotorType.kBrushless);
     turretMotor.setInverted(true);
     turretEncoder = new DutyCycleEncoder(Constants.TURRET_ENCODER);
     //TODO: Tune me
-    turretPID = new PIDController(0, 0, 0);
+    //(turretEncoder.getAbsolutePosition() - 0.393 + 1) % 1
+    turretPID = new PID(() -> ((turretEncoder.getAbsolutePosition() - 0.643 + 1) % 1), 0.0, 0.0, 0.0, 0.0);
  
     turretPID.enableContinuousInput(0, throughboreCPR);
     turretPID.setTolerance(0.001);
@@ -197,15 +209,25 @@ public class TurretvatorSubsystem extends SubsystemBase {
     return elevatorPID.atSetpoint();
   }
 
+  public void enablePID(boolean isEnabled){
+    if(isEnabled){
+      elevatorPID.startThread();
+      turretPID.startThread();
+    }else{
+      elevatorPID.stopThread();
+      turretPID.stopThread();
+    }
+  }
+
   private void elevatorPeriodic() {
     double elevatorPower;
     //TODO: add me
     // Calculates how much the motors should rotate in order to maintain a constant distance
-    // double desiredElevatorRotations = 
-    //   desiredElevatorDistance / (Math.cos((turretEncoder.getAbsolutePosition() - 0.393 + 1)%1 * throughboreCPR * Math.PI * 2) *
-    //   Math.cos(Math.toRadians(Constants.ELEVATOR_PITCH_DEG)) *
-    //   Constants.ELEVATOR_CM_PER_ROTATION);
-    double desiredElevatorRotations = desiredElevatorDistance; 
+    double desiredElevatorRotations = 
+      desiredElevatorDistance / (Math.cos((turretEncoder.getAbsolutePosition() - 0.393 + 1)%1 * throughboreCPR * Math.PI * 2) *
+      Math.cos(Math.toRadians(Constants.ELEVATOR_PITCH_DEG)) *
+      Constants.ELEVATOR_CM_PER_ROTATION);
+    //double desiredElevatorRotations = desiredElevatorDistance; 
 
     if (initialPeriodic)
       elevatorEncoderOffset = elevatorLeftEncoder.get();
@@ -221,7 +243,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
     elevatorPID.setSetpoint(desiredElevatorRotations);
     elevatorPower = Math.max(
       Math.min(
-        elevatorPID.calculate(elevatorLeftEncoder.get() - elevatorEncoderOffset),
+        elevatorPID.getOutput(),
         Constants.MAX_ELEVATOR_MOTOR_POWER
       ),
       -1 * Constants.MAX_ELEVATOR_MOTOR_POWER
@@ -241,7 +263,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
  
     //XX: add wraparound protection, just setting to -45 and 45 for wraparound protecting atm
     
-    turretPow = turretPID.calculate((turretEncoder.getAbsolutePosition() - 0.393 + 1)%1);
+    turretPow = turretPID.getOutput();
     
     //ramp soak for smooth startup
     if (turretPID.atSetpoint())
@@ -256,6 +278,9 @@ public class TurretvatorSubsystem extends SubsystemBase {
   // Called from Robot
   @Override
   public void periodic() {
+    if(!isPIDEnabled){
+      enablePID(true);
+    }
 
     if (elevatorKillSwitchInterlock) {
       elevatorMotors.set(0);

@@ -28,6 +28,8 @@ import frc.robot.states.teleOp.*;
 // import frc.robot.states.teleOp.intake.LoadPieceState;
 // import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.TurretvatorSubsystem;
+import frc.robot.subsystems.TurretvatorSubsystem.ElevatorStage;
+import frc.robot.path.Paths;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -88,6 +90,7 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     compressor = new Compressor(1, PneumaticsModuleType.REVPH);
     compressor.enableDigital();
+    Paths.getInstance().readPathArray(Paths.pathName.STRAIGHT);//TODO: connect autonomouse chooser
     controllers = Controllers.getInstance();
 
     rs = RobotStateManager.getInstance();
@@ -147,6 +150,7 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     rs.setState("disabled");
+    turretvatorSubsystem.enablePID(false);
   }
 
   @Override
@@ -157,7 +161,7 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    rs.setState("auto");
+    rs.setState("path");
     // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // // schedule the autonomous command (example)
@@ -182,6 +186,7 @@ public class Robot extends TimedRobot {
     // if (m_autonomousCommand != null) {
     //   m_autonomousCommand.cancel();
     // }
+    turretvatorSubsystem.elevatorSet(ElevatorStage.DOWN);
     rs.setState("teleOp");
   }
 
