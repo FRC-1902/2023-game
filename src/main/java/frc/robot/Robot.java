@@ -28,6 +28,7 @@ import frc.robot.states.teleOp.*;
 // import frc.robot.states.teleOp.intake.LoadPieceState;
 // import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.TurretvatorSubsystem;
+import frc.robot.subsystems.TurretvatorSubsystem.ElevatorStage;
 import frc.robot.path.Paths;
 
 /**
@@ -186,6 +187,7 @@ public class Robot extends TimedRobot {
     // if (m_autonomousCommand != null) {
     //   m_autonomousCommand.cancel();
     // }
+    turretvatorSubsystem.elevatorSet(ElevatorStage.DOWN);
     rs.setState("teleOp");
   }
 
