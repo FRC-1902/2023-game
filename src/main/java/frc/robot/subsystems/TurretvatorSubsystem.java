@@ -298,6 +298,10 @@ public class TurretvatorSubsystem extends SubsystemBase {
         killSwitchActivationTime = RobotController.getFPGATime();
         elevatorKillSwitchInterlock = true;
       }
+
+      if(elevatorLeftEncoder.get() < -1.0){
+        elevatorKillSwitchInterlock = true;
+      }
     }
 
     if (turretKillSwitchInterlock) {
