@@ -109,7 +109,10 @@ public class TurretvatorSubsystem extends SubsystemBase {
     elevatorLeftEncoder = new DutyCycleEncoder(Constants.LEFT_ELEVATOR_ENCODER);
     elevatorRightEncoder = new DutyCycleEncoder(Constants.RIGHT_ELEVATOR_ENCODER);
     
-    elevatorPID = new PID(() -> (elevatorLeftEncoder.get() - elevatorEncoderOffset),0.22, 0.0, 0.0, 0.0);
+    elevatorPID = new PID(() -> {
+      System.out.format("Encoder %.03f | Offset %.03f \n", elevatorLeftEncoder.get(), elevatorEncoderOffset);
+      return elevatorLeftEncoder.get() - elevatorEncoderOffset; 
+    },0.22, 0.0, 0.0, 0.0);
     elevatorPID.setTolerance(0.01); //TODO: set me
 
     turretMotor = new CANSparkMax(Constants.TURRET_ID, MotorType.kBrushless);
@@ -322,7 +325,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
       }
     }
 
-    // initialPeriodic = false;
+    initialPeriodic = false;
 
     // if (RobotController.getFPGATime() - killSwitchActivationTime > killSwitchTimeout && (turretKillSwitchInterlock || elevatorKillSwitchInterlock)) {
     //   System.out.println("==== ALL INTERLOCKS RELEASED ====");
