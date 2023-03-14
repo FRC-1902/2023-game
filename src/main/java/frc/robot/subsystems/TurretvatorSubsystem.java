@@ -224,7 +224,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
     double elevatorPower;
     // Calculates how much the motors should rotate in order to maintain a constant distance
     double desiredElevatorRotations = 
-      desiredElevatorDistance / (Math.cos((turretEncoder.getAbsolutePosition() - 0.393 + 1)%1 * throughboreCPR * Math.PI * 2) *
+      desiredElevatorDistance / (Math.cos(turretPID.getSetpoint() * throughboreCPR * Math.PI * 2) *
       Math.cos(Math.toRadians(Constants.ELEVATOR_PITCH_DEG)) *
       Constants.ELEVATOR_CM_PER_ROTATION);
     //double desiredElevatorRotations = desiredElevatorDistance; 
@@ -232,8 +232,10 @@ public class TurretvatorSubsystem extends SubsystemBase {
     if (initialPeriodic)
       elevatorEncoderOffset = elevatorLeftEncoder.get();
 
-    if (desiredElevatorRotations > elevatorStop || desiredElevatorRotations < 0)
-      System.out.println("Elevator is extended to extreme!");
+    if (desiredElevatorRotations > elevatorStop)
+      System.out.println("Elevator is extending to extreme!");
+    if (desiredElevatorRotations < 0)
+      System.out.println("Elevator shouldn't try to be negative!");
 
     desiredElevatorRotations = Math.max(Math.min(desiredElevatorRotations, elevatorStop), 0.0);
 
@@ -282,6 +284,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
       enablePID(true);
     }
 
+    System.out.println(elevatorPID.getSensorInput());
     if (elevatorKillSwitchInterlock) {
       elevatorMotors.set(0);
     }
