@@ -106,8 +106,9 @@ public class Robot extends TimedRobot {
       new BalanceState("balance", null),
       new AutoState("auto", null),
       new PickupState("pickup", "auto"),
-      new DropState("drop", "visionAlign"),
+      new DropState("drop", null),
       new VisionAlignState("visionAlign", "auto"),
+      new PathState("path", null),
       new TurretState("turret", "path"),
       new TestState("test", null)
      );
@@ -160,7 +161,7 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    rs.setState("path");
+    rs.setState("drop");
     // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // // schedule the autonomous command (example)

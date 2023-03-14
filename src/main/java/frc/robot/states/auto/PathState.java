@@ -47,6 +47,10 @@ public class PathState implements State{
 
         beganLeftDist = driveSubsystem.leftEncoder.getDistance();
         beganAvgDist = (driveSubsystem.leftEncoder.getDistance() + driveSubsystem.rightEncoder.getDistance())/2;
+
+        driveSubsystem.setPIDEnable(true);
+
+        startCheckFrame = 1;
         
         firstLoop = true;
     }
@@ -54,6 +58,7 @@ public class PathState implements State{
     @Override
     public void Leave() {
         System.out.println("left " + name);
+        driveSubsystem.setPIDEnable(false);
         DriveSubsystem.getInstance().velocityPID(0, 0);
     }
 
@@ -75,14 +80,19 @@ public class PathState implements State{
         double currentTime = timer.get();
 
         //find current position in path
+        if(startCheckFrame == frames.length - 1) {
+            rs.setState("disabled");
+        }
         for(int i = startCheckFrame; i < frames.length; i++){
 
             double previousTime = ((Number) frames[i-1].get("time")).doubleValue();
             double nextTime = ((Number) frames[i].get("time")).doubleValue();
+            
+            System.out.format("%d | ", i);
 
             if(nextTime > currentTime){
                 //find forward velocity
-                velocity = 
+                velocity = //((Number)frames[i].get("velocity")).doubleValue();
                     lerp(
                         ((Number) frames[i-1].get("velocity")).doubleValue(),
                         ((Number) frames[i].get("velocity")).doubleValue(),
@@ -96,6 +106,8 @@ public class PathState implements State{
                         ((Number) frames[i].get("angularVelocity")).doubleValue(),
                         (currentTime - previousTime)/(nextTime - previousTime)
                     );
+                startCheckFrame = i;
+                break;
             }
         }
         
@@ -111,7 +123,7 @@ public class PathState implements State{
         driveSubsystem.velocityPID(velocity, angularVelocity);
 
 
-        System.out.format("Left Encoder Rate: %f", driveSubsystem.leftEncoder.getRate());
+        System.out.format("Velocity: %.3f | Angular: %.3f | Left Encoder Rate: %.3f\n", velocity, angularVelocity, driveSubsystem.leftEncoder.getRate());
 
     }
 

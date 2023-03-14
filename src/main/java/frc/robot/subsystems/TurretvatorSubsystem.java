@@ -232,7 +232,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
     if (initialPeriodic)
       elevatorEncoderOffset = elevatorLeftEncoder.get();
 
-    if (desiredElevatorRotations > elevatorStop || desiredElevatorRotations < 0)
+    if (desiredElevatorRotations > elevatorStop) //|| desiredElevatorRotations < 0.0)
       System.out.println("Elevator is extended to extreme!");
 
     desiredElevatorRotations = Math.max(Math.min(desiredElevatorRotations, elevatorStop), 0.0);
@@ -282,52 +282,52 @@ public class TurretvatorSubsystem extends SubsystemBase {
       enablePID(true);
     }
 
-    if (elevatorKillSwitchInterlock) {
-      elevatorMotors.set(0);
-    }
-    else {
+    // if (elevatorKillSwitchInterlock) {
+    //   elevatorMotors.set(0);
+    // }
+    // else {
       elevatorPeriodic();
       
-      if (Math.abs(lastElevatorEncoderValue - elevatorLeftEncoder.get()) < 0.005 && Math.abs(elevatorMotors.get()) > 0.4)
-        elevatorKillSwitchHits++;
-      else
-        elevatorKillSwitchHits = 0;
-      
-      if (elevatorKillSwitchHits >= 10) {
-        System.out.println("==== ELEVATOR INTERLOCK ENGAGED ====");
-        killSwitchActivationTime = RobotController.getFPGATime();
-        elevatorKillSwitchInterlock = true;
-      }
-    }
+      // if (Math.abs(lastElevatorEncoderValue - elevatorLeftEncoder.get()) < 0.005 && Math.abs(elevatorMotors.get()) > 0.4)
+      //   elevatorKillSwitchHits++;
+      // else
+      //   elevatorKillSwitchHits = 0;
+      // 
+      // if (elevatorKillSwitchHits >= 10) {
+      //   System.out.println("==== ELEVATOR INTERLOCK ENGAGED ====");
+      //   killSwitchActivationTime = RobotController.getFPGATime();
+      //   elevatorKillSwitchInterlock = true;
+      // }
+    // }
 
-    if (turretKillSwitchInterlock) {
-      turretMotor.set(0);
-    }
-    else {
+    // if (turretKillSwitchInterlock) {
+    //   turretMotor.set(0);
+    // }
+    // else {
       turretPeriodic();
 
       // Detects wrap around
-      if (Math.abs(lastTurretEncoderValue - turretEncoder.getAbsolutePosition()) > 0.35) {
-        System.out.println("==== TURRET INTERLOCK ENGAGED ====");
-        killSwitchActivationTime = RobotController.getFPGATime();
-        turretKillSwitchInterlock = true;
-      }
-    }
+      // if (Math.abs(lastTurretEncoderValue - turretEncoder.getAbsolutePosition()) > 0.35) {
+      //   System.out.println("==== TURRET INTERLOCK ENGAGED ====");
+      //   killSwitchActivationTime = RobotController.getFPGATime();
+      //   turretKillSwitchInterlock = true;
+      // }
+    // }
 
-    initialPeriodic = false;
+    // initialPeriodic = false;
 
-    if (RobotController.getFPGATime() - killSwitchActivationTime > killSwitchTimeout && (turretKillSwitchInterlock || elevatorKillSwitchInterlock)) {
-      System.out.println("==== ALL INTERLOCKS RELEASED ====");
-      turretKillSwitchInterlock = false;
-      elevatorKillSwitchInterlock = false;
+    // if (RobotController.getFPGATime() - killSwitchActivationTime > killSwitchTimeout && (turretKillSwitchInterlock || elevatorKillSwitchInterlock)) {
+    //   System.out.println("==== ALL INTERLOCKS RELEASED ====");
+    //   turretKillSwitchInterlock = false;
+    //   elevatorKillSwitchInterlock = false;
 
-      initialPeriodic = true;
-    }
+    //   initialPeriodic = true;
+    // }
 
-    //Medium l 3.302 r -2.610
+    // //Medium l 3.302 r -2.610
 
-    lastElevatorEncoderValue = elevatorLeftEncoder.get();
-    lastTurretEncoderValue = turretEncoder.getAbsolutePosition();
+    // lastElevatorEncoderValue = elevatorLeftEncoder.get();
+    // lastTurretEncoderValue = turretEncoder.getAbsolutePosition();
   }
 
   public static TurretvatorSubsystem getInstance() {
