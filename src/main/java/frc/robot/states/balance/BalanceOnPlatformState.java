@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import frc.robot.Constants;
+import frc.robot.PID;
 import frc.robot.RobotStateManager;
 import frc.robot.State;
 import frc.robot.states.BalanceState;
@@ -17,7 +18,7 @@ public class BalanceOnPlatformState implements State {
   private BalanceState parent;
 
   private IMUSubsystem imu;
-  private PIDController pitchPID;
+  private PID pitchPID;
 
   private GenericEntry pidPWidget, pidIWidget, pidDWidget;
 
@@ -42,7 +43,9 @@ public class BalanceOnPlatformState implements State {
       //.withProperties(Map.of("Min", -0.15, "Max", 0.15))
 
     imu = IMUSubsystem.getInstance();
-    pitchPID = new PIDController(0, 0, 0);
+    pitchPID = new PID(()->imu.getPitch(), 0.0, 0.0, 0.0, 0.0);
+    pitchPID.setTolerance(0.05);
+    pitchPID.setSetpoint(0);
   }
 
   @Override
@@ -58,10 +61,12 @@ public class BalanceOnPlatformState implements State {
   @Override
   public void Enter() {
     System.out.println("entered" + name);
+    pitchPID.startThread();
   }
 
   @Override
   public void Leave() {
+    pitchPID.stopThread();
     System.out.println("left " + name);
   }
 
@@ -72,7 +77,7 @@ public class BalanceOnPlatformState implements State {
     pitchPID.setI(pidIWidget.getDouble(0)/10);
     pitchPID.setD(pidDWidget.getDouble(0)/10);
     if(Math.abs(imu.getPitch()) > Constants.PLATFORM_BALANCE_PITCH_THRESHOLD_DEG){
-      parent.calculatedForwardSpeed += pitchPID.calculate(imu.getPitch(), 0);
+      parent.calculatedForwardSpeed += pitchPID.getOutput();
     }
 
     System.out.format("(BalanceOnPlatform) Current forward speed %f\n", parent.calculatedForwardSpeed);
