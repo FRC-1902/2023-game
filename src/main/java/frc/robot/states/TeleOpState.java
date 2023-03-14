@@ -106,14 +106,14 @@ public class TeleOpState implements frc.robot.State{
         case B:
           if(event.action == Action.PRESSED){
             tvSub.setGripper(false);
-            System.out.println("gripper set false");
+            System.out.println("Gripper OPEN");
             return true;
           }
           break;
         case X:
           if(event.action == Action.PRESSED){
             tvSub.setGripper(true);
-            System.out.println("gripper set true");
+            System.out.println("Gripper CLOSE");
             return true;
           }
           break;
