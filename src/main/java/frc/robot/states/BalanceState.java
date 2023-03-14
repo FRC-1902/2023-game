@@ -11,6 +11,7 @@ import frc.robot.Controllers.Action;
 import frc.robot.Controllers.Button;
 import frc.robot.Controllers.ControllerName;
 import frc.robot.Event;
+import frc.robot.PID;
 import frc.robot.RobotStateManager;
 import frc.robot.State;
 import frc.robot.subsystems.DriveSubsystem;
@@ -21,7 +22,7 @@ public class BalanceState implements State {
 
   private DriveSubsystem drive;
 
-  private PIDController yawPID;
+  private PID yawPID;
   private HeaderWrapper compass;
   private State enteredFromState;
 
@@ -51,9 +52,8 @@ public class BalanceState implements State {
     pidDWidget = pidTuningTab
       .add("Balance Yaw PID - Derivative", 0.0)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
-
-    yawPID = new PIDController(0, 0, 0);
-
+    
+    yawPID = new PID(()->compass.getHeading(), 0.01, 0.0, 0.0, 0.0);
   }
 
   @Override
@@ -77,12 +77,17 @@ public class BalanceState implements State {
     desiredYaw = Constants.PLATFORM_YAW_DEG;
 
     compass.setHeadingOffset(compass.getHeadingOffset() + desiredYaw);
+    drive.shift(false);
+
+    yawPID.startThread();
 
     enteredFromState = enteredFrom;
   }
 
   @Override
   public void Leave() {
+    yawPID.stopThread();
+    drive.arcadeDrive(0, 0);
     System.out.println("left " + name);
   }
 
@@ -91,7 +96,7 @@ public class BalanceState implements State {
     double headingTarget;
     double currentYaw = compass.getHeading();
 
-    yawPID.setP(pidPWidget.getDouble(0)/10);
+    yawPID.setP(pidPWidget.getDouble(0.1)/10);
     yawPID.setI(pidIWidget.getDouble(0)/10);
     yawPID.setD(pidDWidget.getDouble(0)/10);
 
@@ -107,12 +112,11 @@ public class BalanceState implements State {
     }
 
     yawPID.setSetpoint(headingTarget);
-    calculatedYawSpeed = yawPID.calculate(currentYaw);
+    calculatedYawSpeed = yawPID.getOutput();
 
     System.out.format("(BalanceState) Yaw: %3.1f, YawSpeed: %3.1f, Setpoint: %3.1f\n", currentYaw, calculatedYawSpeed, yawPID.getSetpoint());
 
     drive.arcadeDrive(calculatedForwardSpeed, calculatedYawSpeed);
-    drive.shift(false);
     
     calculatedForwardSpeed = 0;
     calculatedYawSpeed = 0;
