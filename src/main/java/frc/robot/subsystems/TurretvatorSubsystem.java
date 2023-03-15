@@ -29,7 +29,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
   private static TurretvatorSubsystem instance;
 
   public static final double throughboreCPR = 1;
-  public static final int turretMaxAngle = 90;
+  public static final int turretMaxAngle = 120;
   public static final double elevatorStop = 4.5;
 
   private double desiredElevatorDistance = 0;
@@ -181,7 +181,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
     new HashMap<Enum<ElevatorStage>, Double>() {{
       put(ElevatorStage.HIGH, 4.418);
       put(ElevatorStage.MIDDLE, 3.034);
-      put(ElevatorStage.LOAD, 0.0);
+      put(ElevatorStage.LOAD, 2.8);
       put(ElevatorStage.DOWN, 0.0);
     }};
   
@@ -226,11 +226,11 @@ public class TurretvatorSubsystem extends SubsystemBase {
   private void elevatorPeriodic() {
     double elevatorPower;
     // Calculates how much the motors should rotate in order to maintain a constant distance
-    double desiredElevatorRotations = 
-      desiredElevatorDistance / (Math.cos(turretPID.getSetpoint() * throughboreCPR * Math.PI * 2) *
-      Math.cos(Math.toRadians(Constants.ELEVATOR_PITCH_DEG)) *
-      Constants.ELEVATOR_CM_PER_ROTATION);
-    //double desiredElevatorRotations = desiredElevatorDistance; 
+    // double desiredElevatorRotations = 
+    //   desiredElevatorDistance / (Math.cos(turretPID.getSetpoint() * throughboreCPR * Math.PI * 2) *
+    //   Math.cos(Math.toRadians(Constants.ELEVATOR_PITCH_DEG)) *
+    //   Constants.ELEVATOR_CM_PER_ROTATION);
+    double desiredElevatorRotations = desiredElevatorDistance; 
 
     if (initialPeriodic)
       elevatorEncoderOffset = elevatorLeftEncoder.get();

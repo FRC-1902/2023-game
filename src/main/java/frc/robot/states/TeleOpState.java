@@ -14,6 +14,9 @@ public class TeleOpState implements frc.robot.State{
   private DriveSubsystem driveSub;
   private TurretvatorSubsystem tvSub;
   private Controllers controllers;
+  private double turretOffset;
+  private boolean isDpadHeld;
+  private boolean wasDpadHeld;
   
   public TeleOpState(String name, String parent){
     this.name = name;
@@ -21,7 +24,7 @@ public class TeleOpState implements frc.robot.State{
     driveSub = DriveSubsystem.getInstance();
     tvSub = TurretvatorSubsystem.getInstance();
     controllers = Controllers.getInstance();
-    
+    turretOffset = 0;
   }
 
   @Override
@@ -37,6 +40,7 @@ public class TeleOpState implements frc.robot.State{
   @Override
   public void Enter() {
     System.out.println("entered " + name);
+    turretOffset = 0;
   }
 
   @Override
@@ -52,7 +56,38 @@ public class TeleOpState implements frc.robot.State{
 
     tvSub.addElevator(-controllers.get(ControllerName.MANIP, Axis.RY)/50.0);
 
-    tvSub.setTurret(controllers.get(ControllerName.MANIP, Axis.LX) *  -45.0);
+    if(controllers.getDPAD(ControllerName.MANIP) == -1){
+      isDpadHeld = false;
+    }else{
+      isDpadHeld = true;
+    }
+
+    if(isDpadHeld != wasDpadHeld && isDpadHeld == true){
+      switch(controllers.getDPAD(ControllerName.MANIP)){
+        case 0:
+          turretOffset = 0;
+          break;
+        case 270:
+          if(turretOffset != 0){
+            turretOffset = 0;
+          }else{
+            turretOffset = 90;
+          }
+          break;
+        case 90:
+          if(turretOffset != 0){
+            turretOffset = 0;
+          }else{
+            turretOffset = -90;
+          }
+          break;
+        default:
+      }
+    }
+
+    wasDpadHeld = isDpadHeld;
+
+    tvSub.setTurret(controllers.get(ControllerName.MANIP, Axis.LX) *  -30.0 + turretOffset);
     // if(controllers.getDPAD(ControllerName.MANIP) == 180) {
     //   tvSub.elevatorSet(ElevatorStage.DOWN);
     // } else if ( controllers.getDPAD(ControllerName.MANIP) == 270){
