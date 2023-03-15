@@ -45,6 +45,14 @@ public class Paths {
         } catch (IOException | ParseException e) {
           e.printStackTrace();
         }
+        break;      
+      case REVERSE:
+        try {
+          Object obj = new JSONParser().parse(new FileReader(new File("/home/lvuser/deploy/pathplanner/generatedJSON/reverse.wpilib.json")));
+          pathArray = (JSONArray) obj;
+        } catch (IOException | ParseException e) {
+          e.printStackTrace();
+        }
         break;
       case SQUARE:
         try {
@@ -90,6 +98,7 @@ public class Paths {
   public static enum pathName{
     BLUE,
     STRAIGHT,
+    REVERSE,
     CIRCLE,
     TEST,
     SQUARE

@@ -53,7 +53,7 @@ public class TestState implements State{
 
     @Override
     public void Periodic(RobotStateManager rs) {
-        driveSub.velocityPID(-controllers.get(ControllerName.DRIVE, Axis.LY)/ 4.0, 0.0);
+        driveSub.velocityPID(-controllers.get(ControllerName.DRIVE, Axis.LY)/ 4.0, controllers.get(ControllerName.DRIVE, Axis.RX));
         // tvSub.setTurret(controllers.get(ControllerName.MANIP, Axis.RX) *  -90);
     }
 

@@ -27,7 +27,7 @@ public class PID implements Runnable {
     private double continuousLowRange;
     private double continuousHighRange;
     private double tolerance;
-    private boolean isAtSetpoint;
+    private int setpointCounter;
 
     private boolean isVelocity;
 
@@ -42,22 +42,12 @@ public class PID implements Runnable {
         this.kF = kF;
         isRunning = false;
         isContinuous = false;
-        isAtSetpoint = false;
+        setpointCounter = 0;
         isVelocity = false;
     }
 
     public PID(DoubleSupplier doubleSupplier, double kP, double kI, double kD, double kF, boolean isVelocity) {
-        getSensor = doubleSupplier;
-        setPoint = 0.0;
-        lastSensor = 0.0; 
-        tolerance = 0.0;
-        this.kP = kP;
-        this.kI = kI;
-        this.kD = kD;
-        this.kF = kF;
-        isRunning = false;
-        isContinuous = false;
-        isAtSetpoint = false;
+        this(doubleSupplier, kP, kI, kD, kF);
         this.isVelocity = isVelocity;
     }
 
@@ -101,7 +91,7 @@ public class PID implements Runnable {
     }
 
     public boolean atSetpoint(){
-        return isAtSetpoint;
+        return setpointCounter >= 5;
     }
 
     public void startThread() {
@@ -157,7 +147,9 @@ public class PID implements Runnable {
                 }
 
                 if(Math.abs(error) < tolerance){
-                    isAtSetpoint = true;
+                    if(setpointCounter < 5){
+                        setpointCounter++;
+                    }
                     currentOutput = 0.0;
                 }else{long currentTime = System.currentTimeMillis();
                     P = error;
@@ -165,12 +157,14 @@ public class PID implements Runnable {
                     D = (currentSensor - lastSensor) / (currentTime - lastFrameTime);
                     F = setPoint;
 
+                    setpointCounter = 0;
                     //clamp integral 
                     //XXX: hardcoded clamp, may need to change in the future if reused
                     I = Math.min(Math.max(I, -0.5), 0.5);
     
                     currentOutput = P * kP + I * kI - D * kD + F * kF;
                     lastFrameTime = System.currentTimeMillis();
+                  
                 }
                 //System.out.printf("P: %.02f | I: %.02f | D: %.02f | Out: %.02f \n", P, I, D, currentOutput);
                 Thread.sleep(20);
