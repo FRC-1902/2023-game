@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -79,6 +80,11 @@ public class DriveSubsystem extends SubsystemBase {
     rightMotor1.setInverted(true);
     rightMotor2.setInverted(true);
 
+    leftMotor1.setIdleMode(IdleMode.kBrake);
+    leftMotor2.setIdleMode(IdleMode.kBrake);
+    rightMotor1.setIdleMode(IdleMode.kBrake);
+    rightMotor2.setIdleMode(IdleMode.kBrake);
+
     leftEncoder = new Encoder(Constants.LEFT_DRIVE_ENCODER_1, Constants.LEFT_DRIVE_ENCODER_2);
     rightEncoder = new Encoder(Constants.RIGHT_DRIVE_ENCODER_1, Constants.RIGHT_DRIVE_ENCODER_2);
 
@@ -140,6 +146,21 @@ public class DriveSubsystem extends SubsystemBase {
     // currentLeftCommand = -leftSpeed;
     leftMotors.set(leftSpeed);
     rightMotors.set(rightSpeed);
+  }
+
+  public void setBrake(boolean isBrake){
+    if(isBrake){
+      leftMotor1.setIdleMode(IdleMode.kBrake);
+      leftMotor2.setIdleMode(IdleMode.kBrake);
+      rightMotor1.setIdleMode(IdleMode.kBrake);
+      rightMotor2.setIdleMode(IdleMode.kBrake);
+    } else {
+      leftMotor1.setIdleMode(IdleMode.kCoast);
+      leftMotor2.setIdleMode(IdleMode.kCoast);
+      rightMotor1.setIdleMode(IdleMode.kCoast);
+      rightMotor2.setIdleMode(IdleMode.kCoast);
+
+    }
   }
 
   /**

@@ -109,6 +109,7 @@ public class TeleOpState implements frc.robot.State{
         case PRESSED:
           System.out.println("Shifted LOW");
           driveSub.shift(false);
+          driveSub.setBrake(true);
           return true;
         default:
         }
@@ -119,6 +120,7 @@ public class TeleOpState implements frc.robot.State{
         case PRESSED:
           System.out.println("Shifted HIGH");
           driveSub.shift(true);
+          driveSub.setBrake(false);
           return true;
         default:
         }
