@@ -67,11 +67,12 @@ public class DropState implements State{
                 tvSub.setGripper(false);
                 if(System.currentTimeMillis() - dropStartTime > 500) {
                     state++;
+                    dropStartTime = System.currentTimeMillis();
                 }
                 break;
             case 4:// retract elevator
                 tvSub.elevatorSet(ElevatorStage.DOWN);
-                if(tvSub.isExtended()) state++;
+                if(System.currentTimeMillis() - dropStartTime > 500) state++;
                 break;
             default:
                 rs.setState("path");

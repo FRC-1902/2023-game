@@ -102,8 +102,11 @@ public class TurretvatorSubsystem extends SubsystemBase {
     elevatorRight = new CANSparkMax(Constants.RIGHT_ELEVATOR_ID, MotorType.kBrushless);
     elevatorLeft.setInverted(false);
     elevatorRight.setInverted(true);
-    elevatorLeft.setIdleMode(IdleMode.kCoast);
-    elevatorRight.setIdleMode(IdleMode.kCoast);
+    elevatorLeft.setIdleMode(IdleMode.kBrake);
+    elevatorRight.setIdleMode(IdleMode.kBrake);
+
+    elevatorLeft.burnFlash();
+    elevatorRight.burnFlash();
     
     elevatorMotors = new MotorControllerGroup(elevatorLeft, elevatorRight);
     elevatorLeftEncoder = new DutyCycleEncoder(Constants.LEFT_ELEVATOR_ENCODER);
@@ -287,7 +290,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
       enablePID(true);
     }
 
-    System.out.println(elevatorPID.getSensorInput());
+    System.out.format("E Sens: %.3f | E Set: %.3f | T Sens: %.3f | T Set %.3f\n", elevatorPID.getSensorInput(), elevatorPID.getSetpoint(), turretPID.getSensorInput(), turretPID.getSetpoint());
     if (elevatorKillSwitchInterlock) {
       elevatorMotors.set(0);
     }
