@@ -51,7 +51,7 @@ public class TeleOpState implements frc.robot.State{
   @Override
   public void Periodic(RobotStateManager rs) {
     double xSpeed = controllers.get(ControllerName.DRIVE, Axis.LY) * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/2.0);
-    double zRotation = controllers.get(ControllerName.DRIVE, Axis.RX) * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/2.0);
+    double zRotation = controllers.get(ControllerName.DRIVE, Axis.RX) / 2.0 * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/2.0);
     driveSub.arcadeDrive(xSpeed,zRotation);
 
     tvSub.addElevator(-controllers.get(ControllerName.MANIP, Axis.RY)/50.0);
@@ -87,7 +87,7 @@ public class TeleOpState implements frc.robot.State{
 
     wasDpadHeld = isDpadHeld;
 
-    tvSub.setTurret(controllers.get(ControllerName.MANIP, Axis.LX) *  -30.0 + turretOffset);
+    tvSub.setTurret(controllers.get(ControllerName.MANIP, Axis.LX) *  -15.0 + turretOffset);
     // if(controllers.getDPAD(ControllerName.MANIP) == 180) {
     //   tvSub.elevatorSet(ElevatorStage.DOWN);
     // } else if ( controllers.getDPAD(ControllerName.MANIP) == 270){
