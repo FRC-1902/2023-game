@@ -259,7 +259,11 @@ public class TurretvatorSubsystem extends SubsystemBase {
 
     elevatorPower = elevatorPower < -0.1 ? -0.1 : elevatorPower;
     
-    elevatorMotors.set(elevatorPower + .08);
+    if(desiredElevatorDistance == 0.0 && elevatorPID.getSensorInput() < 0.15){
+      elevatorMotors.set(0); //makes brake mode go into effect v/s maintain power
+    }else{
+      elevatorMotors.set(elevatorPower + .08);
+    }    
   }
 
   private void turretPeriodic() {
