@@ -70,14 +70,6 @@ public class Paths {
           e.printStackTrace();
         }
         break;
-      case BALANCE:
-        try {
-          Object obj = new JSONParser().parse(new FileReader(new File("/home/lvuser/deploy/pathplanner/generatedJSON/balance.wpilib.json")));
-          pathArray = (JSONArray) obj;
-        } catch (IOException | ParseException e) {
-          e.printStackTrace();
-        }
-        break;
 
     }
     return this;
@@ -109,8 +101,7 @@ public class Paths {
     REVERSE,
     CIRCLE,
     TEST,
-    SQUARE,
-    BALANCE
+    SQUARE
   }
 
 }

@@ -81,7 +81,7 @@ public class PathState implements State{
 
         //find current position in path
         if(startCheckFrame == frames.length - 1) {
-            rs.setState("autoBalance");
+            rs.setState("disabled");
         }
         for(int i = startCheckFrame; i < frames.length; i++){
 
