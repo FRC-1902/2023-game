@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.states.*;
 import frc.robot.states.auto.*;
+import frc.robot.states.balance.AutoBalanceState;
 import frc.robot.states.balance.BalanceOnPlatformState;
 import frc.robot.states.teleOp.*;
 // import frc.robot.states.teleOp.intake.DeployState;
@@ -90,7 +91,7 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     compressor = new Compressor(1, PneumaticsModuleType.REVPH);
     compressor.enableDigital();
-    Paths.getInstance().readPathArray(Paths.pathName.REVERSE);//TODO: connect autonomouse chooser
+    Paths.getInstance().readPathArray(Paths.pathName.BALANCE);//TODO: connect autonomouse chooser
     controllers = Controllers.getInstance();
 
     rs = RobotStateManager.getInstance();
@@ -108,6 +109,8 @@ public class Robot extends TimedRobot {
       new AutoState("auto", null),
       new PickupState("pickup", "auto"),
       new DropState("drop", null),
+      new DriveToBalance("driveToBalance", null),
+      new AutoBalanceState("autoBalance", null),
       new VisionAlignState("visionAlign", "auto"),
       new PathState("path", null),
       new TurretState("turret", "path"),
