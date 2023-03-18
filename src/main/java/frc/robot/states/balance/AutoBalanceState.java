@@ -34,7 +34,7 @@ public class AutoBalanceState implements State {
     imu = IMUSubsystem.getInstance();
     drive = DriveSubsystem.getInstance();
     
-    pitchPID = new PID(imu::getPitch, 0.1, 0.0, 0.0, 0.0);
+    pitchPID = new PID(imu::getPitch, 0.003, 0.0, 0.0, 0.0);
   }
 
   @Override
@@ -55,31 +55,35 @@ public class AutoBalanceState implements State {
   public void Enter(State enteredFrom) {
     System.out.println("entered" + name);
 
-
-    drive.shift(false);;
-
-    pitchPID.startThread();
-
-    pitchPID.setSetpoint(0.0);
+    drive.shift(false);
 
     pitchPID.setTolerance(Constants.PLATFORM_BALANCE_PITCH_THRESHOLD_DEG);
+
+    pitchPID.setSetpoint(0.0);
+    
+    pitchPID.startThread();
+
+
   }
 
   @Override
   public void Leave() {
     pitchPID.stopThread();
-    drive.arcadeDrive(0, 0);
+    drive.arcadeDrive(0.0, 0.0);
     System.out.println("left " + name);
   }
 
   @Override
   public void Periodic(RobotStateManager rs) {
 
-    System.out.format("Setpoint: %.3f\n", pitchPID.getSetpoint());
+    double output = pitchPID.getOutput();
 
-    drive.arcadeDrive(pitchPID.getOutput(), 0.0);
+    System.out.format("Angle: %.3f | Output: %.3f\n", imu.getPitch(), output);
+
+    drive.arcadeDrive(output, 0.0);
     
   }
+
 
   public boolean handleEvent(Event event, RobotStateManager rs) {
     return false;
