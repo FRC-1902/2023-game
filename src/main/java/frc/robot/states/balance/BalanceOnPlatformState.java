@@ -1,6 +1,5 @@
 package frc.robot.states.balance;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -10,14 +9,14 @@ import frc.robot.Constants;
 import frc.robot.PID;
 import frc.robot.RobotStateManager;
 import frc.robot.State;
+import frc.robot.sensors.IMU;
 import frc.robot.states.BalanceState;
-import frc.robot.subsystems.IMUSubsystem;
 
 public class BalanceOnPlatformState implements State {
   private String name;
   private BalanceState parent;
 
-  private IMUSubsystem imu;
+  private IMU imu;
   private PID pitchPID;
 
   private GenericEntry pidPWidget, pidIWidget, pidDWidget;
@@ -42,7 +41,7 @@ public class BalanceOnPlatformState implements State {
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
       //.withProperties(Map.of("Min", -0.15, "Max", 0.15))
 
-    imu = IMUSubsystem.getInstance();
+    imu = IMU.getInstance();
     pitchPID = new PID(()->imu.getPitch(), 0.0, 0.0, 0.0, 0.0);
     pitchPID.setTolerance(0.05);
     pitchPID.setSetpoint(0);

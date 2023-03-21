@@ -4,7 +4,6 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -30,7 +29,7 @@ public class DriveSubsystem extends SubsystemBase {
   private final double driveWidth;
   private double currentLeftCommand;
 
-  private GenericEntry pidPWidget, pidIWidget, pidDWidget, pidFWidget;
+  // private GenericEntry pidPWidget, pidIWidget, pidDWidget, pidFWidget;
 
   public void initializeShuffleboardWidgets() {
     ShuffleboardLayout dashboardLayout = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)

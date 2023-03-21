@@ -6,17 +6,17 @@ import edu.wpi.first.wpilibj.RobotState;
 import frc.robot.RobotStateManager;
 import frc.robot.State;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.IMUSubsystem;
 // import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.TurretvatorSubsystem;
 // import frc.robot.subsystems.IntakeSubsystem.DeployStage;
 import frc.robot.Controllers.*;
+import frc.robot.sensors.IMU;
 
 public class TestState implements State{
     private String name, parent;
     private TurretvatorSubsystem tvSub;
     private DriveSubsystem driveSub;
-    private IMUSubsystem imu;
+    private IMU imu;
     private int stage;
     private Controllers controllers;
     
@@ -25,7 +25,7 @@ public class TestState implements State{
         this.parent = parent;
         tvSub = TurretvatorSubsystem.getInstance();
         driveSub = DriveSubsystem.getInstance();
-        imu = IMUSubsystem.getInstance();
+        imu = IMU.getInstance();
         controllers = Controllers.getInstance();
     }
 
