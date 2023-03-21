@@ -98,11 +98,9 @@ public class DriveSubsystem extends SubsystemBase {
     leftSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.LEFT_DRIVE_SOLENOID);
     rightSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.RIGHT_DRIVE_SOLENOID);
 
-    initializeShuffleboardWidgets();//./gradlew deploy  -PteamNumber=1902 --offline
+    initializeShuffleboardWidgets();
 
     // TODO:tune me
-    // highVelocityController = new PIDController(.25,0,0);
-    // lowVelocityController = new PIDController(.2,0,0);
     highLeftVelocityController = new PID(leftEncoder::getRate, 0.0, 0.0, 0.0, 0.1);
     lowLeftVelocityController = new PID(leftEncoder::getRate, 0.01, 0.005, 0.01, 0.5);
     highRightVelocityController = new PID(rightEncoder::getRate, 0.0, 0.0, 0.0, 0.1);

@@ -2,8 +2,6 @@ package frc.robot;
 
 import java.util.function.DoubleSupplier;
 
-import javax.swing.InternalFrameFocusTraversalPolicy;
-
 import edu.wpi.first.math.MathUtil;
 
 public class PID implements Runnable {
@@ -174,6 +172,6 @@ public class PID implements Runnable {
         }
 
         currentOutput = 0.0;
-        System.out.println("Thread ending");
+        System.out.println("PID Thread ending");
     }
 }

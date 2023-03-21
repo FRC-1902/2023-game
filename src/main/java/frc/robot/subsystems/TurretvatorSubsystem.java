@@ -306,6 +306,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
     //detects negative encoder or too many kill switch hits (~200 ms worth of hits)
     if (elevatorWatchdogHits >= 10 || elevatorLeftEncoder.get() < -1.0) {
       System.out.println("==== ELEVATOR KILL SWITCH WATCHDOG ENGAGED ====");
+      System.out.format("Left Encoder: %.3f\n", elevatorLeftEncoder.get());
       watchdogActivationTime = RobotController.getFPGATime();
       isElevatorWatchdogEnabled = true;
     }
