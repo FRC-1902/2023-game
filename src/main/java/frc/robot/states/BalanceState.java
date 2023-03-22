@@ -32,7 +32,7 @@ public class BalanceState implements State {
   public BalanceState(String name, String parent){
     this.name = name;
     this.parent = parent;
-    imu = new IMU();
+    imu = IMU.getInstance();
     drive = DriveSubsystem.getInstance();
 
     ShuffleboardLayout pidTuningTab = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)

@@ -144,7 +144,7 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
     rs.setState("disabled");
     turretvatorSubsystem.enablePID(false);
-
+    turretvatorSubsystem.resetWatchdogs();
     System.out.println("Robot disabled");
   }
 

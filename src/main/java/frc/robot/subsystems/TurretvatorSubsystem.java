@@ -294,12 +294,13 @@ public class TurretvatorSubsystem extends SubsystemBase {
    * @return boolean corresponding on whether or not the elevator should be locked
    */
   private boolean elevatorWatchdog(){
-    lastElevatorEncoderValue = elevatorLeftEncoder.get();
+    
 
     if(isElevatorWatchdogEnabled == true){return true;}
 
     if (Math.abs(lastElevatorEncoderValue - elevatorLeftEncoder.get()) < 0.005 && Math.abs(elevatorMotors.get()) > 0.4){
       elevatorWatchdogHits++;
+      System.out.println(elevatorWatchdogHits);
     }else{
       elevatorWatchdogHits = 0;
     }
@@ -333,6 +334,15 @@ public class TurretvatorSubsystem extends SubsystemBase {
     return isTurretWatchdogEnabled;
   }
 
+  public void resetWatchdogs(){
+    if(isTurretWatchdogEnabled || isElevatorWatchdogEnabled){
+      System.out.println("==== ALL KILL SWITCH WATCHDOGS RELEASED ====");
+      isTurretWatchdogEnabled = false;
+      isElevatorWatchdogEnabled = false;
+
+      initialPeriodic = true;
+    }
+  }
 
   // Called from Robot
   @Override
@@ -357,15 +367,16 @@ public class TurretvatorSubsystem extends SubsystemBase {
     }
 
     initialPeriodic = false;
+    lastElevatorEncoderValue = elevatorLeftEncoder.get();
 
     //Disable watchdogs after timeout
-    if (RobotController.getFPGATime() - watchdogActivationTime > watchdogTimeout && (isTurretWatchdogEnabled || isElevatorWatchdogEnabled)) {
-      System.out.println("==== ALL KILL SWITCH WATCHDOGS RELEASED ====");
-      isTurretWatchdogEnabled = false;
-      isElevatorWatchdogEnabled = false;
+    // if (RobotController.getFPGATime() - watchdogActivationTime > watchdogTimeout && (isTurretWatchdogEnabled || isElevatorWatchdogEnabled)) {
+    //   System.out.println("==== ALL KILL SWITCH WATCHDOGS RELEASED ====");
+    //   isTurretWatchdogEnabled = false;
+    //   isElevatorWatchdogEnabled = false;
 
-      initialPeriodic = true;
-    }
+    //   initialPeriodic = true;
+    // }
   }
 
   public static TurretvatorSubsystem getInstance() {
