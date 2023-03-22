@@ -38,12 +38,12 @@ public class DriveSubsystem extends SubsystemBase {
 
     dashboardLayout.addDoubleArray("Left Drive Command", this::currentCommand).withWidget(BuiltInWidgets.kGraph);
 
-    dashboardLayout.addDouble("Left Drive Encoder Velocity", leftEncoder::getRate)
-        .withWidget(BuiltInWidgets.kGraph);
+    // dashboardLayout.addDouble("Left Drive Encoder Velocity", leftEncoder::getRate)
+    //     .withWidget(BuiltInWidgets.kGraph);
     dashboardLayout.addBoolean("Left Drive Shift State", () -> leftSolenoid.get());
 
-    dashboardLayout.addDouble("Right Drive Encoder Velocity", rightEncoder::getRate)
-        .withWidget(BuiltInWidgets.kGraph);
+    // dashboardLayout.addDouble("Right Drive Encoder Velocity", rightEncoder::getRate)
+    //     .withWidget(BuiltInWidgets.kGraph);
     dashboardLayout.addBoolean("Right Drive Shift State", () -> rightSolenoid.get());
 
     // ShuffleboardLayout pidTuningTab = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)

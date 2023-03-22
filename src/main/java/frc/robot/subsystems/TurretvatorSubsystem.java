@@ -84,13 +84,13 @@ public class TurretvatorSubsystem extends SubsystemBase {
       .withSize(2, 3);
 
     elevatorPWidget = elevatorLayout
-      .add("Elevator PID - Proportional", 0)
+      .add("Elevator PID - Proportional", 0.18)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
     elevatorIWidget = elevatorLayout
       .add("Elevator PID - Integral", 0)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
     elevatorDWidget = elevatorLayout
-      .add("Elevator PID - Derivative", 0)
+      .add("Elevator PID - Derivative", 0.04)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
     elevatorFWidget = elevatorLayout
       .add("Elevator PID - FeedForward", 0)
@@ -245,9 +245,9 @@ public class TurretvatorSubsystem extends SubsystemBase {
 
     desiredElevatorRotations = Math.max(Math.min(desiredElevatorRotations, ELEVATOR_MAX_ROTATIONS), 0.0);
 
-    elevatorPID.setP(0.22);
+    elevatorPID.setP(elevatorPWidget.getDouble(.18));
     elevatorPID.setI(elevatorIWidget.getDouble(0));
-    elevatorPID.setD(elevatorDWidget.getDouble(0));
+    elevatorPID.setD(elevatorDWidget.getDouble(0.04));
     elevatorPID.setSetpoint(desiredElevatorRotations);
     //clamp elevator power to max
     elevatorPower = Math.max(

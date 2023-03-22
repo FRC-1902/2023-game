@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.states.*;
 import frc.robot.states.auto.*;
 import frc.robot.states.balance.BalanceOnPlatformState;
@@ -30,6 +31,7 @@ import frc.robot.states.teleOp.*;
 import frc.robot.subsystems.TurretvatorSubsystem;
 import frc.robot.subsystems.TurretvatorSubsystem.ElevatorStage;
 import frc.robot.path.Paths;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -46,6 +48,15 @@ public class Robot extends TimedRobot {
   private Compressor compressor;  
   // private IntakeSubsystem intakeSubsystem;
   private TurretvatorSubsystem turretvatorSubsystem;
+  private SendableChooser auto;
+  
+  public static enum Autos {
+    BALANCE,
+    COMMUNITY,
+    NOTHING
+  }
+
+  public Autos chosenAuto = Autos.NOTHING;
 
   public void initializeShuffleBoardWidgets() {
     ShuffleboardTab dashboardTab = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB);
@@ -54,6 +65,8 @@ public class Robot extends TimedRobot {
       dashboardTab.getLayout("Power Distribution Panel", BuiltInLayouts.kList);
     ShuffleboardLayout stateMachineLayout = 
       dashboardTab.getLayout("State Machine", BuiltInLayouts.kList);
+    
+    ShuffleboardLayout autoLayout = dashboardTab.getLayout("Auto", BuiltInLayouts.kList);
 
     if (RobotBase.isReal()) {
       // This for some reason doesn't work when the CAN id is above like 20 for some reason ;-;
@@ -70,6 +83,13 @@ public class Robot extends TimedRobot {
         .withWidget(BuiltInWidgets.kGraph)
         .withProperties(Map.of("Unit", "deg C"));
     }
+    auto = new SendableChooser();
+    
+    auto.addOption("Exit Community", Autos.COMMUNITY);
+    auto.addOption("Balance", Autos.BALANCE);
+    auto.addOption("Nothing", Autos.NOTHING);
+    
+    autoLayout.add(auto);
 
     stateMachineLayout.addString("Current State", () -> {
       State currState = rs.getCurrentState();
@@ -156,7 +176,18 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    rs.setState("drop");
+    switch((Autos)auto.getSelected()){
+      case BALANCE:
+        System.out.println("balance");
+        break;
+      case COMMUNITY:
+        System.out.println("community");
+        // rs.setState("drop");
+        break;
+      default:
+        System.out.println("nothing");
+        break;
+    }
     
     System.out.println("Robot autonomous initialized");
   }
