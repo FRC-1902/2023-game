@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.states.*;
 import frc.robot.states.auto.*;
+import frc.robot.states.balance.AutoBalanceState;
 import frc.robot.states.balance.BalanceOnPlatformState;
 import frc.robot.states.teleOp.*;
 // import frc.robot.states.teleOp.intake.DeployState;
@@ -56,7 +57,7 @@ public class Robot extends TimedRobot {
     NOTHING
   }
 
-  public Autos chosenAuto = Autos.NOTHING;
+  public static Autos chosenAuto = Autos.NOTHING;
 
   public void initializeShuffleBoardWidgets() {
     ShuffleboardTab dashboardTab = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB);
@@ -110,7 +111,6 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     compressor = new Compressor(1, PneumaticsModuleType.REVPH);
     compressor.enableDigital();
-    Paths.getInstance().readPathArray(Paths.pathName.REVERSE);//TODO: connect autonomouse chooser
     controllers = Controllers.getInstance();
 
     rs = RobotStateManager.getInstance();
@@ -126,6 +126,7 @@ public class Robot extends TimedRobot {
       // new LoadPieceState("loadPiece", "centerTurret"),
       new BalanceState("balance", null),
       new AutoState("auto", null),
+      new AutoBalanceState("autoBalance", null),
       new PickupState("pickup", "auto"),
       new DropState("drop", null),
       new VisionAlignState("visionAlign", "auto"),
@@ -176,13 +177,18 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    switch((Autos)auto.getSelected()){
+    chosenAuto = (Autos)auto.getSelected();
+    switch(chosenAuto){
       case BALANCE:
+        Paths.getInstance().readPathArray(Paths.pathName.REVERSE);
         System.out.println("balance");
+        rs.setState("drop");
+        
         break;
       case COMMUNITY:
+        Paths.getInstance().readPathArray(Paths.pathName.REVERSE);
         System.out.println("community");
-        // rs.setState("drop");
+        rs.setState("drop");
         break;
       default:
         System.out.println("nothing");

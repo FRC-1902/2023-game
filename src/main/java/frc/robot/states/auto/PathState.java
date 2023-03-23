@@ -1,5 +1,6 @@
 package frc.robot.states.auto;
 
+import frc.robot.Robot;
 import frc.robot.RobotStateManager;
 import frc.robot.State;
 import frc.robot.path.Paths;
@@ -62,6 +63,15 @@ public class PathState implements State{
         DriveSubsystem.getInstance().velocityPID(0, 0);
     }
 
+    private void handleExit(RobotStateManager rs){
+        switch(Robot.chosenAuto){
+            case BALANCE:
+                rs.setState("autoBalance");
+                break;
+            default:
+                rs.setState("disabled");
+        }
+    }
     @Override
     public void Periodic(RobotStateManager rs) {
 
@@ -81,7 +91,7 @@ public class PathState implements State{
 
         //find current position in path
         if(startCheckFrame == frames.length - 1) {
-            rs.setState("disabled");
+            handleExit(rs);
         }
         for(int i = startCheckFrame; i < frames.length; i++){
 
@@ -148,78 +158,4 @@ public class PathState implements State{
     private double lerp(double initialValue, double finalValue, double t){
         return initialValue + t * (finalValue - initialValue);
     }
-
-
-    
-
-    // private 
-
-    // private Pose2d findTargetVelocity(Translation2d robotToCurrentPointOnPath, Translation2d currentVelocityOfPointOnPath) {
-    //     Translation2d targetVelocity = robotToCurrentPointOnPath.plus(currentVelocityOfPointOnPath);
-        
-    //     Rotation2d rotation = new Rotation2d(targetVelocity.getX(), targetVelocity.getY());
-        
-    //     return new Pose2d(1, 0 , rotation);
-    // }
-    
-    
 }
-
-/*
-if(currentFrame >= objects.length){
-            driveSubsystem.velocityPID(0, 0);
-            return;
-        }
-
-        double velocity = 0.0;
-        double angularVelocity = 0.0;
-
-        JSONObject greaterJO = (JSONObject) objects[currentFrame + 1];
-        JSONObject lesserJO = (JSONObject) objects[currentFrame];
-        
-        double greaterLeftEncoderDist = (double) greaterJO.get("lMeter");
-
-        double curLeftEncoderDist = driveSubsystem.leftEncoder.getDistance();
-        
-    //TODO: fixme, what happends when greaterLeftEncoderDist or curLeftEncoderDist are negative
-        if((double) ((JSONObject)objects[objects.length - 1]).get("lMeter") <= curLeftEncoderDist - beganLeftDist){
-            driveSubsystem.velocityPID(0, 0);
-            currentFrame = objects.length;
-            System.out.println("SURPASSED FINAL LENGTH PREMATURELY");
-        }
-
-        if(greaterLeftEncoderDist > curLeftEncoderDist - beganLeftDist){
-            double lesserPathLeftDist = ((Number)lesserJO.get("lMeter")).doubleValue();
-
-            double percentComplete = (curLeftEncoderDist - lesserPathLeftDist) / (greaterLeftEncoderDist - lesserPathLeftDist);
-            
-            double finalVelocity = ((Number) greaterJO.get("velocity")).doubleValue() /3; //TODO: fixme, testing
-            double finalAngularVelocity = ((Number) greaterJO.get("angularVelocity")).doubleValue();
-
-            double initialVelocity = ((Number) lesserJO.get("velocity")).doubleValue() /3;
-            double initialAngularVelocity = ((Number) lesserJO.get("angularVelocity")).doubleValue();
-            
-            velocity = lerp(initialVelocity, finalVelocity, percentComplete);
-            angularVelocity = lerp(initialAngularVelocity, finalAngularVelocity, percentComplete);
-
-            driveSubsystem.velocityPID(finalVelocity, finalAngularVelocity);
-        }
-
-        //Frame change
-        while(greaterLeftEncoderDist <= driveSubsystem.leftEncoder.getDistance() - beganLeftDist){
-            if(greaterLeftEncoderDist > driveSubsystem.leftEncoder.getDistance() - beganLeftDist){break;}
-            if(currentFrame >= objects.length){return;}
-            currentFrame ++;
-            greaterJO = (JSONObject) objects[currentFrame + 1];
-            greaterLeftEncoderDist = (double) greaterJO.get("lMeter");
-        }
-
-        //debug prints
-        System.out.format("Distance (l): %f\tDistance Traveled (l): %f\tFinal Velocity: %f\tCurrent Frame: %d\tCurrent Rate: %f\n", 
-            Math.round(greaterLeftEncoderDist * 1000.0) / 1000.0,
-            Math.round(curLeftEncoderDist * 1000.0) / 1000.0,
-            Math.round(((Number) greaterJO.get("velocity")).doubleValue() * 1000.0) / 1000.0, 
-            currentFrame,
-            Math.round(driveSubsystem.leftEncoder.getRate() * 1000.0) / 1000.0
-        );
-*/
