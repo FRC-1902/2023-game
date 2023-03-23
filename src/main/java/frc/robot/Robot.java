@@ -180,7 +180,7 @@ public class Robot extends TimedRobot {
     chosenAuto = (Autos)auto.getSelected();
     switch(chosenAuto){
       case BALANCE:
-        Paths.getInstance().readPathArray(Paths.pathName.REVERSE);
+        Paths.getInstance().readPathArray(Paths.pathName.BALANCE);
         System.out.println("balance");
         rs.setState("drop");
         
