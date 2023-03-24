@@ -269,7 +269,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
   }
 
   private void turretPeriodic() {
-    System.out.format("Turret Position: %.3f\n", turretEncoder.getAbsolutePosition());
+    // System.out.format("Turret Position: %.3f, PID: %.3f\n", turretEncoder.getAbsolutePosition(), turretPID.getSensorInput());
 
     double turretPow;
 
