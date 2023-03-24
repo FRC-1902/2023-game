@@ -50,7 +50,7 @@ public final class Constants {
   public static final double MAX_ELEVATOR_MOTOR_POWER = 0.5;
 
   // Balancing
-  public static final double PLATFORM_BALANCE_PITCH_THRESHOLD_DEG = 3;
+  public static final double PLATFORM_BALANCE_PITCH_THRESHOLD_DEG = 4;
 
   public static final double TURRET_OFFSET = 0.041;
 }

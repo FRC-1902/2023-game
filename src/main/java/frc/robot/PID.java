@@ -27,7 +27,7 @@ public class PID implements Runnable {
     private double tolerance;
     private int setpointCounter;
 
-    private boolean isVelocity;
+    private boolean isVelocity, isSetpointExplicitlyDeclared;
 
     public PID(DoubleSupplier doubleSupplier, double kP, double kI, double kD, double kF) {
         getSensor = doubleSupplier;
@@ -42,6 +42,7 @@ public class PID implements Runnable {
         isContinuous = false;
         setpointCounter = 0;
         isVelocity = false;
+        isSetpointExplicitlyDeclared = false;
     }
 
     public PID(DoubleSupplier doubleSupplier, double kP, double kI, double kD, double kF, boolean isVelocity) {
@@ -98,11 +99,12 @@ public class PID implements Runnable {
             isRunning = true;
             I = 0;
             lastFrameTime = System.currentTimeMillis();
-
-            if(isVelocity){
-                setPoint = 0.0;
-            }else{
-                setPoint = getSensor.getAsDouble();
+            if(!isSetpointExplicitlyDeclared){
+                if(isVelocity){
+                    setPoint = 0.0;
+                }else{
+                    setPoint = getSensor.getAsDouble();
+                }
             }
         
             thread.start();
@@ -117,6 +119,7 @@ public class PID implements Runnable {
 
     public void setSetpoint(double setPoint) {
         this.setPoint = setPoint;
+        isSetpointExplicitlyDeclared = true;
     }
 
     public double getSetpoint(){

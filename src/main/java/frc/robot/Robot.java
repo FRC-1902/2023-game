@@ -232,6 +232,7 @@ public class Robot extends TimedRobot {
     // Cancels all running commands at the start of test mode.
     // CommandScheduler.getInstance().cancelAll();
     rs.setState("autoBalance");
+    System.out.println("Robot test initialized");
   }
 
   /** This function is called periodically during test mode. */
@@ -239,8 +240,6 @@ public class Robot extends TimedRobot {
   public void testPeriodic() {
     turretvatorSubsystem.periodic();
     controllers.eventPeriodic();
-    
-    System.out.println("Robot test initialized");
   }
 
   /** This function is called once when the robot is first started up. */
