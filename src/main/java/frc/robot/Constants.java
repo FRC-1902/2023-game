@@ -51,4 +51,6 @@ public final class Constants {
 
   // Balancing
   public static final double PLATFORM_BALANCE_PITCH_THRESHOLD_DEG = 3;
+
+  public static final double TURRET_OFFSET = 0.343;
 }

@@ -123,7 +123,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
     turretEncoder = new DutyCycleEncoder(Constants.TURRET_ENCODER);
     
     //(turretEncoder.getAbsolutePosition() - 0.393 + 1) % 1
-    turretPID = new PID(() -> ((turretEncoder.getAbsolutePosition() - 0.643 + 1) % 1), 9, 0.0, 0.0, 0.0);
+    turretPID = new PID(() -> ((turretEncoder.getAbsolutePosition() - Constants.TURRET_OFFSET + 1) % 1), 9, 0.0, 0.0, 0.0);
  
     turretPID.enableContinuousInput(0, THROUGHBORE_CPR);
     turretPID.setTolerance(0.001);
@@ -269,6 +269,8 @@ public class TurretvatorSubsystem extends SubsystemBase {
   }
 
   private void turretPeriodic() {
+    System.out.format("Turret Position: %.3f\n", turretEncoder.getAbsolutePosition());
+
     double turretPow;
 
     turretPID.setP(turretPWidget.getDouble(0.9) * 10);
