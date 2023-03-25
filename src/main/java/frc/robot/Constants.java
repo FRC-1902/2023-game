@@ -25,7 +25,7 @@ public final class Constants {
   // public static final int LEVER_INTAKE_ID = 10;
   // public static final int ROLLER_INTAKE_ID = 7;
 
-  //REVPH Solenoid Chanels
+  //CTREPCM Solenoid Chanels
   public static final int LEFT_DRIVE_SOLENOID = 0;
   public static final int RIGHT_DRIVE_SOLENOID = 1;
   public static final int GRIPPER_SOLENOID_A = 3;

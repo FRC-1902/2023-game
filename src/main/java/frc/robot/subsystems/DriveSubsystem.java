@@ -95,8 +95,8 @@ public class DriveSubsystem extends SubsystemBase {
     leftMotors = new MotorControllerGroup(leftMotor1, leftMotor2);
     rightMotors = new MotorControllerGroup(rightMotor1, rightMotor2);
 
-    leftSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.LEFT_DRIVE_SOLENOID);
-    rightSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.RIGHT_DRIVE_SOLENOID);
+    leftSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, Constants.LEFT_DRIVE_SOLENOID);
+    rightSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, Constants.RIGHT_DRIVE_SOLENOID);
 
     initializeShuffleboardWidgets();
 

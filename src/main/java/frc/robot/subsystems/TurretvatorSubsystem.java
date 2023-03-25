@@ -128,8 +128,8 @@ public class TurretvatorSubsystem extends SubsystemBase {
     turretPID.enableContinuousInput(0, THROUGHBORE_CPR);
     turretPID.setTolerance(0.001);
 
-    gripperSolenoidA = new Solenoid(PneumaticsModuleType.REVPH, Constants.GRIPPER_SOLENOID_A);
-    gripperSolenoidB = new Solenoid(PneumaticsModuleType.REVPH, Constants.GRIPPER_SOLENOID_B);
+    gripperSolenoidA = new Solenoid(PneumaticsModuleType.CTREPCM, Constants.GRIPPER_SOLENOID_A);
+    gripperSolenoidB = new Solenoid(PneumaticsModuleType.CTREPCM, Constants.GRIPPER_SOLENOID_B);
     
 
     initializeShuffleBoardWidgets();
