@@ -64,15 +64,16 @@ public class AutoBalanceState implements State {
 
   @Override
   public void Periodic(RobotStateManager rs) {
-    //TODO: fix me
+    //XXX: maybe broken, fix me
     double output = -pitchPID.getOutput();
-    if((int)(System.currentTimeMillis() / 100) % 10 == 0)
+    if((int)(System.currentTimeMillis() / 100) % 10 == 0){
       System.out.format("Angle: %.3f | Output: %.3f | At Setpoint: %b | Setpoint: %.3f\n", pitchPID.getSensorInput(), output, pitchPID.atSetpoint(), pitchPID.getSetpoint());
-    if(output == 0){
-      drive.tankDrive(0, 0);
-    }else{
-      drive.velocityPID(output, 0.0);
     }
+
+    //Clamp output to max of 0.11, otherwise could rear when platform flips and then overshoot platform
+    output = Math.min(Math.max(output, -0.11), 0.11);
+    
+    drive.velocityPID(output, 0.0);
   }
 
 
