@@ -40,6 +40,7 @@ public class TeleOpState implements frc.robot.State{
   public void Enter() {
     System.out.println("entered " + name);
     turretOffset = 0;
+    driveSub.setBrake(false);
   }
 
   @Override
@@ -84,8 +85,8 @@ public class TeleOpState implements frc.robot.State{
   @Override
   public void Periodic(RobotStateManager rs) {
     //arcade drive code w/ slow controller
-    double xSpeed = controllers.get(ControllerName.DRIVE, Axis.LY) * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/2.0);
-    double zRotation = controllers.get(ControllerName.DRIVE, Axis.RX) / 2.0 * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/2.0);
+    double xSpeed = controllers.get(ControllerName.DRIVE, Axis.LY) * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/3.0);
+    double zRotation = controllers.get(ControllerName.DRIVE, Axis.RX) / 2.0 * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/3.0);
     driveSub.arcadeDrive(xSpeed,zRotation);
 
     //Manual elevator control
@@ -105,9 +106,8 @@ public class TeleOpState implements frc.robot.State{
       case RB:
         switch(event.action){
         case PRESSED:
-          System.out.println("Shifted LOW");
           driveSub.shift(false);
-          driveSub.setBrake(true);
+          // driveSub.setBrake(true);
           return true;
         default:
         }
@@ -116,20 +116,37 @@ public class TeleOpState implements frc.robot.State{
       case LB:
         switch(event.action){
         case PRESSED:
-          System.out.println("Shifted HIGH");
           driveSub.shift(true);
-          driveSub.setBrake(false);
+          // driveSub.setBrake(false);
           return true;
         default:
         }
         break;
       //Goes to the balance state
+      // case B:
+      //   switch (event.action) {
+      //   case PRESSED:
+      //     rs.setState("balancePlatform");
+      //     return true;
+      //   default:
+      //   }
+      //   break;
+      //break mode
       case B:
-        switch (event.action) {
-        case PRESSED:
-          rs.setState("balancePlatform");
-          return true;
-        default:
+        switch (event.action){
+          case PRESSED:
+            driveSub.setBrake(true);
+            return true;
+          default:
+        }
+        break;
+      //coast mode
+      case A:
+        switch (event.action){
+          case PRESSED:
+            driveSub.setBrake(false);
+            return true;
+          default:
         }
         break;
       default: break;

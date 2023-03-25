@@ -2,6 +2,7 @@ package frc.robot.states.auto;
 
 import frc.robot.RobotStateManager;
 import frc.robot.State;
+import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.TurretvatorSubsystem;
 import frc.robot.subsystems.TurretvatorSubsystem.ElevatorStage;
 
@@ -11,11 +12,13 @@ public class DropState implements State{
     private int state;
     private long dropStartTime;
     private long loopStartTime;
+    private DriveSubsystem driveSub;
 
     public DropState(String name, String parent){
         this.name = name;
         this.parent = parent;
         tvSub = TurretvatorSubsystem.getInstance();
+        driveSub = DriveSubsystem.getInstance();
     }
 
     @Override
@@ -32,6 +35,7 @@ public class DropState implements State{
     public void Enter() {
         state = 0;
         tvSub.setGripper(true);
+        
         loopStartTime = System.currentTimeMillis();
         System.out.println("entered" + name);
     }
