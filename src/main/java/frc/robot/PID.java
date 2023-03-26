@@ -95,7 +95,6 @@ public class PID implements Runnable {
 
     public void startThread() {
         if (!isRunning) {
-            thread = new Thread(this);
             isRunning = true;
             I = 0;
             lastFrameTime = System.currentTimeMillis();
@@ -106,9 +105,10 @@ public class PID implements Runnable {
                     setPoint = getSensor.getAsDouble();
                 }
             }
-        
+            thread = new Thread(this);
+            
             thread.start();
-            System.out.println("Starting Thread");
+            System.out.println("Starting PID Thread " + toString());
         }
     }
 
@@ -175,6 +175,6 @@ public class PID implements Runnable {
         }
 
         currentOutput = 0.0;
-        System.out.println("PID Thread ending");
+        System.out.println("PID Thread ending "  + toString());
     }
 }

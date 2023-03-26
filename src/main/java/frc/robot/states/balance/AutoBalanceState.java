@@ -2,18 +2,19 @@ package frc.robot.states.balance;
 
 import frc.robot.Constants;
 import frc.robot.Event;
-import frc.robot.PID;
 import frc.robot.RobotStateManager;
 import frc.robot.State;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.TurretvatorSubsystem;
+import frc.robot.subsystems.TurretvatorSubsystem.ElevatorStage;
 import frc.robot.sensors.IMU;
 
 public class AutoBalanceState implements State {
   private String name, parent;
 
-  private DriveSubsystem drive;
+  private DriveSubsystem driveSub;
+  private TurretvatorSubsystem tvSub;
 
-  private PID pitchPID;
   private IMU imu;
   private State enteredFromState;
   
@@ -21,9 +22,8 @@ public class AutoBalanceState implements State {
     this.name = name;
     this.parent = parent;
     imu = IMU.getInstance();
-    drive = DriveSubsystem.getInstance();
-    
-    pitchPID = new PID(imu::getPitch, 0.012, 0.0, 0.0, 0.0);
+    driveSub = DriveSubsystem.getInstance();
+    tvSub = TurretvatorSubsystem.getInstance();
   }
 
   @Override
@@ -43,37 +43,31 @@ public class AutoBalanceState implements State {
   @Override
   public void Enter(State enteredFrom) {
     System.out.println("entered" + name);
+    tvSub.elevatorSet(ElevatorStage.DOWN);
 
-    drive.shift(false);
-
-    pitchPID.setTolerance(Constants.PLATFORM_BALANCE_PITCH_THRESHOLD_DEG);
-
-    pitchPID.setSetpoint(0.0);
-    
-    pitchPID.startThread();
-    drive.setPIDEnable(true);
+    driveSub.shift(false);
  }
 
   @Override
   public void Leave() {
-    pitchPID.stopThread();
-    drive.arcadeDrive(0.0, 0.0);
+    driveSub.arcadeDrive(0.0, 0.0);
     System.out.println("left " + name);
-    drive.setPIDEnable(false);
   }
 
   @Override
   public void Periodic(RobotStateManager rs) {
-    //XXX: maybe broken, fix me
-    double output = -pitchPID.getOutput();
-    if((int)(System.currentTimeMillis() / 100) % 10 == 0){
-      System.out.format("Angle: %.3f | Output: %.3f | At Setpoint: %b | Setpoint: %.3f\n", pitchPID.getSensorInput(), output, pitchPID.atSetpoint(), pitchPID.getSetpoint());
+    double output = 0.0;
+    if(imu.getPitch() > Constants.PLATFORM_BALANCE_PITCH_THRESHOLD_DEG && imu.getPitch() > 0){
+      output =  -.06;
+    } else if(imu.getPitch() < Constants.PLATFORM_BALANCE_PITCH_THRESHOLD_DEG && imu.getPitch() < 0) {
+      output = .06;
     }
 
-    //Clamp output to max of 0.11, otherwise could rear when platform flips and then overshoot platform
-    output = Math.min(Math.max(output, -0.11), 0.11);
+    if((int)(System.currentTimeMillis() / 100) % 10 == 0){
+      System.out.format("Angle: %.3f | Output: %.3f\n", imu.getPitch(), output);
+    }
     
-    drive.velocityPID(output, 0.0);
+    driveSub.arcadeDrive(output, 0.0);
   }
 
 
