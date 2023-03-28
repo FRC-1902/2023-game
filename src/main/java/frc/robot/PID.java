@@ -2,8 +2,6 @@ package frc.robot;
 
 import java.util.function.DoubleSupplier;
 
-import javax.swing.InternalFrameFocusTraversalPolicy;
-
 import edu.wpi.first.math.MathUtil;
 
 public class PID implements Runnable {
@@ -29,7 +27,7 @@ public class PID implements Runnable {
     private double tolerance;
     private int setpointCounter;
 
-    private boolean isVelocity;
+    private boolean isVelocity, isSetpointExplicitlyDeclared;
 
     public PID(DoubleSupplier doubleSupplier, double kP, double kI, double kD, double kF) {
         getSensor = doubleSupplier;
@@ -44,6 +42,7 @@ public class PID implements Runnable {
         isContinuous = false;
         setpointCounter = 0;
         isVelocity = false;
+        isSetpointExplicitlyDeclared = false;
     }
 
     public PID(DoubleSupplier doubleSupplier, double kP, double kI, double kD, double kF, boolean isVelocity) {
@@ -96,19 +95,20 @@ public class PID implements Runnable {
 
     public void startThread() {
         if (!isRunning) {
-            thread = new Thread(this);
             isRunning = true;
             I = 0;
             lastFrameTime = System.currentTimeMillis();
-
-            if(isVelocity){
-                setPoint = 0.0;
-            }else{
-                setPoint = getSensor.getAsDouble();
+            if(!isSetpointExplicitlyDeclared){
+                if(isVelocity){
+                    setPoint = 0.0;
+                }else{
+                    setPoint = getSensor.getAsDouble();
+                }
             }
-        
+            thread = new Thread(this);
+            
             thread.start();
-            System.out.println("Starting Thread");
+            System.out.println("Starting PID Thread " + toString());
         }
     }
 
@@ -119,6 +119,7 @@ public class PID implements Runnable {
 
     public void setSetpoint(double setPoint) {
         this.setPoint = setPoint;
+        isSetpointExplicitlyDeclared = true;
     }
 
     public double getSetpoint(){
@@ -174,6 +175,6 @@ public class PID implements Runnable {
         }
 
         currentOutput = 0.0;
-        System.out.println("Thread ending");
+        System.out.println("PID Thread ending "  + toString());
     }
 }

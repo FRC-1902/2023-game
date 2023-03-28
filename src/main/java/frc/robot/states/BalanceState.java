@@ -1,6 +1,5 @@
 package frc.robot.states;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -10,12 +9,12 @@ import frc.robot.Constants;
 import frc.robot.Controllers.Action;
 import frc.robot.Controllers.Button;
 import frc.robot.Controllers.ControllerName;
+import frc.robot.sensors.IMU;
 import frc.robot.Event;
 import frc.robot.PID;
 import frc.robot.RobotStateManager;
 import frc.robot.State;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.HeaderWrapper;
 
 public class BalanceState implements State {
   private String name, parent;
@@ -23,10 +22,8 @@ public class BalanceState implements State {
   private DriveSubsystem drive;
 
   private PID yawPID;
-  private HeaderWrapper compass;
+  private IMU imu;
   private State enteredFromState;
-
-  private double desiredYaw;
 
   public double calculatedForwardSpeed, calculatedYawSpeed;
 
@@ -35,7 +32,7 @@ public class BalanceState implements State {
   public BalanceState(String name, String parent){
     this.name = name;
     this.parent = parent;
-    compass = new HeaderWrapper(0);
+    imu = IMU.getInstance();
     drive = DriveSubsystem.getInstance();
 
     ShuffleboardLayout pidTuningTab = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)
@@ -53,7 +50,7 @@ public class BalanceState implements State {
       .add("Balance Yaw PID - Derivative", 0.0)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
     
-    yawPID = new PID(()->compass.getHeading(), 0.01, 0.0, 0.0, 0.0);
+    yawPID = new PID(()->imu.getHeading(), 0.01, 0.0, 0.0, 0.0);
   }
 
   @Override
@@ -74,9 +71,6 @@ public class BalanceState implements State {
   public void Enter(State enteredFrom) {
     System.out.println("entered" + name);
 
-    desiredYaw = Constants.PLATFORM_YAW_DEG;
-
-    compass.setHeadingOffset(compass.getHeadingOffset() + desiredYaw);
     drive.shift(false);
 
     yawPID.startThread();
@@ -94,7 +88,7 @@ public class BalanceState implements State {
   @Override
   public void Periodic(RobotStateManager rs) {
     double headingTarget;
-    double currentYaw = compass.getHeading();
+    double currentYaw = imu.getHeading();
 
     yawPID.setP(pidPWidget.getDouble(0.1)/10);
     yawPID.setI(pidIWidget.getDouble(0)/10);
@@ -114,7 +108,7 @@ public class BalanceState implements State {
     yawPID.setSetpoint(headingTarget);
     calculatedYawSpeed = yawPID.getOutput();
 
-    System.out.format("(BalanceState) Yaw: %3.1f, YawSpeed: %3.1f, Setpoint: %3.1f\n", currentYaw, calculatedYawSpeed, yawPID.getSetpoint());
+    // System.out.format("(BalanceState) Yaw: %3.1f, YawSpeed: %3.1f, Setpoint: %3.1f\n", currentYaw, calculatedYawSpeed, yawPID.getSetpoint());
 
     drive.arcadeDrive(calculatedForwardSpeed, calculatedYawSpeed);
     

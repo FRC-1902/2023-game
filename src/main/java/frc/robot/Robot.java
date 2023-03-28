@@ -17,8 +17,10 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.states.*;
 import frc.robot.states.auto.*;
+import frc.robot.states.balance.AutoBalanceState;
 import frc.robot.states.balance.BalanceOnPlatformState;
 import frc.robot.states.teleOp.*;
 // import frc.robot.states.teleOp.intake.DeployState;
@@ -30,6 +32,7 @@ import frc.robot.states.teleOp.*;
 import frc.robot.subsystems.TurretvatorSubsystem;
 import frc.robot.subsystems.TurretvatorSubsystem.ElevatorStage;
 import frc.robot.path.Paths;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -46,6 +49,15 @@ public class Robot extends TimedRobot {
   private Compressor compressor;  
   // private IntakeSubsystem intakeSubsystem;
   private TurretvatorSubsystem turretvatorSubsystem;
+  private SendableChooser auto;
+  
+  public static enum Autos {
+    BALANCE,
+    COMMUNITY,
+    NOTHING
+  }
+
+  public static Autos chosenAuto = Autos.NOTHING;
 
   public void initializeShuffleBoardWidgets() {
     ShuffleboardTab dashboardTab = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB);
@@ -54,6 +66,8 @@ public class Robot extends TimedRobot {
       dashboardTab.getLayout("Power Distribution Panel", BuiltInLayouts.kList);
     ShuffleboardLayout stateMachineLayout = 
       dashboardTab.getLayout("State Machine", BuiltInLayouts.kList);
+    
+    ShuffleboardLayout autoLayout = dashboardTab.getLayout("Auto", BuiltInLayouts.kList);
 
     if (RobotBase.isReal()) {
       // This for some reason doesn't work when the CAN id is above like 20 for some reason ;-;
@@ -70,6 +84,13 @@ public class Robot extends TimedRobot {
         .withWidget(BuiltInWidgets.kGraph)
         .withProperties(Map.of("Unit", "deg C"));
     }
+    auto = new SendableChooser();
+    
+    auto.addOption("Exit Community", Autos.COMMUNITY);
+    auto.addOption("Balance", Autos.BALANCE);
+    auto.addOption("Nothing", Autos.NOTHING);
+    
+    autoLayout.add(auto);
 
     stateMachineLayout.addString("Current State", () -> {
       State currState = rs.getCurrentState();
@@ -88,9 +109,8 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
-    compressor = new Compressor(1, PneumaticsModuleType.REVPH);
+    compressor = new Compressor(1, PneumaticsModuleType.CTREPCM);
     compressor.enableDigital();
-    Paths.getInstance().readPathArray(Paths.pathName.REVERSE);//TODO: connect autonomouse chooser
     controllers = Controllers.getInstance();
 
     rs = RobotStateManager.getInstance();
@@ -106,6 +126,7 @@ public class Robot extends TimedRobot {
       // new LoadPieceState("loadPiece", "centerTurret"),
       new BalanceState("balance", null),
       new AutoState("auto", null),
+      new AutoBalanceState("autoBalance", null),
       new PickupState("pickup", "auto"),
       new DropState("drop", null),
       new VisionAlignState("visionAlign", "auto"),
@@ -122,9 +143,9 @@ public class Robot extends TimedRobot {
     initializeShuffleBoardWidgets();
 
     rs.startRobot("disabled");
-    //m_robotContainer = new RobotContainer();
-
     turretvatorSubsystem = TurretvatorSubsystem.getInstance();
+
+    System.out.println("Robot initialized");
   }
 
   /**
@@ -137,14 +158,6 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     rs.periodic();
-
-
-    // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
-    // commands, running already-scheduled commands, removing finished or interrupted commands,
-    // and running subsystem periodic() methods.  This must be called from the robot's periodic
-    // block in order for anything in the Command-based framework to work.
-    
-    // CommandScheduler.getInstance().run();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -152,6 +165,8 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
     rs.setState("disabled");
     turretvatorSubsystem.enablePID(false);
+    turretvatorSubsystem.resetWatchdogs();
+    System.out.println("Robot disabled");
   }
 
   @Override
@@ -162,13 +177,25 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    rs.setState("drop");
-    // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
-    // // schedule the autonomous command (example)
-    // if (m_autonomousCommand != null) {
-    //   m_autonomousCommand.schedule();
-    // }
+    chosenAuto = (Autos)auto.getSelected();
+    switch(chosenAuto){
+      case BALANCE:
+        Paths.getInstance().readPathArray(Paths.pathName.BALANCE);
+        System.out.println("balance");
+        rs.setState("drop");
+        
+        break;
+      case COMMUNITY:
+        Paths.getInstance().readPathArray(Paths.pathName.REVERSE);
+        System.out.println("community");
+        rs.setState("drop");
+        break;
+      default:
+        System.out.println("nothing");
+        break;
+    }
+    
+    System.out.println("Robot autonomous initialized");
   }
 
   /** This function is called periodically during autonomous. */
@@ -180,15 +207,10 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    // This makes sure that the autonomous stops running when
-    // teleop starts running. If you want the autonomous to
-    // continue until interrupted by another command, remove
-    // this line or comment it out.
-    // if (m_autonomousCommand != null) {
-    //   m_autonomousCommand.cancel();
-    // }
     turretvatorSubsystem.elevatorSet(ElevatorStage.DOWN);
     rs.setState("teleOp");
+
+    System.out.println("Robot teleop initialized");
   }
 
   /** This function is called periodically during operator control. */
@@ -209,7 +231,8 @@ public class Robot extends TimedRobot {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     // CommandScheduler.getInstance().cancelAll();
-    rs.setState("test");
+    rs.setState("autoBalance");
+    System.out.println("Robot test initialized");
   }
 
   /** This function is called periodically during test mode. */
@@ -217,7 +240,6 @@ public class Robot extends TimedRobot {
   public void testPeriodic() {
     turretvatorSubsystem.periodic();
     controllers.eventPeriodic();
-    // intakeSubsystem.enabledPeriodic();
   }
 
   /** This function is called once when the robot is first started up. */

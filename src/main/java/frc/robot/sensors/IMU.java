@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.sensors;
 
 import java.util.Map;
 
@@ -8,16 +8,15 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.sensors.BNO055;
 
-public class IMUSubsystem extends SubsystemBase {
+public class IMU extends SubsystemBase {
 
-  private static IMUSubsystem instance = new IMUSubsystem();
+  private static IMU instance = new IMU();
 
   private final BNO055 bno055 = BNO055.getInstance(BNO055.opmode_t.OPERATION_MODE_IMUPLUS,
       BNO055.vector_type_t.VECTOR_EULER);
 
-  public IMUSubsystem() {
+  public IMU() {
     ShuffleboardLayout dashboardTab = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)
         .getLayout("BNO055 Telemetry", BuiltInLayouts.kList)
         .withSize(3, 3);
@@ -108,9 +107,9 @@ public class IMUSubsystem extends SubsystemBase {
   /**
    * @reutrn imu instance
    */
-  public static IMUSubsystem getInstance() {
+  public static IMU getInstance() {
     if (instance == null) {
-      instance = new IMUSubsystem();
+      instance = new IMU();
     }
     return instance;
   }

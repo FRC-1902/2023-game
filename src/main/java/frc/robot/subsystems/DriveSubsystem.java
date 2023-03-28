@@ -1,9 +1,9 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -29,7 +29,7 @@ public class DriveSubsystem extends SubsystemBase {
   private final double driveWidth;
   private double currentLeftCommand;
 
-  private GenericEntry pidPWidget, pidIWidget, pidDWidget, pidFWidget;
+  // private GenericEntry pidPWidget, pidIWidget, pidDWidget, pidFWidget;
 
   public void initializeShuffleboardWidgets() {
     ShuffleboardLayout dashboardLayout = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)
@@ -38,12 +38,12 @@ public class DriveSubsystem extends SubsystemBase {
 
     dashboardLayout.addDoubleArray("Left Drive Command", this::currentCommand).withWidget(BuiltInWidgets.kGraph);
 
-    dashboardLayout.addDouble("Left Drive Encoder Velocity", leftEncoder::getRate)
-        .withWidget(BuiltInWidgets.kGraph);
+    // dashboardLayout.addDouble("Left Drive Encoder Velocity", leftEncoder::getRate)
+    //     .withWidget(BuiltInWidgets.kGraph);
     dashboardLayout.addBoolean("Left Drive Shift State", () -> leftSolenoid.get());
 
-    dashboardLayout.addDouble("Right Drive Encoder Velocity", rightEncoder::getRate)
-        .withWidget(BuiltInWidgets.kGraph);
+    // dashboardLayout.addDouble("Right Drive Encoder Velocity", rightEncoder::getRate)
+    //     .withWidget(BuiltInWidgets.kGraph);
     dashboardLayout.addBoolean("Right Drive Shift State", () -> rightSolenoid.get());
 
     // ShuffleboardLayout pidTuningTab = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)
@@ -79,6 +79,11 @@ public class DriveSubsystem extends SubsystemBase {
     rightMotor1.setInverted(true);
     rightMotor2.setInverted(true);
 
+    leftMotor1.setIdleMode(IdleMode.kBrake);
+    leftMotor2.setIdleMode(IdleMode.kBrake);
+    rightMotor1.setIdleMode(IdleMode.kBrake);
+    rightMotor2.setIdleMode(IdleMode.kBrake);
+
     leftEncoder = new Encoder(Constants.LEFT_DRIVE_ENCODER_1, Constants.LEFT_DRIVE_ENCODER_2);
     rightEncoder = new Encoder(Constants.RIGHT_DRIVE_ENCODER_1, Constants.RIGHT_DRIVE_ENCODER_2);
 
@@ -90,14 +95,12 @@ public class DriveSubsystem extends SubsystemBase {
     leftMotors = new MotorControllerGroup(leftMotor1, leftMotor2);
     rightMotors = new MotorControllerGroup(rightMotor1, rightMotor2);
 
-    leftSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.LEFT_DRIVE_SOLENOID);
-    rightSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.RIGHT_DRIVE_SOLENOID);
+    leftSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, Constants.LEFT_DRIVE_SOLENOID);
+    rightSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, Constants.RIGHT_DRIVE_SOLENOID);
 
-    initializeShuffleboardWidgets();//./gradlew deploy  -PteamNumber=1902 --offline
+    initializeShuffleboardWidgets();
 
     // TODO:tune me
-    // highVelocityController = new PIDController(.25,0,0);
-    // lowVelocityController = new PIDController(.2,0,0);
     highLeftVelocityController = new PID(leftEncoder::getRate, 0.0, 0.0, 0.0, 0.1);
     lowLeftVelocityController = new PID(leftEncoder::getRate, 0.01, 0.005, 0.01, 0.5);
     highRightVelocityController = new PID(rightEncoder::getRate, 0.0, 0.0, 0.0, 0.1);
@@ -140,6 +143,21 @@ public class DriveSubsystem extends SubsystemBase {
     // currentLeftCommand = -leftSpeed;
     leftMotors.set(leftSpeed);
     rightMotors.set(rightSpeed);
+  }
+
+  public void setBrake(boolean isBrake){
+    System.out.format("Drive Breaking: %b\n", isBrake);
+    if(isBrake){
+      leftMotor1.setIdleMode(IdleMode.kBrake);
+      leftMotor2.setIdleMode(IdleMode.kBrake);
+      rightMotor1.setIdleMode(IdleMode.kBrake);
+      rightMotor2.setIdleMode(IdleMode.kBrake);
+    } else {
+      leftMotor1.setIdleMode(IdleMode.kCoast);
+      leftMotor2.setIdleMode(IdleMode.kCoast);
+      rightMotor1.setIdleMode(IdleMode.kCoast);
+      rightMotor2.setIdleMode(IdleMode.kCoast);
+    }
   }
 
   /**
@@ -198,6 +216,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   // Low gear *should* be false, and high gear *should* be true
   public void shift(boolean state) {
+    System.out.format("Shifted %b\n", state);
     leftSolenoid.set(state);
     rightSolenoid.set(state);
   }

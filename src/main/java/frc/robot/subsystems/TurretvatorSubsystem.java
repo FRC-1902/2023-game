@@ -28,13 +28,13 @@ import frc.robot.Constants;
 public class TurretvatorSubsystem extends SubsystemBase {
   private static TurretvatorSubsystem instance;
 
-  public static final double throughboreCPR = 1;
-  public static final int turretMaxAngle = 120;
-  public static final double elevatorStop = 4.5;
+  private static final double THROUGHBORE_CPR = 1;
+  private static final int TURRET_MAX_ANGLE = 120;
+  private static final double ELEVATOR_MAX_ROTATIONS = 4.5;
 
   private double desiredElevatorDistance = 0;
   private double elevatorEncoderOffset = 0;
-  private double constantElevatorPower = 0.08;
+  private static final double CONSTANT_ELEVATOR_POWER = 0.08;
 
   private long turretRampTime;
 
@@ -49,17 +49,17 @@ public class TurretvatorSubsystem extends SubsystemBase {
   private double lastElevatorEncoderValue;
   private double lastTurretEncoderValue;
 
-  private int elevatorKillSwitchHits = 0;
+  private int elevatorWatchdogHits = 0;
 
-  private boolean turretKillSwitchInterlock = false;
-  private boolean elevatorKillSwitchInterlock = false;
+  private boolean isTurretWatchdogEnabled = false;
+  private boolean isElevatorWatchdogEnabled = false;
 
   private boolean initialPeriodic = true;
   private boolean isPIDEnabled = false;
 
   // 5 Second timeout
-  private long killSwitchTimeout = 5000000;
-  private long killSwitchActivationTime;
+  private long watchdogTimeout = 5000000;
+  private long watchdogActivationTime;
 
   public void initializeShuffleBoardWidgets() {
     ShuffleboardLayout turretLayout = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)
@@ -84,13 +84,13 @@ public class TurretvatorSubsystem extends SubsystemBase {
       .withSize(2, 3);
 
     elevatorPWidget = elevatorLayout
-      .add("Elevator PID - Proportional", 0)
+      .add("Elevator PID - Proportional", 0.18)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
     elevatorIWidget = elevatorLayout
       .add("Elevator PID - Integral", 0)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
     elevatorDWidget = elevatorLayout
-      .add("Elevator PID - Derivative", 0)
+      .add("Elevator PID - Derivative", 0.04)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
     elevatorFWidget = elevatorLayout
       .add("Elevator PID - FeedForward", 0)
@@ -102,8 +102,11 @@ public class TurretvatorSubsystem extends SubsystemBase {
     elevatorRight = new CANSparkMax(Constants.RIGHT_ELEVATOR_ID, MotorType.kBrushless);
     elevatorLeft.setInverted(false);
     elevatorRight.setInverted(true);
-    elevatorLeft.setIdleMode(IdleMode.kCoast);
-    elevatorRight.setIdleMode(IdleMode.kCoast);
+    elevatorLeft.setIdleMode(IdleMode.kBrake);
+    elevatorRight.setIdleMode(IdleMode.kBrake);
+
+    elevatorLeft.burnFlash();
+    elevatorRight.burnFlash();
     
     elevatorMotors = new MotorControllerGroup(elevatorLeft, elevatorRight);
     elevatorLeftEncoder = new DutyCycleEncoder(Constants.LEFT_ELEVATOR_ENCODER);
@@ -120,13 +123,13 @@ public class TurretvatorSubsystem extends SubsystemBase {
     turretEncoder = new DutyCycleEncoder(Constants.TURRET_ENCODER);
     
     //(turretEncoder.getAbsolutePosition() - 0.393 + 1) % 1
-    turretPID = new PID(() -> ((turretEncoder.getAbsolutePosition() - 0.643 + 1) % 1), 9, 0.0, 0.0, 0.0);
+    turretPID = new PID(() -> ((turretEncoder.getAbsolutePosition() - Constants.TURRET_OFFSET + 1) % 1), 9, 0.0, 0.0, 0.0);
  
-    turretPID.enableContinuousInput(0, throughboreCPR);
+    turretPID.enableContinuousInput(0, THROUGHBORE_CPR);
     turretPID.setTolerance(0.001);
 
-    gripperSolenoidA = new Solenoid(PneumaticsModuleType.REVPH, Constants.GRIPPER_SOLENOID_A);
-    gripperSolenoidB = new Solenoid(PneumaticsModuleType.REVPH, Constants.GRIPPER_SOLENOID_B);
+    gripperSolenoidA = new Solenoid(PneumaticsModuleType.CTREPCM, Constants.GRIPPER_SOLENOID_A);
+    gripperSolenoidB = new Solenoid(PneumaticsModuleType.CTREPCM, Constants.GRIPPER_SOLENOID_B);
     
 
     initializeShuffleBoardWidgets();
@@ -165,12 +168,12 @@ public class TurretvatorSubsystem extends SubsystemBase {
    * @param degrees degree set (+/- max turret angle)
    */
   public void setTurret(double degrees){
-    if(Math.abs(degrees) > turretMaxAngle){
+    if(Math.abs(degrees) > TURRET_MAX_ANGLE){
       System.out.println("Degree put into TurretvatorSubsystem.turretSet too large!");
       return;
     }
 
-    turretPID.setSetpoint(degrees * throughboreCPR / 360);
+    turretPID.setSetpoint(degrees * THROUGHBORE_CPR / 360);
   }
 
   public static enum ElevatorStage{
@@ -180,7 +183,7 @@ public class TurretvatorSubsystem extends SubsystemBase {
   public Map<Enum<ElevatorStage>, Double> elevatorMap = 
     new HashMap<Enum<ElevatorStage>, Double>() {{
       put(ElevatorStage.HIGH, 4.418);
-      put(ElevatorStage.MIDDLE, 3.034);
+      put(ElevatorStage.MIDDLE, 2.550);
       put(ElevatorStage.LOAD, 2.8);
       put(ElevatorStage.DOWN, 0.0);
     }};
@@ -235,17 +238,18 @@ public class TurretvatorSubsystem extends SubsystemBase {
     if (initialPeriodic)
       elevatorEncoderOffset = elevatorLeftEncoder.get();
 
-    if (desiredElevatorRotations > elevatorStop)
+    if (desiredElevatorRotations > ELEVATOR_MAX_ROTATIONS)
       System.out.println("Elevator is extending to extreme!");
     if (desiredElevatorRotations < 0)
       System.out.println("Elevator shouldn't try to be negative!");
 
-    desiredElevatorRotations = Math.max(Math.min(desiredElevatorRotations, elevatorStop), 0.0);
+    desiredElevatorRotations = Math.max(Math.min(desiredElevatorRotations, ELEVATOR_MAX_ROTATIONS), 0.0);
 
-    elevatorPID.setP(0.22);
+    elevatorPID.setP(elevatorPWidget.getDouble(.18));
     elevatorPID.setI(elevatorIWidget.getDouble(0));
-    elevatorPID.setD(elevatorDWidget.getDouble(0));
+    elevatorPID.setD(elevatorDWidget.getDouble(0.04));
     elevatorPID.setSetpoint(desiredElevatorRotations);
+    //clamp elevator power to max
     elevatorPower = Math.max(
       Math.min(
         elevatorPID.getOutput(),
@@ -253,20 +257,27 @@ public class TurretvatorSubsystem extends SubsystemBase {
       ),
       -1 * Constants.MAX_ELEVATOR_MOTOR_POWER
     );
-
+    
+    //max down power set to -0.1
     elevatorPower = elevatorPower < -0.1 ? -0.1 : elevatorPower;
     
-    elevatorMotors.set(elevatorPower + .08);
+    if(desiredElevatorDistance == 0.0 && elevatorPID.getSensorInput() < 0.15){
+      elevatorMotors.set(0); //makes brake mode go into effect when down v/s maintain power
+    }else{
+      elevatorMotors.set(elevatorPower + CONSTANT_ELEVATOR_POWER);
+    }
   }
 
   private void turretPeriodic() {
+    // System.out.format("Turret Position: %.3f, PID: %.3f\n", turretEncoder.getAbsolutePosition(), turretPID.getSensorInput());
+
     double turretPow;
 
     turretPID.setP(turretPWidget.getDouble(0.9) * 10);
     turretPID.setI(turretIWidget.getDouble(0) * 10);
     turretPID.setD(turretDWidget.getDouble(0) * 10);
  
-    //XXX: add wraparound protection, just setting to -45 and 45 for wraparound protecting atm
+    //XXX: add wraparound protection, just setting to -120 and 120 for wraparound protecting atm
     
     turretPow = turretPID.getOutput();
     
@@ -280,6 +291,61 @@ public class TurretvatorSubsystem extends SubsystemBase {
     turretMotor.set(turretPow);
   }
 
+  /**
+   * Interlock watchdog on the elevator
+   * @return boolean corresponding on whether or not the elevator should be locked
+   */
+  private boolean elevatorWatchdog(){
+    
+
+    if(isElevatorWatchdogEnabled == true){return true;}
+
+    if (Math.abs(lastElevatorEncoderValue - elevatorLeftEncoder.get()) < 0.005 && Math.abs(elevatorMotors.get()) > 0.4){
+      elevatorWatchdogHits++;
+      System.out.println(elevatorWatchdogHits);
+    }else{
+      elevatorWatchdogHits = 0;
+    }
+    //detects negative encoder or too many kill switch hits (~200 ms worth of hits)
+    if (elevatorWatchdogHits >= 10 || elevatorLeftEncoder.get() < -1.0) {
+      System.out.println("==== ELEVATOR KILL SWITCH WATCHDOG ENGAGED ====");
+      System.out.format("Left Encoder: %.3f\n", elevatorLeftEncoder.get());
+      watchdogActivationTime = RobotController.getFPGATime();
+      isElevatorWatchdogEnabled = true;
+    }
+
+    return isElevatorWatchdogEnabled;
+  }
+
+  /**
+   * Interlock watchdog on the turret
+   * @return boolean corresponding on whether or not the turret should be locked
+   */
+  private boolean turretWatchdog(){
+    lastTurretEncoderValue = turretPID.getSensorInput();
+
+    if(isTurretWatchdogEnabled == true){return true;}
+
+    //Detects wrap around to not catch that
+    if (Math.abs(lastTurretEncoderValue - turretPID.getSensorInput()) > 0.35 && Math.abs(lastTurretEncoderValue - turretPID.getSensorInput()) < 0.65) {
+      System.out.println("==== TURRET KILL SWITCH WATCHDOG ENGAGED ====");
+      System.out.format("Last: %.3f, Current: %.3f\n", lastTurretEncoderValue, turretPID.getSensorInput());
+      watchdogActivationTime = RobotController.getFPGATime();
+      isTurretWatchdogEnabled = true;
+    }
+    return isTurretWatchdogEnabled;
+  }
+
+  public void resetWatchdogs(){
+    if(isTurretWatchdogEnabled || isElevatorWatchdogEnabled){
+      System.out.println("==== ALL KILL SWITCH WATCHDOGS RELEASED ====");
+      isTurretWatchdogEnabled = false;
+      isElevatorWatchdogEnabled = false;
+
+      initialPeriodic = true;
+    }
+  }
+
   // Called from Robot
   @Override
   public void periodic() {
@@ -287,58 +353,32 @@ public class TurretvatorSubsystem extends SubsystemBase {
       enablePID(true);
     }
 
-    System.out.println(elevatorPID.getSensorInput());
-    if (elevatorKillSwitchInterlock) {
+    // System.out.format("E Sens: %.3f | E Set: %.3f | T Sens: %.3f | T Set %.3f\n", elevatorPID.getSensorInput(), elevatorPID.getSetpoint(), turretPID.getSensorInput(), turretPID.getSetpoint());
+    if (elevatorWatchdog()) {
       elevatorMotors.set(0);
     }
     else {
       elevatorPeriodic();
-      
-      if (Math.abs(lastElevatorEncoderValue - elevatorLeftEncoder.get()) < 0.005 && Math.abs(elevatorMotors.get()) > 0.4)
-        elevatorKillSwitchHits++;
-      else
-        elevatorKillSwitchHits = 0;
-      
-      if (elevatorKillSwitchHits >= 10) {
-        System.out.println("==== ELEVATOR INTERLOCK ENGAGED ====");
-        killSwitchActivationTime = RobotController.getFPGATime();
-        elevatorKillSwitchInterlock = true;
-      }
-
-      if(elevatorLeftEncoder.get() < -1.0){
-        elevatorKillSwitchInterlock = true;
-      }
     }
 
-    if (turretKillSwitchInterlock) {
+    if (turretWatchdog()) {
       turretMotor.set(0);
     }
     else {
       turretPeriodic();
-
-      // Detects wrap around
-      if (Math.abs(lastTurretEncoderValue - turretPID.getSensorInput()) > 0.35 && Math.abs(lastTurretEncoderValue - turretPID.getSensorInput()) < 0.65) {
-        System.out.println("==== TURRET INTERLOCK ENGAGED ====");
-        System.out.format("Last: %.3f, Current: %.3f\n", lastTurretEncoderValue, turretPID.getSensorInput());
-        killSwitchActivationTime = RobotController.getFPGATime();
-        turretKillSwitchInterlock = true;
-      }
     }
 
     initialPeriodic = false;
+    lastElevatorEncoderValue = elevatorLeftEncoder.get();
 
-    // if (RobotController.getFPGATime() - killSwitchActivationTime > killSwitchTimeout && (turretKillSwitchInterlock || elevatorKillSwitchInterlock)) {
-    //   System.out.println("==== ALL INTERLOCKS RELEASED ====");
-    //   turretKillSwitchInterlock = false;
-    //   elevatorKillSwitchInterlock = false;
+    //Disable watchdogs after timeout
+    // if (RobotController.getFPGATime() - watchdogActivationTime > watchdogTimeout && (isTurretWatchdogEnabled || isElevatorWatchdogEnabled)) {
+    //   System.out.println("==== ALL KILL SWITCH WATCHDOGS RELEASED ====");
+    //   isTurretWatchdogEnabled = false;
+    //   isElevatorWatchdogEnabled = false;
 
     //   initialPeriodic = true;
     // }
-
-    // //Medium l 3.302 r -2.610
-
-    lastElevatorEncoderValue = elevatorLeftEncoder.get();
-    lastTurretEncoderValue = turretPID.getSensorInput();
   }
 
   public static TurretvatorSubsystem getInstance() {

@@ -2,8 +2,8 @@ package frc.robot.states.auto;
 
 import frc.robot.RobotStateManager;
 import frc.robot.State;
+import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.TurretvatorSubsystem;
-import frc.robot.subsystems.TurretvatorSubsystem.ElevatorStage;
 
 public class DropState implements State{
     private String name, parent;
@@ -11,11 +11,13 @@ public class DropState implements State{
     private int state;
     private long dropStartTime;
     private long loopStartTime;
+    private DriveSubsystem driveSub;
 
     public DropState(String name, String parent){
         this.name = name;
         this.parent = parent;
         tvSub = TurretvatorSubsystem.getInstance();
+        driveSub = DriveSubsystem.getInstance();
     }
 
     @Override
@@ -32,6 +34,7 @@ public class DropState implements State{
     public void Enter() {
         state = 0;
         tvSub.setGripper(true);
+        
         loopStartTime = System.currentTimeMillis();
         System.out.println("entered" + name);
     }
@@ -45,33 +48,39 @@ public class DropState implements State{
     public void Periodic(RobotStateManager rs) {
         switch(state) {
             case 0:
-                if(System.currentTimeMillis() - loopStartTime > 500) state++;
+                if(System.currentTimeMillis() - loopStartTime > 500){
+                    state++;
+                    System.out.println("Entered HIGH elevator set");
+                }
                 break;
             case 1:// extend elavator
-                System.out.println("Entered HIGH");
+                
                 tvSub.elevatorSet(3.6); 
                 if(tvSub.isExtended()){
                     loopStartTime = System.currentTimeMillis();
                     state++;
+                    System.out.println("Entered wait");
                 }
                 break;
             case 2:
-                System.out.println("entered wait");
+                
                 if(System.currentTimeMillis() - loopStartTime > 1000) {
                     state++;
                     dropStartTime = System.currentTimeMillis();
+                    System.out.println("Entered gripper open");
                 }
                 break;
             case 3:// drop game element
-                System.out.println("Entered Gripper open");
                 tvSub.setGripper(false);
                 if(System.currentTimeMillis() - dropStartTime > 500) {
                     state++;
+                    dropStartTime = System.currentTimeMillis();
+                    System.out.println("Entered elevator half retraction");
                 }
                 break;
             case 4:// retract elevator
-                tvSub.elevatorSet(ElevatorStage.DOWN);
-                if(tvSub.isExtended()) state++;
+                tvSub.elevatorSet(1.25); //leave out a bit for forward CG
+                if(System.currentTimeMillis() - dropStartTime > 500) state++;
                 break;
             default:
                 rs.setState("path");

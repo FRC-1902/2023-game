@@ -25,13 +25,7 @@ public final class Constants {
   // public static final int LEVER_INTAKE_ID = 10;
   // public static final int ROLLER_INTAKE_ID = 7;
 
-  // Balancing constants
-  public static final double PLATFORM_BALANCE_YAW_THRESHOLD_DEG = 5;
-  public static final double PLATFORM_BALANCE_PITCH_THRESHOLD_DEG = 3;
-  public static final double PLATFORM_YAW_DEG = 0;
-  public static final double PLATFORM_DRIVE_PLATFORM_YAW_DELTA = 5;
-
-  //REVPH Solenoid Chanels
+  //CTREPCM Solenoid Chanels
   public static final int LEFT_DRIVE_SOLENOID = 0;
   public static final int RIGHT_DRIVE_SOLENOID = 1;
   public static final int GRIPPER_SOLENOID_A = 3;
@@ -48,12 +42,15 @@ public final class Constants {
   // public static final int DEPLOY_INTAKE_ENCODER = 7;
   // public static final int LEVER_INTAKE_ENCODER = 8;
 
-  // Shuffleboard junk
+  // Shuffleboard
   public static final String MAIN_SHUFFLEBOARD_TAB = "Shuffleboard";
   public static final String PID_SHUFFLEBOARD_TAB = "PID";
 
-  // Elevator junk
+  // Elevator
   public static final double MAX_ELEVATOR_MOTOR_POWER = 0.5;
-  public static final double ELEVATOR_CM_PER_ROTATION = 1; // TODO: Set me!
-  public static final double ELEVATOR_PITCH_DEG = 15;
+
+  // Balancing
+  public static final double PLATFORM_BALANCE_PITCH_THRESHOLD_DEG = 4;
+
+  public static final double TURRET_OFFSET = 0.226;
 }

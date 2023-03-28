@@ -2,7 +2,6 @@ package frc.robot.states;
 
 import frc.robot.Controllers;
 import frc.robot.Controllers.*;
-import frc.robot.states.auto.TurretState;
 import frc.robot.Event;
 import frc.robot.RobotStateManager;
 import frc.robot.subsystems.*;
@@ -41,6 +40,7 @@ public class TeleOpState implements frc.robot.State{
   public void Enter() {
     System.out.println("entered " + name);
     turretOffset = 0;
+    driveSub.setBrake(false);
   }
 
   @Override
@@ -48,14 +48,8 @@ public class TeleOpState implements frc.robot.State{
     System.out.println("left " + name);
   }
 
-  @Override
-  public void Periodic(RobotStateManager rs) {
-    double xSpeed = controllers.get(ControllerName.DRIVE, Axis.LY) * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/2.0);
-    double zRotation = controllers.get(ControllerName.DRIVE, Axis.RX) * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/2.0);
-    driveSub.arcadeDrive(xSpeed,zRotation);
-
-    tvSub.addElevator(-controllers.get(ControllerName.MANIP, Axis.RY)/50.0);
-
+/**DPAD 90 degree offset code*/
+  private void handleTurretOffsets(){
     if(controllers.getDPAD(ControllerName.MANIP) == -1){
       isDpadHeld = false;
     }else{
@@ -86,15 +80,20 @@ public class TeleOpState implements frc.robot.State{
     }
 
     wasDpadHeld = isDpadHeld;
+  }
 
-    tvSub.setTurret(controllers.get(ControllerName.MANIP, Axis.LX) *  -30.0 + turretOffset);
-    // if(controllers.getDPAD(ControllerName.MANIP) == 180) {
-    //   tvSub.elevatorSet(ElevatorStage.DOWN);
-    // } else if ( controllers.getDPAD(ControllerName.MANIP) == 270){
-    //   tvSub.elevatorSet(ElevatorStage.MIDDLE);
-    // } else if ( controllers.getDPAD(ControllerName.MANIP) == 0){
-    //   tvSub.elevatorSet(ElevatorStage.HIGH);
-    // }
+  @Override
+  public void Periodic(RobotStateManager rs) {
+    //arcade drive code w/ slow controller
+    double xSpeed = controllers.get(ControllerName.DRIVE, Axis.LY) * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/3.0);
+    double zRotation = controllers.get(ControllerName.DRIVE, Axis.RX) / 2.0 * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/3.0);
+    driveSub.arcadeDrive(xSpeed,zRotation);
+
+    //Manual elevator control
+    tvSub.addElevator(-controllers.get(ControllerName.MANIP, Axis.RY)/50.0);
+
+    handleTurretOffsets();
+    tvSub.setTurret(controllers.get(ControllerName.MANIP, Axis.LX) *  -15.0 + turretOffset);
   }
 
   @Override
@@ -107,8 +106,8 @@ public class TeleOpState implements frc.robot.State{
       case RB:
         switch(event.action){
         case PRESSED:
-          System.out.println("Shifted LOW");
           driveSub.shift(false);
+          // driveSub.setBrake(true);
           return true;
         default:
         }
@@ -117,19 +116,37 @@ public class TeleOpState implements frc.robot.State{
       case LB:
         switch(event.action){
         case PRESSED:
-          System.out.println("Shifted HIGH");
           driveSub.shift(true);
+          // driveSub.setBrake(false);
           return true;
         default:
         }
         break;
-      // Goes to the balance state
+      //Goes to the balance state
+      // case B:
+      //   switch (event.action) {
+      //   case PRESSED:
+      //     rs.setState("balancePlatform");
+      //     return true;
+      //   default:
+      //   }
+      //   break;
+      //break mode
       case B:
-        switch (event.action) {
-        case PRESSED:
-          rs.setState("balancePlatform");
-          return true;
-        default:
+        switch (event.action){
+          case PRESSED:
+            driveSub.setBrake(true);
+            return true;
+          default:
+        }
+        break;
+      //coast mode
+      case A:
+        switch (event.action){
+          case PRESSED:
+            driveSub.setBrake(false);
+            return true;
+          default:
         }
         break;
       default: break;
@@ -138,6 +155,7 @@ public class TeleOpState implements frc.robot.State{
     //Manip Controller
     case MANIP:
       switch(event.button){
+        //Gripper open
         case B:
           if(event.action == Action.PRESSED){
             tvSub.setGripper(false);
@@ -145,6 +163,7 @@ public class TeleOpState implements frc.robot.State{
             return true;
           }
           break;
+        //Gripper close
         case X:
           if(event.action == Action.PRESSED){
             tvSub.setGripper(true);
@@ -152,24 +171,28 @@ public class TeleOpState implements frc.robot.State{
             return true;
           }
           break;
+        //Elevator Down
         case A:
           if(event.action == Action.PRESSED){
             tvSub.elevatorSet(ElevatorStage.DOWN);
             return true;
           }
           break;
+        //Elevator Middle
         case Y:
           if(event.action == Action.PRESSED){
             tvSub.elevatorSet(ElevatorStage.MIDDLE);
             return true;
           }
           break;
+        //Elevator High
         case RB:
           if(event.action == Action.PRESSED){
             tvSub.elevatorSet(ElevatorStage.HIGH);
             return true;
           }
           break;
+        //Elevator Load (human player station)
         case LB:
           if(event.action == Action.PRESSED){
             tvSub.elevatorSet(ElevatorStage.LOAD);
