@@ -13,11 +13,10 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.PID;
 
-public class DriveSubsystem extends SubsystemBase {
+public class DriveSubsystem {
   private static DriveSubsystem instance;
 
   private CANSparkMax leftMotor1, leftMotor2, rightMotor1, rightMotor2;
@@ -123,16 +122,6 @@ public class DriveSubsystem extends SubsystemBase {
       lowLeftVelocityController.stopThread();
       lowRightVelocityController.stopThread();
     }
-  }
-
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-  }
-
-  @Override
-  public void simulationPeriodic() {
-    // This method will be called once per scheduler run during simulation
   }
 
   public void arcadeDrive(double xSpeed, double zRotation) {

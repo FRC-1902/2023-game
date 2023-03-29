@@ -1,13 +1,14 @@
 package frc.robot.states;
 
-import frc.robot.Controllers;
-import frc.robot.Controllers.*;
-import frc.robot.Event;
-import frc.robot.RobotStateManager;
+import frc.robot.statemachine.Controllers;
+import frc.robot.statemachine.RobotStateManager;
+import frc.robot.statemachine.Controllers.*;
+import frc.robot.statemachine.Event;
+import frc.robot.statemachine.State;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.TurretvatorSubsystem.ElevatorStage;
 
-public class TeleOpState implements frc.robot.State{
+public class TeleOpState implements State{
 
   private String name, parent;
   private DriveSubsystem driveSub;

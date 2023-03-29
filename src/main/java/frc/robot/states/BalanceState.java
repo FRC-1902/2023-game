@@ -6,14 +6,14 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import frc.robot.Constants;
-import frc.robot.Controllers.Action;
-import frc.robot.Controllers.Button;
-import frc.robot.Controllers.ControllerName;
 import frc.robot.sensors.IMU;
-import frc.robot.Event;
+import frc.robot.statemachine.RobotStateManager;
+import frc.robot.statemachine.Controllers.Action;
+import frc.robot.statemachine.Controllers.Button;
+import frc.robot.statemachine.Controllers.ControllerName;
+import frc.robot.statemachine.Event;
 import frc.robot.PID;
-import frc.robot.RobotStateManager;
-import frc.robot.State;
+import frc.robot.statemachine.State;
 import frc.robot.subsystems.DriveSubsystem;
 
 public class BalanceState implements State {

@@ -1,8 +1,11 @@
-package frc.robot;
+package frc.robot.statemachine;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import frc.robot.statemachine.Event;
+import frc.robot.statemachine.State;
 
 public class RobotStateManager{
     private State currentState;

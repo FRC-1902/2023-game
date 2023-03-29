@@ -1,9 +1,9 @@
 package frc.robot.states.auto;
 
 import frc.robot.Robot;
-import frc.robot.RobotStateManager;
-import frc.robot.State;
+import frc.robot.statemachine.State;
 import frc.robot.path.Paths;
+import frc.robot.statemachine.RobotStateManager;
 import frc.robot.subsystems.DriveSubsystem;
 
 import org.json.simple.JSONObject;

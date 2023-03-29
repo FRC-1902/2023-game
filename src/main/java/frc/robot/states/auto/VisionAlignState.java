@@ -1,7 +1,7 @@
 package frc.robot.states.auto;
 
-import frc.robot.RobotStateManager;
-import frc.robot.State;
+import frc.robot.statemachine.State;
+import frc.robot.statemachine.RobotStateManager;
 
 public class VisionAlignState implements State{
     private String name, parent;

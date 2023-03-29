@@ -1,16 +1,15 @@
 package frc.robot.states;
 
-import frc.robot.Controllers;
-import frc.robot.Event;
+import frc.robot.statemachine.Event;
 import edu.wpi.first.wpilibj.RobotState;
-import frc.robot.RobotStateManager;
-import frc.robot.State;
+import frc.robot.statemachine.State;
 import frc.robot.subsystems.DriveSubsystem;
 // import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.TurretvatorSubsystem;
-// import frc.robot.subsystems.IntakeSubsystem.DeployStage;
-import frc.robot.Controllers.*;
 import frc.robot.sensors.IMU;
+import frc.robot.statemachine.Controllers;
+import frc.robot.statemachine.RobotStateManager;
+import frc.robot.statemachine.Controllers.*;
 
 public class TestState implements State{
     private String name, parent;

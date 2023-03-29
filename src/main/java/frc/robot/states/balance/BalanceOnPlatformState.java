@@ -7,9 +7,9 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import frc.robot.Constants;
 import frc.robot.PID;
-import frc.robot.RobotStateManager;
-import frc.robot.State;
+import frc.robot.statemachine.State;
 import frc.robot.sensors.IMU;
+import frc.robot.statemachine.RobotStateManager;
 import frc.robot.states.BalanceState;
 
 public class BalanceOnPlatformState implements State {

@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.statemachine;
 
 import java.util.HashMap;
 import java.util.Map;

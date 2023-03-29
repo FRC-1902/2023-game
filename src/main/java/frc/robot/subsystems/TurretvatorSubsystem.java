@@ -22,10 +22,9 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-public class TurretvatorSubsystem extends SubsystemBase {
+public class TurretvatorSubsystem{
   private static TurretvatorSubsystem instance;
 
   private static final double THROUGHBORE_CPR = 1;
@@ -347,7 +346,6 @@ public class TurretvatorSubsystem extends SubsystemBase {
   }
 
   // Called from Robot
-  @Override
   public void periodic() {
     if(!isPIDEnabled){
       enablePID(true);

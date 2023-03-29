@@ -1,7 +1,7 @@
 package frc.robot.states;
 
-import frc.robot.RobotStateManager;
-import frc.robot.State;
+import frc.robot.statemachine.State;
+import frc.robot.statemachine.RobotStateManager;
 import frc.robot.subsystems.DriveSubsystem;
 
 public class DisabledState implements State{
