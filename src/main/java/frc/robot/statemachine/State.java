@@ -1,16 +1,14 @@
 package frc.robot.statemachine;
 
-import frc.robot.statemachine.RobotStateManager;
-
 public interface State {
     String getName();
     String getParent();
-    void Enter();
-    void Leave();
-    void Periodic(RobotStateManager rs);
+    void enter();
+    void leave();
+    void periodic(RobotStateManager rs);
 
-    default void Enter(State enteredFrom) {
-        Enter();
+    default void enter(State enteredFrom) {
+        enter();
     }
 
     default boolean handleEvent(Event event, RobotStateManager rs){

@@ -5,7 +5,8 @@ import frc.robot.statemachine.RobotStateManager;
 import frc.robot.subsystems.DriveSubsystem;
 
 public class AutoState implements State{
-    private String name, parent;
+    private String name;
+    private String parent;
     private DriveSubsystem driveSubsystem;
     
     public AutoState(String name, String parent){
@@ -25,18 +26,18 @@ public class AutoState implements State{
     }
 
     @Override
-    public void Enter() {
+    public void enter() {
         System.out.println("entered " + name);
         driveSubsystem.shift(false);
     }
 
     @Override
-    public void Leave() {
+    public void leave() {
         System.out.println("left " + name);
     }
 
     @Override
-    public void Periodic(RobotStateManager rs) {
+    public void periodic(RobotStateManager rs) {
     }
 
 }

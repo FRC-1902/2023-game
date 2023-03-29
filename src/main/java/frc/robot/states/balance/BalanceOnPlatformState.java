@@ -58,19 +58,19 @@ public class BalanceOnPlatformState implements State {
   }
 
   @Override
-  public void Enter() {
+  public void enter() {
     System.out.println("entered" + name);
     pitchPID.startThread();
   }
 
   @Override
-  public void Leave() {
+  public void leave() {
     pitchPID.stopThread();
     System.out.println("left " + name);
   }
 
   @Override
-  public void Periodic(RobotStateManager rs) {
+  public void periodic(RobotStateManager rs) {
     // NOTE: These are all divided by 10 from the values displayed in shuffleboard. This is just in order to get more precision.
     pitchPID.setP(pidPWidget.getDouble(0)/10);
     pitchPID.setI(pidIWidget.getDouble(0)/10);

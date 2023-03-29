@@ -37,14 +37,11 @@ import frc.robot.statemachine.State;
  * project.
  */
 public class Robot extends TimedRobot {
-  // private Command m_autonomousCommand;
   //private RobotContainer m_robotContainer;
   private RobotStateManager rs;
-  private PowerDistribution pdh;
   private Controllers controllers;
-  private Compressor compressor;
   private TurretvatorSubsystem turretvatorSubsystem;
-  private SendableChooser auto;
+  private SendableChooser<Autos> auto;
   
   public static enum Autos {
     BALANCE,
@@ -55,6 +52,7 @@ public class Robot extends TimedRobot {
   public static Autos chosenAuto = Autos.NOTHING;
 
   public void initializeShuffleBoardWidgets() {
+    PowerDistribution pdh;
     ShuffleboardTab dashboardTab = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB);
 
     ShuffleboardLayout pdhLayout = 
@@ -65,9 +63,7 @@ public class Robot extends TimedRobot {
     ShuffleboardLayout autoLayout = dashboardTab.getLayout("Auto", BuiltInLayouts.kList);
 
     if (RobotBase.isReal()) {
-      // This for some reason doesn't work when the CAN id is above like 20 for some reason ;-;
-      // Just please don't touch the CAN id of the pdh, it seems to be an issue with WPILib itself
-      pdh = new PowerDistribution(15, ModuleType.kRev);
+      pdh = new PowerDistribution(Constants.PDH_ID, ModuleType.kRev);
       
       pdhLayout.addDouble("Battery Voltage", pdh::getVoltage)
         .withWidget(BuiltInWidgets.kGraph)
@@ -102,10 +98,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
-    compressor = new Compressor(1, PneumaticsModuleType.CTREPCM);
-    compressor.enableDigital();
     controllers = Controllers.getInstance();
 
     rs = RobotStateManager.getInstance();

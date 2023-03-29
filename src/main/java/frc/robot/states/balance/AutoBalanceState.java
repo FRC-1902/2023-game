@@ -10,7 +10,8 @@ import frc.robot.sensors.IMU;
 import frc.robot.statemachine.RobotStateManager;
 
 public class AutoBalanceState implements State {
-  private String name, parent;
+  private String name;
+  private String parent;
 
   private DriveSubsystem driveSubsystem;
   private TurretvatorSubsystem tvSubsystem;
@@ -38,10 +39,10 @@ public class AutoBalanceState implements State {
 
   // Dont ask
   @Override
-  public void Enter() {}
+  public void enter() {}
 
   @Override
-  public void Enter(State enteredFrom) {
+  public void enter(State enteredFrom) {
     System.out.println("entered" + name);
     tvSubsystem.elevatorSet(ElevatorStage.DOWN);
 
@@ -49,13 +50,13 @@ public class AutoBalanceState implements State {
  }
 
   @Override
-  public void Leave() {
+  public void leave() {
     driveSubsystem.arcadeDrive(0.0, 0.0);
     System.out.println("left " + name);
   }
 
   @Override
-  public void Periodic(RobotStateManager rs) {
+  public void periodic(RobotStateManager rs) {
     double output = 0.0;
     if(imu.getPitch() > Constants.PLATFORM_BALANCE_PITCH_THRESHOLD_DEG && imu.getPitch() > 0){
       output =  -.06;
@@ -71,6 +72,7 @@ public class AutoBalanceState implements State {
   }
 
 
+  @Override
   public boolean handleEvent(Event event, RobotStateManager rs) {
     return false;
   }

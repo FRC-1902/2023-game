@@ -12,11 +12,13 @@ import edu.wpi.first.wpilibj.Timer;
 
 
 public class PathState implements State{
-    private String name, parent;
+    private String name;
+    private String parent;
 
     DriveSubsystem driveSubsystem;
 
-    double beganAvgDist, beganLeftDist;
+    double beganAvgDist;
+    double beganLeftDist;
     int currentFrame;
     Timer timer = new Timer();
 
@@ -41,7 +43,7 @@ public class PathState implements State{
     }
 
     @Override
-    public void Enter() {
+    public void enter() {
         System.out.println("entered " + name);
 
         driveSubsystem = DriveSubsystem.getInstance();
@@ -57,7 +59,7 @@ public class PathState implements State{
     }
 
     @Override
-    public void Leave() {
+    public void leave() {
         System.out.println("left " + name);
         driveSubsystem.setPIDEnable(false);
         DriveSubsystem.getInstance().velocityPID(0, 0);
@@ -73,7 +75,7 @@ public class PathState implements State{
         }
     }
     @Override
-    public void Periodic(RobotStateManager rs) {
+    public void periodic(RobotStateManager rs) {
 
         if(firstLoop){
             timer.reset();
@@ -120,39 +122,11 @@ public class PathState implements State{
                 break;
             }
         }
-        
-
-        //find difference from current encoder tics to target encoder tics
-
-
-        //run pid on difference to find fix velocity
-
-
-        //add velocity to right and left motors
 
         driveSubsystem.velocityPID(velocity, angularVelocity);
 
-
         System.out.format("Velocity: %.3f | Angular: %.3f | Left Encoder Rate: %.3f\n", velocity, angularVelocity, driveSubsystem.leftEncoder.getRate());
-
     }
-
-    
-
-    // private double getCorrectingPointAdd(Vector2D target, Vector2D current, Vector2D currentVelocity, double proportional){
-    //     //TODO: test
-    //     //TODO: fix zero velocity state
-    //     Vector2D fromRobotToPointOnPath = target.getSubtracted(current).clone();
-    //     double scalarProjection = fromRobotToPointOnPath.dot(currentVelocity)/currentVelocity.getLengthSq();
-    //     return currentVelocity.getMultiplied(proportional*scalarProjection).getLength();
-    // }
-
-    // private double getCorrectingAngleAdd(Vector2D target, Vector2D current, double proportional){
-    //     //distance to current point effects heading
-    //     //distance from current angle to target angle
-    //     return 0.0;
-    // }
-
 
     //linear interpolation
     private double lerp(double initialValue, double finalValue, double t){

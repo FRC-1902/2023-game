@@ -15,6 +15,7 @@ public class Paths {
   private JSONArray pathArray = null;
 
   private static Paths paths = null;
+  private static final String JSONFILEPATH = "/home/lvuser/deploy/pathplanner/generatedJSON/";
 
   public static Paths getInstance(){
     if(paths == null){
@@ -28,43 +29,10 @@ public class Paths {
   }
 
   public Paths readPathArray(pathName pName){
-    switch(pName){
-      case TEST:
-        try {
-          //Object obj = new JSONParser().parse(new FileReader("/home/lvuser/deploy/test.json"));
-          Object obj = new JSONParser().parse(new FileReader(new File("/home/lvuser/deploy/pathplanner/generatedJSON/straight1m.parsed.json")));
-          pathArray = (JSONArray) obj;
-        } catch (IOException | ParseException e) {
-          e.printStackTrace();
-        }
-        break;
-      case STRAIGHT:
-        try {
-          Object obj = new JSONParser().parse(new FileReader(new File("/home/lvuser/deploy/pathplanner/generatedJSON/slow_straight.wpilib.json")));
-          pathArray = (JSONArray) obj;
-        } catch (IOException | ParseException e) {
-          e.printStackTrace();
-        }
-        break;      
+    switch(pName){ 
       case REVERSE:
         try {
-          Object obj = new JSONParser().parse(new FileReader(new File("/home/lvuser/deploy/pathplanner/generatedJSON/reverse.wpilib.json")));
-          pathArray = (JSONArray) obj;
-        } catch (IOException | ParseException e) {
-          e.printStackTrace();
-        }
-        break;
-      case SQUARE:
-        try {
-          Object obj = new JSONParser().parse(new FileReader(new File("/home/lvuser/deploy/pathplanner/generatedJSON/square2m.parsed.json")));
-          pathArray = (JSONArray) obj;
-        } catch (IOException | ParseException e) {
-          e.printStackTrace();
-        }
-        break;
-      case CIRCLE:
-        try {
-          Object obj = new JSONParser().parse(new FileReader(new File("/home/lvuser/deploy/circle.json")));
+          Object obj = new JSONParser().parse(new FileReader(new File(JSONFILEPATH + "reverse.wpilib.json")));
           pathArray = (JSONArray) obj;
         } catch (IOException | ParseException e) {
           e.printStackTrace();
@@ -72,24 +40,20 @@ public class Paths {
         break;
       case BALANCE:
         try {
-          Object obj = new JSONParser().parse(new FileReader(new File("/home/lvuser/deploy/pathplanner/generatedJSON/balance.wpilib.json")));
+          Object obj = new JSONParser().parse(new FileReader(new File(JSONFILEPATH + "balance.wpilib.json")));
           pathArray = (JSONArray) obj;
         } catch (IOException | ParseException e) {
           e.printStackTrace();
         }
         break;
-
     }
     return this;
   }
 
   public Object[] getPathArray(){
     if(pathArray == null){
-      // System.out.println("path array is null");
       return new JSONArray().toArray();
-
     }
-    // System.out.println("path array is not null");
 
     return pathArray.toArray();
   }
@@ -104,12 +68,7 @@ public class Paths {
   }
 
   public static enum pathName{
-    BLUE,
-    STRAIGHT,
     REVERSE,
-    CIRCLE,
-    TEST,
-    SQUARE,
     BALANCE
   }
 

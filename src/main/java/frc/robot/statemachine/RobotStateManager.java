@@ -4,13 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import frc.robot.statemachine.Event;
-import frc.robot.statemachine.State;
-
 public class RobotStateManager{
     private State currentState;
     private State targetState;
-    private Map<String, State> stateMap= new HashMap<String, State>();
+    private Map<String, State> stateMap= new HashMap<>();
     private static RobotStateManager instance = null;
   
     public RobotStateManager(){
@@ -70,7 +67,7 @@ public class RobotStateManager{
       updateState();
       State loopingState = currentState;
       while(loopingState!=null){
-        loopingState.Periodic(this);
+        loopingState.periodic(this);
         loopingState = stateMap.get(loopingState.getParent());
       }
     }
@@ -88,11 +85,11 @@ public class RobotStateManager{
       }
     }
     
-    private State findCommonAncestor(State A, State B){
-      State candidateA = A;
+    private State findCommonAncestor(State a, State b){
+      State candidateA = a;
       while(true){
         if(candidateA==null)break;
-        State candidateB = B;
+        State candidateB = b;
         while(true){
           if(candidateB==null)break;
           if(candidateA==candidateB)return candidateA;
@@ -110,21 +107,21 @@ public class RobotStateManager{
     private void leaveTo(State child, State ancestor){
       while(true){
         if(child == null || child == ancestor) break;
-        child.Leave();
-        if(stateMap.get(child.getParent())==ancestor)break;
+        child.leave();
+        if(stateMap.get(child.getParent())==ancestor) break;
         child = stateMap.get(child.getParent());
       }
     }
   
     private void enterTo(State ancestor, State child, State enteringFrom){
-      ArrayList<State> lineage = new ArrayList<State>();
+      ArrayList<State> lineage = new ArrayList<>();
       while(true){
         if(child == ancestor) break;
         lineage.add(0, child);
         child = stateMap.get(child.getParent());
       }
       for(State s:lineage){
-        s.Enter(enteringFrom);
+        s.enter(enteringFrom);
       }
     }
 

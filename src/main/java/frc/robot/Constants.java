@@ -13,6 +13,10 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+  private Constants(){
+    throw new IllegalStateException("Utility class");
+  }
+  
   //CAN IDs (leave 0 blank to avoid confliction with new devices)
   public static final int LEFT_DRIVE_ID_1 = 9;
   public static final int LEFT_DRIVE_ID_2 = 8;
@@ -21,9 +25,7 @@ public final class Constants {
   public static final int LEFT_ELEVATOR_ID = 4;
   public static final int RIGHT_ELEVATOR_ID = 5;
   public static final int TURRET_ID = 13;
-  // public static final int DEPLOY_INTAKE_ID = 6;
-  // public static final int LEVER_INTAKE_ID = 10;
-  // public static final int ROLLER_INTAKE_ID = 7;
+  public static final int PDH_ID = 15;
 
   //CTREPCM Solenoid Chanels
   public static final int LEFT_DRIVE_SOLENOID = 0;
@@ -39,8 +41,6 @@ public final class Constants {
   public static final int TURRET_ENCODER = 4;
   public static final int LEFT_ELEVATOR_ENCODER = 5;
   public static final int RIGHT_ELEVATOR_ENCODER = 6;
-  // public static final int DEPLOY_INTAKE_ENCODER = 7;
-  // public static final int LEVER_INTAKE_ENCODER = 8;
 
   // Shuffleboard
   public static final String MAIN_SHUFFLEBOARD_TAB = "Shuffleboard";

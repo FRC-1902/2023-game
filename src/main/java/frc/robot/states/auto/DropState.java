@@ -2,22 +2,20 @@ package frc.robot.states.auto;
 
 import frc.robot.statemachine.State;
 import frc.robot.statemachine.RobotStateManager;
-import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.TurretvatorSubsystem;
 
 public class DropState implements State{
-    private String name, parent;
+    private String name;
+    private String parent;
     private TurretvatorSubsystem tvSubsystem;
     private int stage;
     private long dropStartTime;
     private long loopStartTime;
-    private DriveSubsystem driveSubsystem;
 
     public DropState(String name, String parent){
         this.name = name;
         this.parent = parent;
         tvSubsystem = TurretvatorSubsystem.getInstance();
-        driveSubsystem = DriveSubsystem.getInstance();
     }
 
     @Override
@@ -31,7 +29,7 @@ public class DropState implements State{
     }
 
     @Override
-    public void Enter() {
+    public void enter() {
         stage = 0;
         tvSubsystem.setGripper(true);
         
@@ -40,12 +38,12 @@ public class DropState implements State{
     }
 
     @Override
-    public void Leave() {
+    public void leave() {
         System.out.println("left " + name);
     }
 
     @Override
-    public void Periodic(RobotStateManager rs) {
+    public void periodic(RobotStateManager rs) {
         switch(stage) {
             case 0:
                 if(System.currentTimeMillis() - loopStartTime > 500){

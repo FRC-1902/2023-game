@@ -17,15 +17,16 @@ import frc.robot.statemachine.State;
 import frc.robot.subsystems.DriveSubsystem;
 
 public class BalanceState implements State {
-  private String name, parent;
+  private String name;
+  private String parent;
 
   private DriveSubsystem driveSubsystem;
 
   private PID yawPID;
   private IMU imu;
   private State enteredFromState;
-
-  public double calculatedForwardSpeed, calculatedYawSpeed;
+  public double calculatedForwardSpeed;
+  
 
   private GenericEntry pidPWidget, pidIWidget, pidDWidget;
   
@@ -39,7 +40,7 @@ public class BalanceState implements State {
       .getLayout("Balance Yaw PID", BuiltInLayouts.kList)
       .withSize(2, 3);
     
-    //TODO: tune me once robot is built
+    //TODO: tune me
     pidPWidget = pidTuningTab
       .add("Balance Yaw PID - Proportional", 0.1)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
@@ -65,10 +66,10 @@ public class BalanceState implements State {
 
   // Dont ask
   @Override
-  public void Enter() {}
+  public void enter() {}
 
   @Override
-  public void Enter(State enteredFrom) {
+  public void enter(State enteredFrom) {
     System.out.println("entered" + name);
 
     driveSubsystem.shift(false);
@@ -79,14 +80,15 @@ public class BalanceState implements State {
   }
 
   @Override
-  public void Leave() {
+  public void leave() {
     yawPID.stopThread();
     driveSubsystem.arcadeDrive(0, 0);
     System.out.println("left " + name);
   }
 
   @Override
-  public void Periodic(RobotStateManager rs) {
+  public void periodic(RobotStateManager rs) {
+    double calculatedYawSpeed;
     double headingTarget;
     double currentYaw = imu.getHeading();
 
@@ -113,9 +115,9 @@ public class BalanceState implements State {
     driveSubsystem.arcadeDrive(calculatedForwardSpeed, calculatedYawSpeed);
     
     calculatedForwardSpeed = 0;
-    calculatedYawSpeed = 0;
   }
 
+  @Override
   public boolean handleEvent(Event event, RobotStateManager rs) {
     if (event.controllerName == ControllerName.DRIVE && event.button == Button.B && event.action == Action.RELEASED) {
       rs.setState(enteredFromState.getName());

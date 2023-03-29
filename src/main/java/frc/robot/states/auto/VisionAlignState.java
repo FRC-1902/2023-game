@@ -22,17 +22,17 @@ public class VisionAlignState implements State{
     }
 
     @Override
-    public void Enter() {
+    public void enter() {
         System.out.println("entered" + name);
     }
 
     @Override
-    public void Leave() {
+    public void leave() {
         System.out.println("left " + name);
     }
 
     @Override
-    public void Periodic(RobotStateManager rs) {
+    public void periodic(RobotStateManager rs) {
       /**
        * interpret data from vision to adjust turret and elevator for placement
        */

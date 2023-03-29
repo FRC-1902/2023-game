@@ -15,7 +15,6 @@ public class TestState implements State{
     private TurretvatorSubsystem tvSubsystem;
     private DriveSubsystem driveSubsystem;
     private IMU imu;
-    private int stage;
     private Controllers controllers;
     
     public TestState(String name, String parent){
@@ -38,19 +37,19 @@ public class TestState implements State{
     }
 
     @Override
-    public void Enter() {
+    public void enter() {
         System.out.println("entered " + name);
         // driveSubsystem.setPIDEnable(true);
     }
 
     @Override
-    public void Leave() {
+    public void leave() {
         // driveSubsystem.setPIDEnable(false);
         System.out.println("left " + name);
     }
 
     @Override
-    public void Periodic(RobotStateManager rs) {
+    public void periodic(RobotStateManager rs) {
         // driveSubsystem.velocityPID(-controllers.get(ControllerName.DRIVE, Axis.LY)/ 4.0, controllers.get(ControllerName.DRIVE, Axis.RX));
         // tvSubsystem.setTurret(controllers.get(ControllerName.MANIP, Axis.RX) *  -90);
     }

@@ -10,12 +10,12 @@ import frc.robot.subsystems.TurretvatorSubsystem.ElevatorStage;
 
 public class TeleOpState implements State{
 
-  private String name, parent;
+  private String name;
+  private String parent;
   private DriveSubsystem driveSubsystem;
   private TurretvatorSubsystem tvSubsystem;
   private Controllers controllers;
   private double turretOffset;
-  private boolean isDpadHeld;
   private boolean wasDpadHeld;
   
   public TeleOpState(String name, String parent){
@@ -38,26 +38,27 @@ public class TeleOpState implements State{
   }
 
   @Override
-  public void Enter() {
+  public void enter() {
     System.out.println("entered " + name);
     turretOffset = 0;
     driveSubsystem.setBrake(false);
   }
 
   @Override
-  public void Leave() {
+  public void leave() {
     System.out.println("left " + name);
   }
 
 /**DPAD 90 degree offset code*/
   private void handleTurretOffsets(){
+    boolean isDpadHeld;
     if(controllers.getDPAD(ControllerName.MANIP) == -1){
       isDpadHeld = false;
     }else{
       isDpadHeld = true;
     }
 
-    if(isDpadHeld != wasDpadHeld && isDpadHeld == true){
+    if(isDpadHeld != wasDpadHeld && isDpadHeld){
       switch(controllers.getDPAD(ControllerName.MANIP)){
         case 0:
           turretOffset = 0;
@@ -84,7 +85,7 @@ public class TeleOpState implements State{
   }
 
   @Override
-  public void Periodic(RobotStateManager rs) {
+  public void periodic(RobotStateManager rs) {
     //arcade drive code w/ slow controller
     double xSpeed = controllers.get(ControllerName.DRIVE, Axis.LY) * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/3.0);
     double zRotation = controllers.get(ControllerName.DRIVE, Axis.RX) / 2.0 * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/3.0);
@@ -108,7 +109,6 @@ public class TeleOpState implements State{
         switch(event.action){
         case PRESSED:
           driveSubsystem.shift(false);
-          // driveSub.setBrake(true);
           return true;
         default:
         }
@@ -118,20 +118,10 @@ public class TeleOpState implements State{
         switch(event.action){
         case PRESSED:
           driveSubsystem.shift(true);
-          // driveSub.setBrake(false);
           return true;
         default:
         }
         break;
-      //Goes to the balance state
-      // case B:
-      //   switch (event.action) {
-      //   case PRESSED:
-      //     rs.setState("balancePlatform");
-      //     return true;
-      //   default:
-      //   }
-      //   break;
       //break mode
       case B:
         switch (event.action){

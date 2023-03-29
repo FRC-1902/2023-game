@@ -22,17 +22,17 @@ public class PickupState implements State{
     }
 
     @Override
-    public void Enter() {
+    public void enter() {
         System.out.println("entered" + name);
     }
 
     @Override
-    public void Leave() {
+    public void leave() {
         System.out.println("left " + name);
     }
 
     @Override
-    public void Periodic(RobotStateManager rs) {
+    public void periodic(RobotStateManager rs) {
         /**
          * possible to implement auto driving to pick up here
          */
