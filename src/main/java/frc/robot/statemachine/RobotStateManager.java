@@ -63,6 +63,9 @@ public class RobotStateManager{
       enterTo(null, currentState, null);
     }
      
+    /**
+     * Call me periodically from Robot.java for the state machine to work
+     */
     public void periodic(){
       updateState();
       State loopingState = currentState;
@@ -72,6 +75,11 @@ public class RobotStateManager{
       }
     }
 
+    /**
+     * Call me to send controller events to the active state hiearchy
+     * <p>Will be handled by the state that returns true first in the hiearchy</p>
+     * @param event Event objects to send
+     */
     public void handleEvent(Event event){
       updateState();
       State loopingState = currentState;

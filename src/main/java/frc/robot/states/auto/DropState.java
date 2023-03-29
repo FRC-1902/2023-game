@@ -8,7 +8,7 @@ import frc.robot.subsystems.TurretvatorSubsystem;
 public class DropState implements State{
     private String name, parent;
     private TurretvatorSubsystem tvSub;
-    private int state;
+    private int stage;
     private long dropStartTime;
     private long loopStartTime;
     private DriveSubsystem driveSub;
@@ -32,7 +32,7 @@ public class DropState implements State{
 
     @Override
     public void Enter() {
-        state = 0;
+        stage = 0;
         tvSub.setGripper(true);
         
         loopStartTime = System.currentTimeMillis();
@@ -46,10 +46,10 @@ public class DropState implements State{
 
     @Override
     public void Periodic(RobotStateManager rs) {
-        switch(state) {
+        switch(stage) {
             case 0:
                 if(System.currentTimeMillis() - loopStartTime > 500){
-                    state++;
+                    stage++;
                     System.out.println("Entered HIGH elevator set");
                 }
                 break;
@@ -58,14 +58,14 @@ public class DropState implements State{
                 tvSub.elevatorSet(3.6); 
                 if(tvSub.isExtended()){
                     loopStartTime = System.currentTimeMillis();
-                    state++;
+                    stage++;
                     System.out.println("Entered wait");
                 }
                 break;
             case 2:
                 
                 if(System.currentTimeMillis() - loopStartTime > 1000) {
-                    state++;
+                    stage++;
                     dropStartTime = System.currentTimeMillis();
                     System.out.println("Entered gripper open");
                 }
@@ -73,23 +73,19 @@ public class DropState implements State{
             case 3:// drop game element
                 tvSub.setGripper(false);
                 if(System.currentTimeMillis() - dropStartTime > 500) {
-                    state++;
+                    stage++;
                     dropStartTime = System.currentTimeMillis();
                     System.out.println("Entered elevator half retraction");
                 }
                 break;
             case 4:// retract elevator
                 tvSub.elevatorSet(1.25); //leave out a bit for forward CG
-                if(System.currentTimeMillis() - dropStartTime > 500) state++;
+                if(System.currentTimeMillis() - dropStartTime > 500) stage++;
                 break;
             default:
                 rs.setState("path");
                 break;
             
         }
-        /**
-         * set outtake to open
-         * exit state when finished opening
-         */
     }
 }

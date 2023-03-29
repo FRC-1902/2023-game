@@ -14,13 +14,6 @@ public class Controllers {
 
     public static final int DRIVE_CONTROLLER_PORT = 0;
     public static final int MANIP_CONTROLLER_PORT = 1;
-    
-    public static Controllers getInstance(){
-        if(instance==null){
-            instance = new Controllers();
-        }
-        return instance;
-    }
 
     private Controllers(){
         rs = RobotStateManager.getInstance();
@@ -99,10 +92,15 @@ public class Controllers {
         case MANIP:
             return manipController.getRawAxis(axisMap.get(a));
         default:
-            return 0;
+            return 0.0;
         }
     }
 
+    /**Returns DPAD's POV degree value
+     * @param name Controller name DRIVE/MANIP
+     * @return integer of DPAD value
+     * If controller is specified incorrectly, returns 0
+     */
     public int getDPAD(ControllerName name) {
         switch(name) {
             case DRIVE:
@@ -130,5 +128,12 @@ public class Controllers {
               rs.handleEvent(new Event((Button) entry.getKey(), Action.RELEASED, ControllerName.MANIP));
             }
           }
+    }
+
+    public static Controllers getInstance(){
+        if(instance==null){
+            instance = new Controllers();
+        }
+        return instance;
     }
 }

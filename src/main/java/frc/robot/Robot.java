@@ -42,8 +42,7 @@ public class Robot extends TimedRobot {
   private RobotStateManager rs;
   private PowerDistribution pdh;
   private Controllers controllers;
-  private Compressor compressor;  
-  // private IntakeSubsystem intakeSubsystem;
+  private Compressor compressor;
   private TurretvatorSubsystem turretvatorSubsystem;
   private SendableChooser auto;
   
@@ -110,7 +109,6 @@ public class Robot extends TimedRobot {
     controllers = Controllers.getInstance();
 
     rs = RobotStateManager.getInstance();
-    // intakeSubsystem = IntakeSubsystem.getInstance();
     rs.addStates(
       new DisabledState("disabled", null),
       new TeleOpState("teleOp", null),
@@ -161,7 +159,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    // intakeSubsystem.disabledPeriodic();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
@@ -192,7 +189,6 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     turretvatorSubsystem.periodic();
-    // intakeSubsystem.enabledPeriodic();
   }
 
   @Override
@@ -208,7 +204,6 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     controllers.eventPeriodic();
     turretvatorSubsystem.periodic();
-    // intakeSubsystem.enabledPeriodic();
   }
 
   @Override
