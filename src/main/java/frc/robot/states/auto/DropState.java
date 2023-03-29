@@ -7,17 +7,17 @@ import frc.robot.subsystems.TurretvatorSubsystem;
 
 public class DropState implements State{
     private String name, parent;
-    private TurretvatorSubsystem tvSub;
+    private TurretvatorSubsystem tvSubsystem;
     private int stage;
     private long dropStartTime;
     private long loopStartTime;
-    private DriveSubsystem driveSub;
+    private DriveSubsystem driveSubsystem;
 
     public DropState(String name, String parent){
         this.name = name;
         this.parent = parent;
-        tvSub = TurretvatorSubsystem.getInstance();
-        driveSub = DriveSubsystem.getInstance();
+        tvSubsystem = TurretvatorSubsystem.getInstance();
+        driveSubsystem = DriveSubsystem.getInstance();
     }
 
     @Override
@@ -33,7 +33,7 @@ public class DropState implements State{
     @Override
     public void Enter() {
         stage = 0;
-        tvSub.setGripper(true);
+        tvSubsystem.setGripper(true);
         
         loopStartTime = System.currentTimeMillis();
         System.out.println("entered" + name);
@@ -55,8 +55,8 @@ public class DropState implements State{
                 break;
             case 1:// extend elavator
                 
-                tvSub.elevatorSet(3.6); 
-                if(tvSub.isExtended()){
+                tvSubsystem.elevatorSet(3.6); 
+                if(tvSubsystem.isExtended()){
                     loopStartTime = System.currentTimeMillis();
                     stage++;
                     System.out.println("Entered wait");
@@ -71,7 +71,7 @@ public class DropState implements State{
                 }
                 break;
             case 3:// drop game element
-                tvSub.setGripper(false);
+                tvSubsystem.setGripper(false);
                 if(System.currentTimeMillis() - dropStartTime > 500) {
                     stage++;
                     dropStartTime = System.currentTimeMillis();
@@ -79,7 +79,7 @@ public class DropState implements State{
                 }
                 break;
             case 4:// retract elevator
-                tvSub.elevatorSet(1.25); //leave out a bit for forward CG
+                tvSubsystem.elevatorSet(1.25); //leave out a bit for forward CG
                 if(System.currentTimeMillis() - dropStartTime > 500) stage++;
                 break;
             default:

@@ -6,12 +6,12 @@ import frc.robot.subsystems.DriveSubsystem;
 
 public class DisabledState implements State{
     private String name, parent;
-    private DriveSubsystem driveSub;
+    private DriveSubsystem driveSubsystem;
     
     public DisabledState(String name, String parent){
         this.name = name;
         this.parent = parent;
-        driveSub = DriveSubsystem.getInstance();
+        driveSubsystem = DriveSubsystem.getInstance();
     }
 
     @Override
@@ -27,7 +27,7 @@ public class DisabledState implements State{
     @Override
     public void Enter() {
         System.out.println("entered " + name);
-        driveSub.tankDrive(0, 0);
+        driveSubsystem.tankDrive(0, 0);
     }
 
     @Override

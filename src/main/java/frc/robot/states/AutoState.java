@@ -6,12 +6,12 @@ import frc.robot.subsystems.DriveSubsystem;
 
 public class AutoState implements State{
     private String name, parent;
-    private DriveSubsystem ds;
+    private DriveSubsystem driveSubsystem;
     
     public AutoState(String name, String parent){
         this.name = name;
         this.parent = parent;
-        ds = DriveSubsystem.getInstance();
+        driveSubsystem = DriveSubsystem.getInstance();
     }
 
     @Override
@@ -27,7 +27,7 @@ public class AutoState implements State{
     @Override
     public void Enter() {
         System.out.println("entered " + name);
-        ds.shift(false);
+        driveSubsystem.shift(false);
     }
 
     @Override

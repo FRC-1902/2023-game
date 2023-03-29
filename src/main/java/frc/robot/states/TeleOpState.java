@@ -11,8 +11,8 @@ import frc.robot.subsystems.TurretvatorSubsystem.ElevatorStage;
 public class TeleOpState implements State{
 
   private String name, parent;
-  private DriveSubsystem driveSub;
-  private TurretvatorSubsystem tvSub;
+  private DriveSubsystem driveSubsystem;
+  private TurretvatorSubsystem tvSubsystem;
   private Controllers controllers;
   private double turretOffset;
   private boolean isDpadHeld;
@@ -21,8 +21,8 @@ public class TeleOpState implements State{
   public TeleOpState(String name, String parent){
     this.name = name;
     this.parent = parent;
-    driveSub = DriveSubsystem.getInstance();
-    tvSub = TurretvatorSubsystem.getInstance();
+    driveSubsystem = DriveSubsystem.getInstance();
+    tvSubsystem = TurretvatorSubsystem.getInstance();
     controllers = Controllers.getInstance();
     turretOffset = 0;
   }
@@ -41,7 +41,7 @@ public class TeleOpState implements State{
   public void Enter() {
     System.out.println("entered " + name);
     turretOffset = 0;
-    driveSub.setBrake(false);
+    driveSubsystem.setBrake(false);
   }
 
   @Override
@@ -88,13 +88,13 @@ public class TeleOpState implements State{
     //arcade drive code w/ slow controller
     double xSpeed = controllers.get(ControllerName.DRIVE, Axis.LY) * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/3.0);
     double zRotation = controllers.get(ControllerName.DRIVE, Axis.RX) / 2.0 * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/3.0);
-    driveSub.arcadeDrive(xSpeed,zRotation);
+    driveSubsystem.arcadeDrive(xSpeed,zRotation);
 
     //Manual elevator control
-    tvSub.addElevator(-controllers.get(ControllerName.MANIP, Axis.RY)/50.0);
+    tvSubsystem.addElevator(-controllers.get(ControllerName.MANIP, Axis.RY)/50.0);
 
     handleTurretOffsets();
-    tvSub.setTurret(controllers.get(ControllerName.MANIP, Axis.LX) *  -15.0 + turretOffset);
+    tvSubsystem.setTurret(controllers.get(ControllerName.MANIP, Axis.LX) *  -15.0 + turretOffset);
   }
 
   @Override
@@ -107,7 +107,7 @@ public class TeleOpState implements State{
       case RB:
         switch(event.action){
         case PRESSED:
-          driveSub.shift(false);
+          driveSubsystem.shift(false);
           // driveSub.setBrake(true);
           return true;
         default:
@@ -117,7 +117,7 @@ public class TeleOpState implements State{
       case LB:
         switch(event.action){
         case PRESSED:
-          driveSub.shift(true);
+          driveSubsystem.shift(true);
           // driveSub.setBrake(false);
           return true;
         default:
@@ -136,7 +136,7 @@ public class TeleOpState implements State{
       case B:
         switch (event.action){
           case PRESSED:
-            driveSub.setBrake(true);
+            driveSubsystem.setBrake(true);
             return true;
           default:
         }
@@ -145,7 +145,7 @@ public class TeleOpState implements State{
       case A:
         switch (event.action){
           case PRESSED:
-            driveSub.setBrake(false);
+            driveSubsystem.setBrake(false);
             return true;
           default:
         }
@@ -159,7 +159,7 @@ public class TeleOpState implements State{
         //Gripper open
         case B:
           if(event.action == Action.PRESSED){
-            tvSub.setGripper(false);
+            tvSubsystem.setGripper(false);
             System.out.println("Gripper OPEN");
             return true;
           }
@@ -167,7 +167,7 @@ public class TeleOpState implements State{
         //Gripper close
         case X:
           if(event.action == Action.PRESSED){
-            tvSub.setGripper(true);
+            tvSubsystem.setGripper(true);
             System.out.println("Gripper CLOSE");
             return true;
           }
@@ -175,28 +175,28 @@ public class TeleOpState implements State{
         //Elevator Down
         case A:
           if(event.action == Action.PRESSED){
-            tvSub.elevatorSet(ElevatorStage.DOWN);
+            tvSubsystem.elevatorSet(ElevatorStage.DOWN);
             return true;
           }
           break;
         //Elevator Middle
         case Y:
           if(event.action == Action.PRESSED){
-            tvSub.elevatorSet(ElevatorStage.MIDDLE);
+            tvSubsystem.elevatorSet(ElevatorStage.MIDDLE);
             return true;
           }
           break;
         //Elevator High
         case RB:
           if(event.action == Action.PRESSED){
-            tvSub.elevatorSet(ElevatorStage.HIGH);
+            tvSubsystem.elevatorSet(ElevatorStage.HIGH);
             return true;
           }
           break;
         //Elevator Load (human player station)
         case LB:
           if(event.action == Action.PRESSED){
-            tvSub.elevatorSet(ElevatorStage.LOAD);
+            tvSubsystem.elevatorSet(ElevatorStage.LOAD);
             return true;
           }
             break; 

@@ -12,8 +12,8 @@ import frc.robot.statemachine.RobotStateManager;
 public class AutoBalanceState implements State {
   private String name, parent;
 
-  private DriveSubsystem driveSub;
-  private TurretvatorSubsystem tvSub;
+  private DriveSubsystem driveSubsystem;
+  private TurretvatorSubsystem tvSubsystem;
 
   private IMU imu;
   private State enteredFromState;
@@ -22,8 +22,8 @@ public class AutoBalanceState implements State {
     this.name = name;
     this.parent = parent;
     imu = IMU.getInstance();
-    driveSub = DriveSubsystem.getInstance();
-    tvSub = TurretvatorSubsystem.getInstance();
+    driveSubsystem = DriveSubsystem.getInstance();
+    tvSubsystem = TurretvatorSubsystem.getInstance();
   }
 
   @Override
@@ -43,14 +43,14 @@ public class AutoBalanceState implements State {
   @Override
   public void Enter(State enteredFrom) {
     System.out.println("entered" + name);
-    tvSub.elevatorSet(ElevatorStage.DOWN);
+    tvSubsystem.elevatorSet(ElevatorStage.DOWN);
 
-    driveSub.shift(false);
+    driveSubsystem.shift(false);
  }
 
   @Override
   public void Leave() {
-    driveSub.arcadeDrive(0.0, 0.0);
+    driveSubsystem.arcadeDrive(0.0, 0.0);
     System.out.println("left " + name);
   }
 
@@ -67,7 +67,7 @@ public class AutoBalanceState implements State {
       System.out.format("Angle: %.3f | Output: %.3f\n", imu.getPitch(), output);
     }
     
-    driveSub.arcadeDrive(output, 0.0);
+    driveSubsystem.arcadeDrive(output, 0.0);
   }
 
 

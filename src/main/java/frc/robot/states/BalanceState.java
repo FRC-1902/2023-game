@@ -19,7 +19,7 @@ import frc.robot.subsystems.DriveSubsystem;
 public class BalanceState implements State {
   private String name, parent;
 
-  private DriveSubsystem drive;
+  private DriveSubsystem driveSubsystem;
 
   private PID yawPID;
   private IMU imu;
@@ -33,7 +33,7 @@ public class BalanceState implements State {
     this.name = name;
     this.parent = parent;
     imu = IMU.getInstance();
-    drive = DriveSubsystem.getInstance();
+    driveSubsystem = DriveSubsystem.getInstance();
 
     ShuffleboardLayout pidTuningTab = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)
       .getLayout("Balance Yaw PID", BuiltInLayouts.kList)
@@ -71,7 +71,7 @@ public class BalanceState implements State {
   public void Enter(State enteredFrom) {
     System.out.println("entered" + name);
 
-    drive.shift(false);
+    driveSubsystem.shift(false);
 
     yawPID.startThread();
 
@@ -81,7 +81,7 @@ public class BalanceState implements State {
   @Override
   public void Leave() {
     yawPID.stopThread();
-    drive.arcadeDrive(0, 0);
+    driveSubsystem.arcadeDrive(0, 0);
     System.out.println("left " + name);
   }
 
@@ -110,7 +110,7 @@ public class BalanceState implements State {
 
     // System.out.format("(BalanceState) Yaw: %3.1f, YawSpeed: %3.1f, Setpoint: %3.1f\n", currentYaw, calculatedYawSpeed, yawPID.getSetpoint());
 
-    drive.arcadeDrive(calculatedForwardSpeed, calculatedYawSpeed);
+    driveSubsystem.arcadeDrive(calculatedForwardSpeed, calculatedYawSpeed);
     
     calculatedForwardSpeed = 0;
     calculatedYawSpeed = 0;
