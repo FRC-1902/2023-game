@@ -38,20 +38,14 @@ public class TestState implements State{
 
     @Override
     public void enter() {
-        System.out.println("entered " + name);
-        // driveSubsystem.setPIDEnable(true);
     }
 
     @Override
     public void leave() {
-        // driveSubsystem.setPIDEnable(false);
-        System.out.println("left " + name);
     }
 
     @Override
     public void periodic(RobotStateManager rs) {
-        // driveSubsystem.velocityPID(-controllers.get(ControllerName.DRIVE, Axis.LY)/ 4.0, controllers.get(ControllerName.DRIVE, Axis.RX));
-        // tvSubsystem.setTurret(controllers.get(ControllerName.MANIP, Axis.RX) *  -90);
     }
 
     @Override

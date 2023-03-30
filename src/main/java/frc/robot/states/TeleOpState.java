@@ -39,14 +39,12 @@ public class TeleOpState implements State{
 
   @Override
   public void enter() {
-    System.out.println("entered " + name);
     turretOffset = 0;
     driveSubsystem.setBrake(false);
   }
 
   @Override
   public void leave() {
-    System.out.println("left " + name);
   }
 
 /**DPAD 90 degree offset code*/
@@ -106,38 +104,30 @@ public class TeleOpState implements State{
       switch(event.button){
       //Shift low
       case RB:
-        switch(event.action){
-        case PRESSED:
+        if(event.action == Action.PRESSED){
           driveSubsystem.shift(false);
           return true;
-        default:
         }
         break;
       //Shift high
       case LB:
-        switch(event.action){
-        case PRESSED:
+        if(event.action == Action.PRESSED){
           driveSubsystem.shift(true);
           return true;
-        default:
         }
         break;
       //break mode
       case B:
-        switch (event.action){
-          case PRESSED:
-            driveSubsystem.setBrake(true);
-            return true;
-          default:
+        if(event.action == Action.PRESSED){
+          driveSubsystem.setBrake(true);
+          return true;
         }
         break;
       //coast mode
       case A:
-        switch (event.action){
-          case PRESSED:
-            driveSubsystem.setBrake(false);
-            return true;
-          default:
+        if(event.action == Action.PRESSED){
+          driveSubsystem.setBrake(false);
+          return true;
         }
         break;
       default: break;

@@ -70,8 +70,6 @@ public class BalanceState implements State {
 
   @Override
   public void enter(State enteredFrom) {
-    System.out.println("entered" + name);
-
     driveSubsystem.shift(false);
 
     yawPID.startThread();
@@ -83,7 +81,6 @@ public class BalanceState implements State {
   public void leave() {
     yawPID.stopThread();
     driveSubsystem.arcadeDrive(0, 0);
-    System.out.println("left " + name);
   }
 
   @Override

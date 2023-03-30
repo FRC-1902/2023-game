@@ -38,7 +38,7 @@ public class RobotStateManager{
      * updates state on the next call of periodic   
      */
     public void setState (String targetName){
-      targetState = stateMap.get(targetName);
+      targetState = findState(targetName);
     }
   
     /**
@@ -57,7 +57,7 @@ public class RobotStateManager{
      * String name of state that the robot starts at
      */
     public void startRobot(String startState){
-      currentState = stateMap.get(startState);
+      currentState = findState(startState);
       enterTo(null, currentState, null);
     }
      
@@ -69,7 +69,7 @@ public class RobotStateManager{
       State loopingState = currentState;
       while(loopingState!=null){
         loopingState.periodic(this);
-        loopingState = stateMap.get(loopingState.getParent());
+        loopingState = findState(loopingState.getParent());
       }
     }
 
@@ -82,7 +82,7 @@ public class RobotStateManager{
       updateState();
       State loopingState = currentState;
       while(loopingState != null && !loopingState.handleEvent(event, this)){
-        loopingState = stateMap.get(loopingState.getParent());
+        loopingState = findState(loopingState.getParent());
       }
     }
     
@@ -94,9 +94,9 @@ public class RobotStateManager{
         while(true){
           if(candidateB==null)break;
           if(candidateA==candidateB)return candidateA;
-          candidateB = stateMap.get(candidateB.getParent());
+          candidateB = findState(candidateB.getParent());
         }
-        candidateA = stateMap.get(candidateA.getParent());
+        candidateA = findState(candidateA.getParent());
       }
       return null;
     }
@@ -108,8 +108,9 @@ public class RobotStateManager{
     private void leaveTo(State child, State ancestor){
       while(child != null && child != ancestor){
         child.leave();
-        if(stateMap.get(child.getParent())==ancestor) break;
-        child = stateMap.get(child.getParent());
+        System.out.format("Left: %s%n", child.getName());
+        if(findState(child.getParent())==ancestor) break;
+        child = findState(child.getParent());
       }
     }
   
@@ -118,10 +119,11 @@ public class RobotStateManager{
       while(true){
         if(child == ancestor) break;
         lineage.add(0, child);
-        child = stateMap.get(child.getParent());
+        child = findState(child.getParent());
       }
       for(State s:lineage){
         s.enter(enteringFrom);
+        System.out.format("Entered: %s%n", s.getName());
       }
     }
 

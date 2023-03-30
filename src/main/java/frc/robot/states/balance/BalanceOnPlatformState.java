@@ -23,7 +23,7 @@ public class BalanceOnPlatformState implements State {
 
   public BalanceOnPlatformState(String name, String parent){
     this.name = name;
-    this.parent = (BalanceState) RobotStateManager.getInstance().findState("balance");
+    this.parent = (BalanceState) RobotStateManager.getInstance().findState(parent);
 
     ShuffleboardLayout pidTuningTab = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)
       .getLayout("Balance On Platform PID", BuiltInLayouts.kList)
@@ -59,14 +59,12 @@ public class BalanceOnPlatformState implements State {
 
   @Override
   public void enter() {
-    System.out.println("entered" + name);
     pitchPID.startThread();
   }
 
   @Override
   public void leave() {
     pitchPID.stopThread();
-    System.out.println("left " + name);
   }
 
   @Override

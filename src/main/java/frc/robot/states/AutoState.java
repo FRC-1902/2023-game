@@ -27,13 +27,11 @@ public class AutoState implements State{
 
     @Override
     public void enter() {
-        System.out.println("entered " + name);
         driveSubsystem.shift(false);
     }
 
     @Override
     public void leave() {
-        System.out.println("left " + name);
     }
 
     @Override

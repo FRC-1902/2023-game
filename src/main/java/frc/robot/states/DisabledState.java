@@ -27,13 +27,11 @@ public class DisabledState implements State{
 
     @Override
     public void enter() {
-        System.out.println("entered " + name);
         driveSubsystem.tankDrive(0, 0);
     }
 
     @Override
     public void leave() {
-        System.out.println("left " + name);
     }
 
     @Override

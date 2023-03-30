@@ -203,11 +203,11 @@ public class DriveSubsystem {
     tankDrive(leftPower, rightPower);
   }
 
-  // Low gear *should* be false, and high gear *should* be true
-  public void shift(boolean state) {
-    System.out.format("Shifted %b%n", state);
-    leftSolenoid.set(state);
-    rightSolenoid.set(state);
+  // Low gear is false, and high gear is true
+  public void shift(boolean isHigh) {
+    System.out.format("Shifted %b%n", isHigh);
+    leftSolenoid.set(isHigh);
+    rightSolenoid.set(isHigh);
   }
 
   public boolean getLeftShiftState() {

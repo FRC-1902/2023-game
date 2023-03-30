@@ -17,7 +17,6 @@ public class AutoBalanceState implements State {
   private TurretvatorSubsystem tvSubsystem;
 
   private IMU imu;
-  private State enteredFromState;
   
   public AutoBalanceState(String name, String parent){
     this.name = name;
@@ -37,22 +36,16 @@ public class AutoBalanceState implements State {
     return parent;
   }
 
-  // Dont ask
   @Override
-  public void enter() {}
-
-  @Override
-  public void enter(State enteredFrom) {
-    System.out.println("entered" + name);
+  public void enter() {
     tvSubsystem.elevatorSet(ElevatorStage.DOWN);
 
     driveSubsystem.shift(false);
- }
+  }
 
   @Override
   public void leave() {
     driveSubsystem.arcadeDrive(0.0, 0.0);
-    System.out.println("left " + name);
   }
 
   @Override
