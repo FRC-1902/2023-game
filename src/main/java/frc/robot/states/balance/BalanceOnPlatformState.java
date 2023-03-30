@@ -79,6 +79,6 @@ public class BalanceOnPlatformState implements State {
       parent.calculatedForwardSpeed += pitchPID.getOutput();
     }
 
-    System.out.format("(BalanceOnPlatform) Current forward speed %f\n", parent.calculatedForwardSpeed);
+    System.out.format("(BalanceOnPlatform) Current forward speed %f%n", parent.calculatedForwardSpeed);
   }
 }

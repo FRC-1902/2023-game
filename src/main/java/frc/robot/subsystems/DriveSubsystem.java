@@ -135,7 +135,7 @@ public class DriveSubsystem {
   }
 
   public void setBrake(boolean isBrake){
-    System.out.format("Drive Breaking: %b\n", isBrake);
+    System.out.format("Drive Breaking: %b%n", isBrake);
     if(isBrake){
       leftMotor1.setIdleMode(IdleMode.kBrake);
       leftMotor2.setIdleMode(IdleMode.kBrake);
@@ -205,7 +205,7 @@ public class DriveSubsystem {
 
   // Low gear *should* be false, and high gear *should* be true
   public void shift(boolean state) {
-    System.out.format("Shifted %b\n", state);
+    System.out.format("Shifted %b%n", state);
     leftSolenoid.set(state);
     rightSolenoid.set(state);
   }

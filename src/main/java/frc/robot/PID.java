@@ -167,7 +167,7 @@ public class PID implements Runnable {
                     lastFrameTime = System.currentTimeMillis();
                   
                 }
-                //System.out.printf("P: %.02f | I: %.02f | D: %.02f | Out: %.02f \n", P, I, D, currentOutput);
+                //System.out.printf("P: %.02f | I: %.02f | D: %.02f | Out: %.02f %n", P, I, D, currentOutput);
                 Thread.sleep(20);
             } catch (InterruptedException e) {
                 e.printStackTrace();

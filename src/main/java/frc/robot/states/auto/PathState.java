@@ -125,7 +125,7 @@ public class PathState implements State{
 
         driveSubsystem.velocityPID(velocity, angularVelocity);
 
-        System.out.format("Velocity: %.3f | Angular: %.3f | Left Encoder Rate: %.3f\n", velocity, angularVelocity, driveSubsystem.leftEncoder.getRate());
+        System.out.format("Velocity: %.3f | Angular: %.3f | Left Encoder Rate: %.3f%n", velocity, angularVelocity, driveSubsystem.leftEncoder.getRate());
     }
 
     //linear interpolation

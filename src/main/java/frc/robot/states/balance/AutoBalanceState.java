@@ -65,7 +65,7 @@ public class AutoBalanceState implements State {
     }
 
     if((int)(System.currentTimeMillis() / 100) % 10 == 0){
-      System.out.format("Angle: %.3f | Output: %.3f\n", imu.getPitch(), output);
+      System.out.format("Angle: %.3f | Output: %.3f%n", imu.getPitch(), output);
     }
     
     driveSubsystem.arcadeDrive(output, 0.0);

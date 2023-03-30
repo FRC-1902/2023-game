@@ -268,7 +268,7 @@ public class TurretvatorSubsystem{
   }
 
   private void turretPeriodic() {
-    // System.out.format("Turret Position: %.3f, PID: %.3f\n", turretEncoder.getAbsolutePosition(), turretPID.getSensorInput());
+    // System.out.format("Turret Position: %.3f, PID: %.3f%n", turretEncoder.getAbsolutePosition(), turretPID.getSensorInput());
 
     double turretPow;
 
@@ -308,7 +308,7 @@ public class TurretvatorSubsystem{
     //detects negative encoder or too many kill switch hits (~200 ms worth of hits)
     if (elevatorWatchdogHits >= 10 || elevatorLeftEncoder.get() < -1.0) {
       System.out.println("==== ELEVATOR KILL SWITCH WATCHDOG ENGAGED ====");
-      System.out.format("Left Encoder: %.3f\n", elevatorLeftEncoder.get());
+      System.out.format("Left Encoder: %.3f%n", elevatorLeftEncoder.get());
       watchdogActivationTime = RobotController.getFPGATime();
       isElevatorWatchdogEnabled = true;
     }
@@ -328,7 +328,7 @@ public class TurretvatorSubsystem{
     //Detects wrap around to not catch that
     if (Math.abs(lastTurretEncoderValue - turretPID.getSensorInput()) > 0.35 && Math.abs(lastTurretEncoderValue - turretPID.getSensorInput()) < 0.65) {
       System.out.println("==== TURRET KILL SWITCH WATCHDOG ENGAGED ====");
-      System.out.format("Last: %.3f, Current: %.3f\n", lastTurretEncoderValue, turretPID.getSensorInput());
+      System.out.format("Last: %.3f, Current: %.3f%n", lastTurretEncoderValue, turretPID.getSensorInput());
       watchdogActivationTime = RobotController.getFPGATime();
       isTurretWatchdogEnabled = true;
     }
@@ -351,7 +351,7 @@ public class TurretvatorSubsystem{
       enablePID(true);
     }
 
-    // System.out.format("E Sens: %.3f | E Set: %.3f | T Sens: %.3f | T Set %.3f\n", elevatorPID.getSensorInput(), elevatorPID.getSetpoint(), turretPID.getSensorInput(), turretPID.getSetpoint());
+    // System.out.format("E Sens: %.3f | E Set: %.3f | T Sens: %.3f | T Set %.3f%n", elevatorPID.getSensorInput(), elevatorPID.getSetpoint(), turretPID.getSensorInput(), turretPID.getSetpoint());
     if (elevatorWatchdog()) {
       elevatorMotors.set(0);
     }
