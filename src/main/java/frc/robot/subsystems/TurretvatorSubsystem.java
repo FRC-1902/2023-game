@@ -284,9 +284,10 @@ public class TurretvatorSubsystem{
     if (turretPID.atSetpoint())
       turretRampTime = System.currentTimeMillis() + 2000;
     
+    //Investigate me vvvv
     if (turretRampTime - System.currentTimeMillis() >= 0 && !turretPID.atSetpoint())
-      turretPow *= 1/((turretRampTime - System.currentTimeMillis()) / 2000 + 1);
-
+      turretPow *= 1/((turretRampTime - System.currentTimeMillis()) / 2000 + 1); //TODO: integer division, may be an issue
+    
     turretMotor.set(turretPow);
   }
 
@@ -297,7 +298,7 @@ public class TurretvatorSubsystem{
   private boolean elevatorWatchdog(){
     
 
-    if(isElevatorWatchdogEnabled == true){return true;}
+    if(isElevatorWatchdogEnabled){return true;}
 
     if (Math.abs(lastElevatorEncoderValue - elevatorLeftEncoder.get()) < 0.005 && Math.abs(elevatorMotors.get()) > 0.4){
       elevatorWatchdogHits++;
@@ -323,7 +324,7 @@ public class TurretvatorSubsystem{
   private boolean turretWatchdog(){
     lastTurretEncoderValue = turretPID.getSensorInput();
 
-    if(isTurretWatchdogEnabled == true){return true;}
+    if(isTurretWatchdogEnabled){return true;}
 
     //Detects wrap around to not catch that
     if (Math.abs(lastTurretEncoderValue - turretPID.getSensorInput()) > 0.35 && Math.abs(lastTurretEncoderValue - turretPID.getSensorInput()) < 0.65) {

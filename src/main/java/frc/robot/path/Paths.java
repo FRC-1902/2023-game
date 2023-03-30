@@ -67,9 +67,8 @@ public class Paths {
     return jsonObjectArray;
   }
 
-  public static enum pathName{
+  public enum pathName{
     REVERSE,
     BALANCE
   }
-
 }

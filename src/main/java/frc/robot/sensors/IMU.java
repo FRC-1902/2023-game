@@ -20,15 +20,15 @@ public class IMU {
         .getLayout("BNO055 Telemetry", BuiltInLayouts.kList)
         .withSize(3, 3);
 
-    dashboardTab.addDouble("BNO055 Yaw", () -> getHeading())
+    dashboardTab.addDouble("BNO055 Yaw", this::getHeading)
         .withProperties(Map.of("Min", -180, "Max", 180))
         .withWidget(BuiltInWidgets.kNumberBar);
 
-    dashboardTab.addDouble("BNO055 Roll", () -> getRoll())
+    dashboardTab.addDouble("BNO055 Roll", this::getRoll)
         .withProperties(Map.of("Min", -90, "Max", 90))
         .withWidget(BuiltInWidgets.kNumberBar);
 
-    dashboardTab.addDouble("BNO055 Pitch", () -> getPitch())
+    dashboardTab.addDouble("BNO055 Pitch", this::getPitch)
         .withProperties(Map.of("Min", -180, "Max", 180))
         .withWidget(BuiltInWidgets.kNumberBar);
   }
