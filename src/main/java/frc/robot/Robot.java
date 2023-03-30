@@ -72,7 +72,7 @@ public class Robot extends TimedRobot {
         .withWidget(BuiltInWidgets.kGraph)
         .withProperties(Map.of("Unit", "deg C"));
     }
-    auto = new SendableChooser();
+    auto = new SendableChooser<Autos>();
     
     auto.addOption("Exit Community", Autos.COMMUNITY);
     auto.addOption("Balance", Autos.BALANCE);

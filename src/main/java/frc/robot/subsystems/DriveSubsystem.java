@@ -4,7 +4,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.networktables.GenericEntry;
+// import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -99,7 +99,7 @@ public class DriveSubsystem {
 
     initializeShuffleboardWidgets();
 
-    // TODO:tune me
+    // TODO: tune high velocity controller to PID in high gear
     highLeftVelocityController = new PID(leftEncoder::getRate, 0.0, 0.0, 0.0, 0.1);
     lowLeftVelocityController = new PID(leftEncoder::getRate, 0.01, 0.005, 0.01, 0.5);
     highRightVelocityController = new PID(rightEncoder::getRate, 0.0, 0.0, 0.0, 0.1);

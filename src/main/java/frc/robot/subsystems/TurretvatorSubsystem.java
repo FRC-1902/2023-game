@@ -15,7 +15,6 @@ import frc.robot.PID;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -57,8 +56,8 @@ public class TurretvatorSubsystem{
   private boolean isPIDEnabled = false;
 
   // 5 Second timeout
-  private long watchdogTimeout = 5000000;
-  private long watchdogActivationTime;
+  // private long watchdogTimeout = 5000000;
+  // private long watchdogActivationTime;
 
   public static enum ElevatorStage{
     HIGH, MIDDLE, LOAD, DOWN;
@@ -118,7 +117,7 @@ public class TurretvatorSubsystem{
     elevatorRightEncoder = new DutyCycleEncoder(Constants.RIGHT_ELEVATOR_ENCODER);
     
     elevatorPID = new PID(() -> elevatorLeftEncoder.get() - elevatorEncoderOffset, 0.22, 0.0, 0.0, 0.0);
-    elevatorPID.setTolerance(0.05); //TODO: set me
+    elevatorPID.setTolerance(0.05);
 
     elevatorMap = new HashMap<>();
 
@@ -286,7 +285,7 @@ public class TurretvatorSubsystem{
     
     //Investigate me vvvv
     if (turretRampTime - System.currentTimeMillis() >= 0 && !turretPID.atSetpoint())
-      turretPow *= 1/((turretRampTime - System.currentTimeMillis()) / 2000 + 1); //TODO: integer division, may be an issue
+      turretPow *= 1/((turretRampTime - System.currentTimeMillis()) / 2000 + 1); //XXX: integer division, may be an issue
     
     turretMotor.set(turretPow);
   }
@@ -310,7 +309,7 @@ public class TurretvatorSubsystem{
     if (elevatorWatchdogHits >= 10 || elevatorLeftEncoder.get() < -1.0) {
       System.out.println("==== ELEVATOR KILL SWITCH WATCHDOG ENGAGED ====");
       System.out.format("Left Encoder: %.3f%n", elevatorLeftEncoder.get());
-      watchdogActivationTime = RobotController.getFPGATime();
+      // watchdogActivationTime = RobotController.getFPGATime();
       isElevatorWatchdogEnabled = true;
     }
 
@@ -330,7 +329,7 @@ public class TurretvatorSubsystem{
     if (Math.abs(lastTurretEncoderValue - turretPID.getSensorInput()) > 0.35 && Math.abs(lastTurretEncoderValue - turretPID.getSensorInput()) < 0.65) {
       System.out.println("==== TURRET KILL SWITCH WATCHDOG ENGAGED ====");
       System.out.format("Last: %.3f, Current: %.3f%n", lastTurretEncoderValue, turretPID.getSensorInput());
-      watchdogActivationTime = RobotController.getFPGATime();
+      // watchdogActivationTime = RobotController.getFPGATime();
       isTurretWatchdogEnabled = true;
     }
     return isTurretWatchdogEnabled;
