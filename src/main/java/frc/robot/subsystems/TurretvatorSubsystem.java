@@ -116,7 +116,7 @@ public class TurretvatorSubsystem{
     elevatorLeftEncoder = new DutyCycleEncoder(Constants.LEFT_ELEVATOR_ENCODER);
     elevatorRightEncoder = new DutyCycleEncoder(Constants.RIGHT_ELEVATOR_ENCODER);
     
-    elevatorPID = new PID(() -> elevatorLeftEncoder.get() - elevatorEncoderOffset, 0.22, 0.0, 0.0, 0.0);
+    elevatorPID = new PID(() -> elevatorLeftEncoder.get() - elevatorEncoderOffset, 0.18, 0.0, 0.04, 0.0);
     elevatorPID.setTolerance(0.05);
 
     elevatorMap = new HashMap<>();
@@ -243,9 +243,9 @@ public class TurretvatorSubsystem{
 
     desiredElevatorRotations = Math.max(Math.min(desiredElevatorRotations, ELEVATOR_MAX_ROTATIONS), 0.0);
 
-    elevatorPID.setP(elevatorPWidget.getDouble(.18));
-    elevatorPID.setI(elevatorIWidget.getDouble(0));
-    elevatorPID.setD(elevatorDWidget.getDouble(0.04));
+    // elevatorPID.setP(elevatorPWidget.getDouble(.18));
+    // elevatorPID.setI(elevatorIWidget.getDouble(0));
+    // elevatorPID.setD(elevatorDWidget.getDouble(0.04));
     elevatorPID.setSetpoint(desiredElevatorRotations);
     //clamp elevator power to max
     elevatorPower = Math.max(
@@ -271,9 +271,9 @@ public class TurretvatorSubsystem{
 
     double turretPow;
 
-    turretPID.setP(turretPWidget.getDouble(0.9) * 10);
-    turretPID.setI(turretIWidget.getDouble(0) * 10);
-    turretPID.setD(turretDWidget.getDouble(0) * 10);
+    // turretPID.setP(turretPWidget.getDouble(0.9) * 10);
+    // turretPID.setI(turretIWidget.getDouble(0) * 10);
+    // turretPID.setD(turretDWidget.getDouble(0) * 10);
  
     //XXX: add wraparound protection, just setting to -120 and 120 for wraparound protecting atm
     
