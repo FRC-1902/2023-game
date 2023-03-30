@@ -60,6 +60,12 @@ public class TurretvatorSubsystem{
   private long watchdogTimeout = 5000000;
   private long watchdogActivationTime;
 
+  public static enum ElevatorStage{
+    HIGH, MIDDLE, LOAD, DOWN;
+  }
+
+  private Map<Enum<ElevatorStage>, Double> elevatorMap;
+
   public void initializeShuffleBoardWidgets() {
     ShuffleboardLayout turretLayout = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)
       .getLayout("Turret PID", BuiltInLayouts.kList)
@@ -111,31 +117,37 @@ public class TurretvatorSubsystem{
     elevatorLeftEncoder = new DutyCycleEncoder(Constants.LEFT_ELEVATOR_ENCODER);
     elevatorRightEncoder = new DutyCycleEncoder(Constants.RIGHT_ELEVATOR_ENCODER);
     
-    elevatorPID = new PID(() -> {
-      // System.out.format("Encoder %.03f | Offset %.03f \n", elevatorLeftEncoder.get(), elevatorEncoderOffset);
-      return elevatorLeftEncoder.get() - elevatorEncoderOffset; 
-    },0.22, 0.0, 0.0, 0.0);
+    elevatorPID = new PID(() -> elevatorLeftEncoder.get() - elevatorEncoderOffset, 0.22, 0.0, 0.0, 0.0);
     elevatorPID.setTolerance(0.05); //TODO: set me
 
+    elevatorMap = new HashMap<>();
+
+    elevatorMap.put(ElevatorStage.HIGH, 4.418);
+    elevatorMap.put(ElevatorStage.MIDDLE, 2.550);
+    elevatorMap.put(ElevatorStage.LOAD, 2.8);
+    elevatorMap.put(ElevatorStage.DOWN, 0.0);
+
+    //turret initialization
     turretMotor = new CANSparkMax(Constants.TURRET_ID, MotorType.kBrushless);
     turretMotor.setInverted(true);
     turretEncoder = new DutyCycleEncoder(Constants.TURRET_ENCODER);
     
-    //(turretEncoder.getAbsolutePosition() - 0.393 + 1) % 1
     turretPID = new PID(() -> ((turretEncoder.getAbsolutePosition() - Constants.TURRET_OFFSET + 1) % 1), 9, 0.0, 0.0, 0.0);
  
     turretPID.enableContinuousInput(0, THROUGHBORE_CPR);
-    turretPID.setTolerance(0.001);
+    turretPID.setTolerance(0.001); //0.36 of a degree
 
+    //gripper initialization
     gripperSolenoidA = new Solenoid(PneumaticsModuleType.CTREPCM, Constants.GRIPPER_SOLENOID_A);
     gripperSolenoidB = new Solenoid(PneumaticsModuleType.CTREPCM, Constants.GRIPPER_SOLENOID_B);
     
 
-    initializeShuffleBoardWidgets();
+    // initializeShuffleBoardWidgets();
 
     lastElevatorEncoderValue = elevatorLeftEncoder.get();
-    lastTurretEncoderValue = 0; //XXX: isn't setting right from sensor on first loop, check me
     //I think that it takes a short while to initialize the sensor properly
+    //Sets when periodic is called on first run
+    lastTurretEncoderValue = 0;
   }
 
   /**
@@ -174,18 +186,6 @@ public class TurretvatorSubsystem{
 
     turretPID.setSetpoint(degrees * THROUGHBORE_CPR / 360);
   }
-
-  public static enum ElevatorStage{
-    HIGH, MIDDLE, LOAD, DOWN;
-  }
-
-  public Map<Enum<ElevatorStage>, Double> elevatorMap = 
-    new HashMap<Enum<ElevatorStage>, Double>() {{
-      put(ElevatorStage.HIGH, 4.418);
-      put(ElevatorStage.MIDDLE, 2.550);
-      put(ElevatorStage.LOAD, 2.8);
-      put(ElevatorStage.DOWN, 0.0);
-    }};
   
   /**
    * Makes the elevator move and maintain a certain distance away from an imaginary 

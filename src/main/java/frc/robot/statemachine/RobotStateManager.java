@@ -7,11 +7,12 @@ import java.util.Map;
 public class RobotStateManager{
     private State currentState;
     private State targetState;
-    private Map<String, State> stateMap= new HashMap<>();
+    private Map<String, State> stateMap;
     private static RobotStateManager instance = null;
   
     public RobotStateManager(){
       currentState = null;
+      stateMap = new HashMap<>();
     }
     
     /**
@@ -105,8 +106,7 @@ public class RobotStateManager{
     }
   
     private void leaveTo(State child, State ancestor){
-      while(true){
-        if(child == null || child == ancestor) break;
+      while(child != null && child != ancestor){
         child.leave();
         if(stateMap.get(child.getParent())==ancestor) break;
         child = stateMap.get(child.getParent());

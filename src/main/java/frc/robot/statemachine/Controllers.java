@@ -4,22 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.Constants;
 
 public class Controllers {
-    public XboxController driveController;
-    public XboxController manipController;
-    public RobotStateManager rs;
+    private XboxController driveController;
+    private XboxController manipController;
+    private RobotStateManager rs;
 
     private static Controllers instance;
-
-    public static final int DRIVE_CONTROLLER_PORT = 0;
-    public static final int MANIP_CONTROLLER_PORT = 1;
-
-    private Controllers(){
-        rs = RobotStateManager.getInstance();
-        driveController = new XboxController(DRIVE_CONTROLLER_PORT);
-        manipController = new XboxController(MANIP_CONTROLLER_PORT);
-    }
 
     public enum Button{
         A, B, X, Y,
@@ -27,31 +19,13 @@ public class Controllers {
         //names of all buttons on controller
     }
 
-    public Map<Enum<Button>, Integer> buttonMap = 
-        new HashMap<Enum<Button>, Integer>() {{
-            put(Button.A, 1);
-            put(Button.B, 2);
-            put(Button.X, 3);
-            put(Button.Y, 4);
-            put(Button.LS, 9);
-            put(Button.RS, 10);
-            put(Button.LB, 5);
-            put(Button.RB, 6);
-        }};
+    private Map<Enum<Button>, Integer> buttonMap;
 
     public enum Axis{
         LX, LY, RX, RY, LT, RT
     }
 
-    public Map<Enum<Axis>, Integer> axisMap = 
-        new HashMap<Enum<Axis>, Integer>() {{
-            put(Axis.LX, 0);
-            put(Axis.LY, 1);
-            put(Axis.RX, 4);
-            put(Axis.RY, 5);
-            put(Axis.LT, 2);
-            put(Axis.RT, 3);
-    }};
+    private Map<Enum<Axis>, Integer> axisMap;
 
     public enum Action{
         PRESSED,
@@ -60,6 +34,30 @@ public class Controllers {
 
     public enum ControllerName{
         DRIVE, MANIP
+    }
+
+    private Controllers(){
+        rs = RobotStateManager.getInstance();
+        driveController = new XboxController(Constants.DRIVE_CONTROLLER_PORT);
+        manipController = new XboxController(Constants.MANIP_CONTROLLER_PORT);
+
+        buttonMap = new HashMap<>();
+        buttonMap.put(Button.A, 1);
+        buttonMap.put(Button.B, 2);
+        buttonMap.put(Button.X, 3);
+        buttonMap.put(Button.Y, 4);
+        buttonMap.put(Button.LS, 9);
+        buttonMap.put(Button.RS, 10);
+        buttonMap.put(Button.LB, 5);
+        buttonMap.put(Button.RB, 6);
+
+        axisMap = new HashMap<>();
+        axisMap.put(Axis.LX, 0);
+        axisMap.put(Axis.LY, 1);
+        axisMap.put(Axis.RX, 4);
+        axisMap.put(Axis.RY, 5);
+        axisMap.put(Axis.LT, 2);
+        axisMap.put(Axis.RT, 3);
     }
 
     /**Checks if specified button is depressed

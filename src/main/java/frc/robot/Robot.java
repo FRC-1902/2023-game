@@ -6,8 +6,6 @@ package frc.robot;
 
 import java.util.Map;
 
-import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -37,13 +35,12 @@ import frc.robot.statemachine.State;
  * project.
  */
 public class Robot extends TimedRobot {
-  //private RobotContainer m_robotContainer;
   private RobotStateManager rs;
   private Controllers controllers;
   private TurretvatorSubsystem turretvatorSubsystem;
   private SendableChooser<Autos> auto;
   
-  public static enum Autos {
+  public enum Autos {
     BALANCE,
     COMMUNITY,
     NOTHING
@@ -207,8 +204,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
-    // Cancels all running commands at the start of test mode.
-    // CommandScheduler.getInstance().cancelAll();
     rs.setState("autoBalance");
     System.out.println("Robot test initialized");
   }
