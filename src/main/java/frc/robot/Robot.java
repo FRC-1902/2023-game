@@ -6,8 +6,6 @@ package frc.robot;
 
 import java.util.Map;
 
-import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -22,16 +20,12 @@ import frc.robot.states.*;
 import frc.robot.states.auto.*;
 import frc.robot.states.balance.AutoBalanceState;
 import frc.robot.states.balance.BalanceOnPlatformState;
-import frc.robot.states.teleOp.*;
-// import frc.robot.states.teleOp.intake.DeployState;
-// import frc.robot.states.teleOp.intake.IntakeCubeState;
-// import frc.robot.states.teleOp.intake.IntakeDownedConeState;
-// import frc.robot.states.teleOp.intake.IntakeDownedInwardConeState;
-// import frc.robot.states.teleOp.intake.LoadPieceState;
-// import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.TurretvatorSubsystem;
 import frc.robot.subsystems.TurretvatorSubsystem.ElevatorStage;
 import frc.robot.path.Paths;
+import frc.robot.statemachine.Controllers;
+import frc.robot.statemachine.RobotStateManager;
+import frc.robot.statemachine.State;
 
 
 /**
@@ -41,17 +35,12 @@ import frc.robot.path.Paths;
  * project.
  */
 public class Robot extends TimedRobot {
-  // private Command m_autonomousCommand;
-  //private RobotContainer m_robotContainer;
   private RobotStateManager rs;
-  private PowerDistribution pdh;
   private Controllers controllers;
-  private Compressor compressor;  
-  // private IntakeSubsystem intakeSubsystem;
   private TurretvatorSubsystem turretvatorSubsystem;
-  private SendableChooser auto;
+  private SendableChooser<Autos> auto;
   
-  public static enum Autos {
+  public enum Autos {
     BALANCE,
     COMMUNITY,
     NOTHING
@@ -60,6 +49,7 @@ public class Robot extends TimedRobot {
   public static Autos chosenAuto = Autos.NOTHING;
 
   public void initializeShuffleBoardWidgets() {
+    PowerDistribution pdh;
     ShuffleboardTab dashboardTab = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB);
 
     ShuffleboardLayout pdhLayout = 
@@ -70,9 +60,7 @@ public class Robot extends TimedRobot {
     ShuffleboardLayout autoLayout = dashboardTab.getLayout("Auto", BuiltInLayouts.kList);
 
     if (RobotBase.isReal()) {
-      // This for some reason doesn't work when the CAN id is above like 20 for some reason ;-;
-      // Just please don't touch the CAN id of the pdh, it seems to be an issue with WPILib itself
-      pdh = new PowerDistribution(15, ModuleType.kRev);
+      pdh = new PowerDistribution(Constants.PDH_ID, ModuleType.kRev);
       
       pdhLayout.addDouble("Battery Voltage", pdh::getVoltage)
         .withWidget(BuiltInWidgets.kGraph)
@@ -84,7 +72,7 @@ public class Robot extends TimedRobot {
         .withWidget(BuiltInWidgets.kGraph)
         .withProperties(Map.of("Unit", "deg C"));
     }
-    auto = new SendableChooser();
+    auto = new SendableChooser<Autos>();
     
     auto.addOption("Exit Community", Autos.COMMUNITY);
     auto.addOption("Balance", Autos.BALANCE);
@@ -107,23 +95,13 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
-    compressor = new Compressor(1, PneumaticsModuleType.CTREPCM);
-    compressor.enableDigital();
     controllers = Controllers.getInstance();
 
     rs = RobotStateManager.getInstance();
-    // intakeSubsystem = IntakeSubsystem.getInstance();
     rs.addStates(
       new DisabledState("disabled", null),
       new TeleOpState("teleOp", null),
-      new CenterTurretState("centerTurret", "teleOp"),
-      // new DeployState("deployIntake", "centerTurret"),
-      // new IntakeCubeState("intakeCube", "deployIntake"),
-      // new IntakeDownedConeState("intakeDownedCone", "deployIntake"),
-      // new IntakeDownedInwardConeState("intakeDownedInwardCone", "deployIntake"),
-      // new LoadPieceState("loadPiece", "centerTurret"),
       new BalanceState("balance", null),
       new AutoState("auto", null),
       new AutoBalanceState("autoBalance", null),
@@ -171,13 +149,12 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    // intakeSubsystem.disabledPeriodic();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    chosenAuto = (Autos)auto.getSelected();
+    chosenAuto = auto.getSelected();
     switch(chosenAuto){
       case BALANCE:
         Paths.getInstance().readPathArray(Paths.pathName.BALANCE);
@@ -202,7 +179,6 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     turretvatorSubsystem.periodic();
-    // intakeSubsystem.enabledPeriodic();
   }
 
   @Override
@@ -218,7 +194,6 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     controllers.eventPeriodic();
     turretvatorSubsystem.periodic();
-    // intakeSubsystem.enabledPeriodic();
   }
 
   @Override
@@ -229,8 +204,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
-    // Cancels all running commands at the start of test mode.
-    // CommandScheduler.getInstance().cancelAll();
     rs.setState("autoBalance");
     System.out.println("Robot test initialized");
   }

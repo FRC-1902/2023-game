@@ -1,17 +1,18 @@
 package frc.robot.states;
 
-import frc.robot.RobotStateManager;
-import frc.robot.State;
+import frc.robot.statemachine.State;
+import frc.robot.statemachine.RobotStateManager;
 import frc.robot.subsystems.DriveSubsystem;
 
 public class DisabledState implements State{
-    private String name, parent;
-    private DriveSubsystem driveSub;
+    private String name;
+    private String parent;
+    private DriveSubsystem driveSubsystem;
     
     public DisabledState(String name, String parent){
         this.name = name;
         this.parent = parent;
-        driveSub = DriveSubsystem.getInstance();
+        driveSubsystem = DriveSubsystem.getInstance();
     }
 
     @Override
@@ -25,18 +26,16 @@ public class DisabledState implements State{
     }
 
     @Override
-    public void Enter() {
-        System.out.println("entered " + name);
-        driveSub.tankDrive(0, 0);
+    public void enter() {
+        driveSubsystem.tankDrive(0, 0);
     }
 
     @Override
-    public void Leave() {
-        System.out.println("left " + name);
+    public void leave() {
     }
 
     @Override
-    public void Periodic(RobotStateManager rs) {
+    public void periodic(RobotStateManager rs) {
 
     }
 }

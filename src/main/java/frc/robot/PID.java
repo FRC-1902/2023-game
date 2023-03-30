@@ -5,15 +5,14 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.MathUtil;
 
 public class PID implements Runnable {
-    private Thread thread;
     private double kP;
-    private double P;
+    private double p;
     private double kI;
-    private double I;
+    private double i;
     private double kD;
-    private double D;
+    private double d;
     private double kF;
-    private double F;
+    private double f;
 
     private Double setPoint;
     private DoubleSupplier getSensor;
@@ -27,7 +26,8 @@ public class PID implements Runnable {
     private double tolerance;
     private int setpointCounter;
 
-    private boolean isVelocity, isSetpointExplicitlyDeclared;
+    private boolean isVelocity;
+    private boolean isSetpointExplicitlyDeclared;
 
     public PID(DoubleSupplier doubleSupplier, double kP, double kI, double kD, double kF) {
         getSensor = doubleSupplier;
@@ -94,9 +94,10 @@ public class PID implements Runnable {
     }
 
     public void startThread() {
+        Thread thread;
         if (!isRunning) {
             isRunning = true;
-            I = 0;
+            i = 0;
             lastFrameTime = System.currentTimeMillis();
             if(!isSetpointExplicitlyDeclared){
                 if(isVelocity){
@@ -153,24 +154,24 @@ public class PID implements Runnable {
                     }
                     currentOutput = 0.0;
                 }else{long currentTime = System.currentTimeMillis();
-                    P = error;
-                    I += P;
-                    D = (currentSensor - lastSensor) / (currentTime - lastFrameTime);
-                    F = setPoint;
+                    p = error;
+                    i += p;
+                    d = (currentSensor - lastSensor) / (currentTime - lastFrameTime);
+                    f = setPoint;
 
                     setpointCounter = 0;
                     //clamp integral 
                     //XXX: hardcoded clamp, may need to change in the future if reused
-                    I = Math.min(Math.max(I, -0.5), 0.5);
+                    i = Math.min(Math.max(i, -0.5), 0.5);
     
-                    currentOutput = P * kP + I * kI - D * kD + F * kF;
+                    currentOutput = p * kP + i * kI - d * kD + f * kF;
                     lastFrameTime = System.currentTimeMillis();
-                  
                 }
-                //System.out.printf("P: %.02f | I: %.02f | D: %.02f | Out: %.02f \n", P, I, D, currentOutput);
                 Thread.sleep(20);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                // Resture interrupted state
+                Thread.currentThread().interrupt();
             }
         }
 

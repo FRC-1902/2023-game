@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.statemachine;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,11 +7,12 @@ import java.util.Map;
 public class RobotStateManager{
     private State currentState;
     private State targetState;
-    private Map<String, State> stateMap= new HashMap<String, State>();
+    private Map<String, State> stateMap;
     private static RobotStateManager instance = null;
   
     public RobotStateManager(){
       currentState = null;
+      stateMap = new HashMap<>();
     }
     
     /**
@@ -37,7 +38,7 @@ public class RobotStateManager{
      * updates state on the next call of periodic   
      */
     public void setState (String targetName){
-      targetState = stateMap.get(targetName);
+      targetState = findState(targetName);
     }
   
     /**
@@ -56,38 +57,46 @@ public class RobotStateManager{
      * String name of state that the robot starts at
      */
     public void startRobot(String startState){
-      currentState = stateMap.get(startState);
+      currentState = findState(startState);
       enterTo(null, currentState, null);
     }
      
+    /**
+     * Call me periodically from Robot.java for the state machine to work
+     */
     public void periodic(){
       updateState();
       State loopingState = currentState;
       while(loopingState!=null){
-        loopingState.Periodic(this);
-        loopingState = stateMap.get(loopingState.getParent());
+        loopingState.periodic(this);
+        loopingState = findState(loopingState.getParent());
       }
     }
 
+    /**
+     * Call me to send controller events to the active state hiearchy
+     * <p>Will be handled by the state that returns true first in the hiearchy</p>
+     * @param event Event objects to send
+     */
     public void handleEvent(Event event){
       updateState();
       State loopingState = currentState;
       while(loopingState != null && !loopingState.handleEvent(event, this)){
-        loopingState = stateMap.get(loopingState.getParent());
+        loopingState = findState(loopingState.getParent());
       }
     }
     
-    private State findCommonAncestor(State A, State B){
-      State candidateA = A;
+    private State findCommonAncestor(State a, State b){
+      State candidateA = a;
       while(true){
         if(candidateA==null)break;
-        State candidateB = B;
+        State candidateB = b;
         while(true){
           if(candidateB==null)break;
           if(candidateA==candidateB)return candidateA;
-          candidateB = stateMap.get(candidateB.getParent());
+          candidateB = findState(candidateB.getParent());
         }
-        candidateA = stateMap.get(candidateA.getParent());
+        candidateA = findState(candidateA.getParent());
       }
       return null;
     }
@@ -97,23 +106,24 @@ public class RobotStateManager{
     }
   
     private void leaveTo(State child, State ancestor){
-      while(true){
-        if(child == null || child == ancestor) break;
-        child.Leave();
-        if(stateMap.get(child.getParent())==ancestor)break;
-        child = stateMap.get(child.getParent());
+      while(child != null && child != ancestor){
+        child.leave();
+        System.out.format("Left: %s%n", child.getName());
+        if(findState(child.getParent())==ancestor) break;
+        child = findState(child.getParent());
       }
     }
   
     private void enterTo(State ancestor, State child, State enteringFrom){
-      ArrayList<State> lineage = new ArrayList<State>();
+      ArrayList<State> lineage = new ArrayList<>();
       while(true){
         if(child == ancestor) break;
         lineage.add(0, child);
-        child = stateMap.get(child.getParent());
+        child = findState(child.getParent());
       }
       for(State s:lineage){
-        s.Enter(enteringFrom);
+        s.enter(enteringFrom);
+        System.out.format("Entered: %s%n", s.getName());
       }
     }
 

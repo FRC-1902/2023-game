@@ -1,17 +1,18 @@
 package frc.robot.states;
 
-import frc.robot.RobotStateManager;
-import frc.robot.State;
+import frc.robot.statemachine.State;
+import frc.robot.statemachine.RobotStateManager;
 import frc.robot.subsystems.DriveSubsystem;
 
 public class AutoState implements State{
-    private String name, parent;
-    private DriveSubsystem ds;
+    private String name;
+    private String parent;
+    private DriveSubsystem driveSubsystem;
     
     public AutoState(String name, String parent){
         this.name = name;
         this.parent = parent;
-        ds = DriveSubsystem.getInstance();
+        driveSubsystem = DriveSubsystem.getInstance();
     }
 
     @Override
@@ -25,23 +26,16 @@ public class AutoState implements State{
     }
 
     @Override
-    public void Enter() {
-        System.out.println("entered " + name);
-        ds.shift(false);
+    public void enter() {
+        driveSubsystem.shift(false);
     }
 
     @Override
-    public void Leave() {
-        System.out.println("left " + name);
+    public void leave() {
     }
 
     @Override
-    public void Periodic(RobotStateManager rs) {
-        /**
-         * if intake is filled -> grab  
-         * 
-         * maintain odometry
-         */
+    public void periodic(RobotStateManager rs) {
     }
 
 }

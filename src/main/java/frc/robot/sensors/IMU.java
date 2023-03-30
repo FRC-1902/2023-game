@@ -6,10 +6,9 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-public class IMU extends SubsystemBase {
+public class IMU {
 
   private static IMU instance = new IMU();
 
@@ -21,15 +20,15 @@ public class IMU extends SubsystemBase {
         .getLayout("BNO055 Telemetry", BuiltInLayouts.kList)
         .withSize(3, 3);
 
-    dashboardTab.addDouble("BNO055 Yaw", () -> getHeading())
+    dashboardTab.addDouble("BNO055 Yaw", this::getHeading)
         .withProperties(Map.of("Min", -180, "Max", 180))
         .withWidget(BuiltInWidgets.kNumberBar);
 
-    dashboardTab.addDouble("BNO055 Roll", () -> getRoll())
+    dashboardTab.addDouble("BNO055 Roll", this::getRoll)
         .withProperties(Map.of("Min", -90, "Max", 90))
         .withWidget(BuiltInWidgets.kNumberBar);
 
-    dashboardTab.addDouble("BNO055 Pitch", () -> getPitch())
+    dashboardTab.addDouble("BNO055 Pitch", this::getPitch)
         .withProperties(Map.of("Min", -180, "Max", 180))
         .withWidget(BuiltInWidgets.kNumberBar);
   }

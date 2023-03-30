@@ -4,7 +4,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.networktables.GenericEntry;
+// import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -13,11 +13,10 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.PID;
 
-public class DriveSubsystem extends SubsystemBase {
+public class DriveSubsystem {
   private static DriveSubsystem instance;
 
   private CANSparkMax leftMotor1, leftMotor2, rightMotor1, rightMotor2;
@@ -100,7 +99,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     initializeShuffleboardWidgets();
 
-    // TODO:tune me
+    // TODO: tune high velocity controller to PID in high gear
     highLeftVelocityController = new PID(leftEncoder::getRate, 0.0, 0.0, 0.0, 0.1);
     lowLeftVelocityController = new PID(leftEncoder::getRate, 0.01, 0.005, 0.01, 0.5);
     highRightVelocityController = new PID(rightEncoder::getRate, 0.0, 0.0, 0.0, 0.1);
@@ -125,16 +124,6 @@ public class DriveSubsystem extends SubsystemBase {
     }
   }
 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-  }
-
-  @Override
-  public void simulationPeriodic() {
-    // This method will be called once per scheduler run during simulation
-  }
-
   public void arcadeDrive(double xSpeed, double zRotation) {
     tankDrive(xSpeed - zRotation, xSpeed + zRotation);
   }
@@ -146,7 +135,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void setBrake(boolean isBrake){
-    System.out.format("Drive Breaking: %b\n", isBrake);
+    System.out.format("Drive Breaking: %b%n", isBrake);
     if(isBrake){
       leftMotor1.setIdleMode(IdleMode.kBrake);
       leftMotor2.setIdleMode(IdleMode.kBrake);
@@ -214,11 +203,11 @@ public class DriveSubsystem extends SubsystemBase {
     tankDrive(leftPower, rightPower);
   }
 
-  // Low gear *should* be false, and high gear *should* be true
-  public void shift(boolean state) {
-    System.out.format("Shifted %b\n", state);
-    leftSolenoid.set(state);
-    rightSolenoid.set(state);
+  // Low gear is false, and high gear is true
+  public void shift(boolean isHigh) {
+    System.out.format("Shifted %b%n", isHigh);
+    leftSolenoid.set(isHigh);
+    rightSolenoid.set(isHigh);
   }
 
   public boolean getLeftShiftState() {

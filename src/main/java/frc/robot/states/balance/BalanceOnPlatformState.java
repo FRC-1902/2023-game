@@ -7,9 +7,9 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import frc.robot.Constants;
 import frc.robot.PID;
-import frc.robot.RobotStateManager;
-import frc.robot.State;
+import frc.robot.statemachine.State;
 import frc.robot.sensors.IMU;
+import frc.robot.statemachine.RobotStateManager;
 import frc.robot.states.BalanceState;
 
 public class BalanceOnPlatformState implements State {
@@ -23,7 +23,7 @@ public class BalanceOnPlatformState implements State {
 
   public BalanceOnPlatformState(String name, String parent){
     this.name = name;
-    this.parent = (BalanceState) RobotStateManager.getInstance().findState("balance");
+    this.parent = (BalanceState) RobotStateManager.getInstance().findState(parent);
 
     ShuffleboardLayout pidTuningTab = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)
       .getLayout("Balance On Platform PID", BuiltInLayouts.kList)
@@ -58,19 +58,17 @@ public class BalanceOnPlatformState implements State {
   }
 
   @Override
-  public void Enter() {
-    System.out.println("entered" + name);
+  public void enter() {
     pitchPID.startThread();
   }
 
   @Override
-  public void Leave() {
+  public void leave() {
     pitchPID.stopThread();
-    System.out.println("left " + name);
   }
 
   @Override
-  public void Periodic(RobotStateManager rs) {
+  public void periodic(RobotStateManager rs) {
     // NOTE: These are all divided by 10 from the values displayed in shuffleboard. This is just in order to get more precision.
     pitchPID.setP(pidPWidget.getDouble(0)/10);
     pitchPID.setI(pidIWidget.getDouble(0)/10);
@@ -79,6 +77,6 @@ public class BalanceOnPlatformState implements State {
       parent.calculatedForwardSpeed += pitchPID.getOutput();
     }
 
-    System.out.format("(BalanceOnPlatform) Current forward speed %f\n", parent.calculatedForwardSpeed);
+    System.out.format("(BalanceOnPlatform) Current forward speed %f%n", parent.calculatedForwardSpeed);
   }
 }

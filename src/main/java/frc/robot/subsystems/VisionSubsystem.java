@@ -4,22 +4,10 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-public class VisionSubsystem extends SubsystemBase {
+public class VisionSubsystem{
   private static VisionSubsystem instance;
 
   public VisionSubsystem() {}
-
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-  }
-
-  @Override
-  public void simulationPeriodic() {
-    // This method will be called once per scheduler run during simulation
-  }
 
   public static VisionSubsystem getInstance() {
     if (instance == null) {

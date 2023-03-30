@@ -6,26 +6,27 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import frc.robot.Constants;
-import frc.robot.Controllers.Action;
-import frc.robot.Controllers.Button;
-import frc.robot.Controllers.ControllerName;
 import frc.robot.sensors.IMU;
-import frc.robot.Event;
+import frc.robot.statemachine.RobotStateManager;
+import frc.robot.statemachine.Controllers.Action;
+import frc.robot.statemachine.Controllers.Button;
+import frc.robot.statemachine.Controllers.ControllerName;
+import frc.robot.statemachine.Event;
 import frc.robot.PID;
-import frc.robot.RobotStateManager;
-import frc.robot.State;
+import frc.robot.statemachine.State;
 import frc.robot.subsystems.DriveSubsystem;
 
 public class BalanceState implements State {
-  private String name, parent;
+  private String name;
+  private String parent;
 
-  private DriveSubsystem drive;
+  private DriveSubsystem driveSubsystem;
 
   private PID yawPID;
   private IMU imu;
   private State enteredFromState;
-
-  public double calculatedForwardSpeed, calculatedYawSpeed;
+  public double calculatedForwardSpeed;
+  
 
   private GenericEntry pidPWidget, pidIWidget, pidDWidget;
   
@@ -33,13 +34,13 @@ public class BalanceState implements State {
     this.name = name;
     this.parent = parent;
     imu = IMU.getInstance();
-    drive = DriveSubsystem.getInstance();
+    driveSubsystem = DriveSubsystem.getInstance();
 
     ShuffleboardLayout pidTuningTab = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)
       .getLayout("Balance Yaw PID", BuiltInLayouts.kList)
       .withSize(2, 3);
     
-    //TODO: tune me once robot is built
+    //TODO: tune me
     pidPWidget = pidTuningTab
       .add("Balance Yaw PID - Proportional", 0.1)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
@@ -65,13 +66,11 @@ public class BalanceState implements State {
 
   // Dont ask
   @Override
-  public void Enter() {}
+  public void enter() {}
 
   @Override
-  public void Enter(State enteredFrom) {
-    System.out.println("entered" + name);
-
-    drive.shift(false);
+  public void enter(State enteredFrom) {
+    driveSubsystem.shift(false);
 
     yawPID.startThread();
 
@@ -79,14 +78,14 @@ public class BalanceState implements State {
   }
 
   @Override
-  public void Leave() {
+  public void leave() {
     yawPID.stopThread();
-    drive.arcadeDrive(0, 0);
-    System.out.println("left " + name);
+    driveSubsystem.arcadeDrive(0, 0);
   }
 
   @Override
-  public void Periodic(RobotStateManager rs) {
+  public void periodic(RobotStateManager rs) {
+    double calculatedYawSpeed;
     double headingTarget;
     double currentYaw = imu.getHeading();
 
@@ -108,14 +107,14 @@ public class BalanceState implements State {
     yawPID.setSetpoint(headingTarget);
     calculatedYawSpeed = yawPID.getOutput();
 
-    // System.out.format("(BalanceState) Yaw: %3.1f, YawSpeed: %3.1f, Setpoint: %3.1f\n", currentYaw, calculatedYawSpeed, yawPID.getSetpoint());
+    // System.out.format("(BalanceState) Yaw: %3.1f, YawSpeed: %3.1f, Setpoint: %3.1f%n", currentYaw, calculatedYawSpeed, yawPID.getSetpoint());
 
-    drive.arcadeDrive(calculatedForwardSpeed, calculatedYawSpeed);
+    driveSubsystem.arcadeDrive(calculatedForwardSpeed, calculatedYawSpeed);
     
     calculatedForwardSpeed = 0;
-    calculatedYawSpeed = 0;
   }
 
+  @Override
   public boolean handleEvent(Event event, RobotStateManager rs) {
     if (event.controllerName == ControllerName.DRIVE && event.button == Button.B && event.action == Action.RELEASED) {
       rs.setState(enteredFromState.getName());

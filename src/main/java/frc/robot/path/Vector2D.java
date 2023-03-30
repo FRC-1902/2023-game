@@ -2,8 +2,8 @@ package frc.robot.path;
 
 public class Vector2D {
 
-    public double x;
-    public double y;
+    private double x;
+    private double y;
     
     public Vector2D() { }
 

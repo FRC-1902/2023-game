@@ -1,7 +1,7 @@
 package frc.robot.states.auto;
 
-import frc.robot.RobotStateManager;
-import frc.robot.State;
+import frc.robot.statemachine.State;
+import frc.robot.statemachine.RobotStateManager;
 
 public class TurretState implements State{
     private String name, parent;
@@ -22,17 +22,17 @@ public class TurretState implements State{
     }
 
     @Override
-    public void Enter() {
+    public void enter() {
         System.out.println("entered" + name);
     }
 
     @Override
-    public void Leave() {
+    public void leave() {
         System.out.println("left " + name);
     }
 
     @Override
-    public void Periodic(RobotStateManager rs) {
+    public void periodic(RobotStateManager rs) {
       /**
        * set target turret state for placement
        */
