@@ -98,43 +98,41 @@ public class TeleOpState implements State{
 
   @Override
   public boolean handleEvent(Event event, RobotStateManager rs) {
-    switch(event.controllerName){
     //Drive Controller
-    case DRIVE:
+    if(event.controllerName == ControllerName.DRIVE){
       switch(event.button){
-      //Shift low
-      case RB:
-        if(event.action == Action.PRESSED){
-          driveSubsystem.shift(false);
-          return true;
-        }
-        break;
-      //Shift high
-      case LB:
-        if(event.action == Action.PRESSED){
-          driveSubsystem.shift(true);
-          return true;
-        }
-        break;
-      //break mode
-      case B:
-        if(event.action == Action.PRESSED){
-          driveSubsystem.setBrake(true);
-          return true;
-        }
-        break;
-      //coast mode
-      case A:
-        if(event.action == Action.PRESSED){
-          driveSubsystem.setBrake(false);
-          return true;
-        }
-        break;
-      default: break;
+        //Shift low
+        case RB:
+          if(event.action == Action.PRESSED){
+            driveSubsystem.shift(false);
+            return true;
+          }
+          break;
+        //Shift high
+        case LB:
+          if(event.action == Action.PRESSED){
+            driveSubsystem.shift(true);
+            return true;
+          }
+          break;
+        //break mode
+        case B:
+          if(event.action == Action.PRESSED){
+            driveSubsystem.setBrake(true);
+            return true;
+          }
+          break;
+        //coast mode
+        case A:
+          if(event.action == Action.PRESSED){
+            driveSubsystem.setBrake(false);
+            return true;
+          }
+          break;
+        default: break;
       }
-      break;
     //Manip Controller
-    case MANIP:
+    }else if(event.controllerName == ControllerName.MANIP){
       switch(event.button){
         //Gripper open
         case B:
@@ -180,10 +178,8 @@ public class TeleOpState implements State{
             return true;
           }
             break; 
-        default:
-          break;
+        default: break;
       }
-      break;
     }
     return false;
   }

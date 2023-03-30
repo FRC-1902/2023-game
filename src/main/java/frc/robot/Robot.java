@@ -154,7 +154,7 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    chosenAuto = (Autos)auto.getSelected();
+    chosenAuto = auto.getSelected();
     switch(chosenAuto){
       case BALANCE:
         Paths.getInstance().readPathArray(Paths.pathName.BALANCE);
