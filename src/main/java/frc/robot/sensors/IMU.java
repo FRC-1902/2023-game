@@ -2,6 +2,8 @@ package frc.robot.sensors;
 
 import java.util.Map;
 
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -14,6 +16,18 @@ public class IMU {
 
   private final BNO055 bno055 = BNO055.getInstance(BNO055.opmode_t.OPERATION_MODE_IMUPLUS,
       BNO055.vector_type_t.VECTOR_EULER);
+
+  private DoubleLogEntry headingLogger, rollLogger, pitchLogger, turnLogger, offsetLogger;
+
+  private void initializeLogger() {
+    headingLogger = new DoubleLogEntry(DataLogManager.getLog(), "/IMU/heading");
+    rollLogger = new DoubleLogEntry(DataLogManager.getLog(), "/IMU/roll");
+    pitchLogger = new DoubleLogEntry(DataLogManager.getLog(), "/IMU/pitch");
+    turnLogger = new DoubleLogEntry(DataLogManager.getLog(), "/IMU/turn");
+    offsetLogger = new DoubleLogEntry(DataLogManager.getLog(), "/IMU/offset");
+
+    offsetLogger.append(bno055.headingOffset);
+  }
 
   public IMU() {
     ShuffleboardLayout dashboardTab = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)
@@ -31,6 +45,15 @@ public class IMU {
     dashboardTab.addDouble("BNO055 Pitch", this::getPitch)
         .withProperties(Map.of("Min", -180, "Max", 180))
         .withWidget(BuiltInWidgets.kNumberBar);
+
+      initializeLogger();
+  }
+
+  public void logPeriodic() {
+    headingLogger.append(getHeading());
+    rollLogger.append(getRoll());
+    pitchLogger.append(getPitch());
+    turnLogger.append(getTurns());
   }
 
   /**
@@ -72,6 +95,7 @@ public class IMU {
    */
   public void setOffset(double offset) {
     bno055.headingOffset = offset;
+    offsetLogger.append(offset);
   }
 
   /**

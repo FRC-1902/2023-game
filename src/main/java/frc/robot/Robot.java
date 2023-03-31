@@ -6,6 +6,8 @@ package frc.robot;
 
 import java.util.Map;
 
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -20,13 +22,14 @@ import frc.robot.states.*;
 import frc.robot.states.auto.*;
 import frc.robot.states.balance.AutoBalanceState;
 import frc.robot.states.balance.BalanceOnPlatformState;
+import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.TurretvatorSubsystem;
 import frc.robot.subsystems.TurretvatorSubsystem.ElevatorStage;
 import frc.robot.path.Paths;
+import frc.robot.sensors.IMU;
 import frc.robot.statemachine.Controllers;
 import frc.robot.statemachine.RobotStateManager;
 import frc.robot.statemachine.State;
-
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -38,6 +41,8 @@ public class Robot extends TimedRobot {
   private RobotStateManager rs;
   private Controllers controllers;
   private TurretvatorSubsystem turretvatorSubsystem;
+  private DriveSubsystem driveSubsystem;
+  private IMU imu;
   private SendableChooser<Autos> auto;
   
   public enum Autos {
@@ -95,6 +100,12 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    DataLogManager.start();
+    DataLogManager.log("Initializing robot...");
+
+    // Starts the recording of DS and joystick data
+    DriverStation.startDataLog(DataLogManager.getLog());
+
     // autonomous chooser on the dashboard.
     controllers = Controllers.getInstance();
 
@@ -122,8 +133,10 @@ public class Robot extends TimedRobot {
 
     rs.startRobot("disabled");
     turretvatorSubsystem = TurretvatorSubsystem.getInstance();
+    driveSubsystem = DriveSubsystem.getInstance();
+    imu = IMU.getInstance();
 
-    System.out.println("Robot initialized");
+    DataLogManager.log("Robot initialized");
   }
 
   /**
@@ -136,6 +149,9 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     rs.periodic();
+
+    driveSubsystem.logPeriodic();
+    imu.logPeriodic();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -144,7 +160,7 @@ public class Robot extends TimedRobot {
     rs.setState("disabled");
     turretvatorSubsystem.enablePID(false);
     turretvatorSubsystem.resetWatchdogs();
-    System.out.println("Robot disabled");
+    DataLogManager.log("Robot disabled");
   }
 
   @Override
@@ -158,21 +174,21 @@ public class Robot extends TimedRobot {
     switch(chosenAuto){
       case BALANCE:
         Paths.getInstance().readPathArray(Paths.pathName.BALANCE);
-        System.out.println("balance");
+        DataLogManager.log("balance");
         rs.setState("drop");
         
         break;
       case COMMUNITY:
         Paths.getInstance().readPathArray(Paths.pathName.REVERSE);
-        System.out.println("community");
+        DataLogManager.log("community");
         rs.setState("drop");
         break;
       default:
-        System.out.println("nothing");
+        DataLogManager.log("nothing");
         break;
     }
     
-    System.out.println("Robot autonomous initialized");
+    DataLogManager.log("Robot autonomous initialized");
   }
 
   /** This function is called periodically during autonomous. */
@@ -186,7 +202,7 @@ public class Robot extends TimedRobot {
     turretvatorSubsystem.elevatorSet(ElevatorStage.DOWN);
     rs.setState("teleOp");
 
-    System.out.println("Robot teleop initialized");
+    DataLogManager.log("Robot teleop initialized");
   }
 
   /** This function is called periodically during operator control. */
@@ -205,7 +221,7 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     rs.setState("autoBalance");
-    System.out.println("Robot test initialized");
+    DataLogManager.log("Robot test initialized");
   }
 
   /** This function is called periodically during test mode. */

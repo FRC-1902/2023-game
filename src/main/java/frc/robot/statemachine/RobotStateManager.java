@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.wpi.first.wpilibj.DataLogManager;
+
 public class RobotStateManager{
     private State currentState;
     private State targetState;
@@ -108,7 +110,7 @@ public class RobotStateManager{
     private void leaveTo(State child, State ancestor){
       while(child != null && child != ancestor){
         child.leave();
-        System.out.format("Left: %s%n", child.getName());
+        DataLogManager.log("Left: " + child.getName());
         if(findState(child.getParent())==ancestor) break;
         child = findState(child.getParent());
       }
@@ -123,7 +125,7 @@ public class RobotStateManager{
       }
       for(State s:lineage){
         s.enter(enteringFrom);
-        System.out.format("Entered: %s%n", s.getName());
+        DataLogManager.log("Entered: " + s.getName());
       }
     }
 

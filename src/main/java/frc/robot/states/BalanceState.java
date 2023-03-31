@@ -1,6 +1,7 @@
 package frc.robot.states;
 
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -27,7 +28,6 @@ public class BalanceState implements State {
   private State enteredFromState;
   public double calculatedForwardSpeed;
   
-
   private GenericEntry pidPWidget, pidIWidget, pidDWidget;
   
   public BalanceState(String name, String parent){

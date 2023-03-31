@@ -8,6 +8,7 @@ import frc.robot.subsystems.DriveSubsystem;
 
 import org.json.simple.JSONObject;
 
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Timer;
 
 
@@ -44,8 +45,6 @@ public class PathState implements State{
 
     @Override
     public void enter() {
-        System.out.println("entered " + name);
-
         driveSubsystem = DriveSubsystem.getInstance();
 
         beganLeftDist = driveSubsystem.leftEncoder.getDistance();
@@ -60,7 +59,6 @@ public class PathState implements State{
 
     @Override
     public void leave() {
-        System.out.println("left " + name);
         driveSubsystem.setPIDEnable(false);
         DriveSubsystem.getInstance().velocityPID(0, 0);
     }
@@ -100,7 +98,7 @@ public class PathState implements State{
             double previousTime = ((Number) frames[i-1].get("time")).doubleValue();
             double nextTime = ((Number) frames[i].get("time")).doubleValue();
             
-            System.out.format("%d | ", i);
+            DataLogManager.log(i + " | ");
 
             if(nextTime > currentTime){
                 //find forward velocity
@@ -125,7 +123,7 @@ public class PathState implements State{
 
         driveSubsystem.velocityPID(velocity, angularVelocity);
 
-        System.out.format("Velocity: %.3f | Angular: %.3f | Left Encoder Rate: %.3f%n", velocity, angularVelocity, driveSubsystem.leftEncoder.getRate());
+        DataLogManager.log(String.format("Velocity: %.3f | Angular: %.3f | Left Encoder Rate: %.3f", velocity, angularVelocity, driveSubsystem.leftEncoder.getRate()));
     }
 
     //linear interpolation

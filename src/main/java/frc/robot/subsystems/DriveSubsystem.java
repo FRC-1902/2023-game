@@ -1,9 +1,12 @@
 package frc.robot.subsystems;
 
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.util.datalog.IntegerLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 // import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -28,9 +31,11 @@ public class DriveSubsystem {
   private final double driveWidth;
   private double currentLeftCommand;
 
+  private IntegerLogEntry leftEncoderLogger, rightEncoderLogger;
+
   // private GenericEntry pidPWidget, pidIWidget, pidDWidget, pidFWidget;
 
-  public void initializeShuffleboardWidgets() {
+  private void initializeShuffleboardWidgets() {
     ShuffleboardLayout dashboardLayout = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB)
         .getLayout("Drive Train", BuiltInLayouts.kList)
         .withSize(4, 4);
@@ -61,6 +66,16 @@ public class DriveSubsystem {
     // pidFWidget = pidTuningTab
     //   .add("Auto Drive PID - FeedForward", 0.0)
     //   .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
+  }
+
+  private void initializeLogger() {
+    leftEncoderLogger = new IntegerLogEntry(DataLogManager.getLog(), "/DriveSubsystem/leftEncoder");
+    rightEncoderLogger = new IntegerLogEntry(DataLogManager.getLog(), "/DriveSubsystem/rightEncoder");
+  }
+
+  public void logPeriodic() {
+    leftEncoderLogger.append(leftEncoder.get());
+    rightEncoderLogger.append(rightEncoder.get());
   }
 
   private double[] currentCommand() {
@@ -98,6 +113,7 @@ public class DriveSubsystem {
     rightSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, Constants.RIGHT_DRIVE_SOLENOID);
 
     initializeShuffleboardWidgets();
+    initializeLogger();
 
     // TODO: tune high velocity controller to PID in high gear
     highLeftVelocityController = new PID(leftEncoder::getRate, 0.0, 0.0, 0.0, 0.1);
@@ -109,6 +125,7 @@ public class DriveSubsystem {
 
     currentLeftCommand = 0.0;
   }
+
 
   public void setPIDEnable(boolean isEnabled) {
     if (isEnabled) {
@@ -135,7 +152,7 @@ public class DriveSubsystem {
   }
 
   public void setBrake(boolean isBrake){
-    System.out.format("Drive Breaking: %b%n", isBrake);
+    DataLogManager.log("Drive Breaking: " + isBrake);
     if(isBrake){
       leftMotor1.setIdleMode(IdleMode.kBrake);
       leftMotor2.setIdleMode(IdleMode.kBrake);
@@ -186,7 +203,7 @@ public class DriveSubsystem {
     
     // TODO:Fix angular velocity
 
-    // System.out.println(leftSolenoid.get());
+    // DataLogManager.log(leftSolenoid.get());
 
     if (getLeftShiftState()) {
       highLeftVelocityController.setSetpoint(velocity - diffV);
@@ -205,7 +222,7 @@ public class DriveSubsystem {
 
   // Low gear is false, and high gear is true
   public void shift(boolean isHigh) {
-    System.out.format("Shifted %b%n", isHigh);
+    DataLogManager.log("Shifted: " + isHigh);
     leftSolenoid.set(isHigh);
     rightSolenoid.set(isHigh);
   }

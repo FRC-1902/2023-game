@@ -13,6 +13,10 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import frc.robot.PID;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.networktables.IntegerEntry;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.util.datalog.IntegerLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -154,6 +158,8 @@ public class TurretvatorSubsystem{
    * @param isClosed gripper closed/opened state
    */
   public void setGripper(boolean isClosed){
+    DataLogManager.log("Setting gripper to: " + isClosed);
+
     gripperSolenoidA.set(isClosed);
     gripperSolenoidB.set(!isClosed);
   }
@@ -179,7 +185,7 @@ public class TurretvatorSubsystem{
    */
   public void setTurret(double degrees){
     if(Math.abs(degrees) > TURRET_MAX_ANGLE){
-      System.out.println("Degree put into TurretvatorSubsystem.turretSet too large!");
+      DataLogManager.log("Degree put into TurretvatorSubsystem.turretSet too large!");
       return;
     }
 
@@ -237,9 +243,9 @@ public class TurretvatorSubsystem{
       elevatorEncoderOffset = elevatorLeftEncoder.get();
 
     if (desiredElevatorRotations > ELEVATOR_MAX_ROTATIONS)
-      System.out.println("Elevator is extending to extreme!");
+      DataLogManager.log("Elevator is extending to extreme!");
     if (desiredElevatorRotations < 0)
-      System.out.println("Elevator shouldn't try to be negative!");
+      DataLogManager.log("Elevator shouldn't try to be negative!");
 
     desiredElevatorRotations = Math.max(Math.min(desiredElevatorRotations, ELEVATOR_MAX_ROTATIONS), 0.0);
 
@@ -284,6 +290,7 @@ public class TurretvatorSubsystem{
       turretRampTime = System.currentTimeMillis() + 2000;
     
     //Investigate me vvvv
+    // ^ Agreed, this could be a terminal bruh moment
     if (turretRampTime - System.currentTimeMillis() >= 0 && !turretPID.atSetpoint())
       turretPow *= 1/((turretRampTime - System.currentTimeMillis()) / 2000 + 1); //XXX: integer division, may be an issue
     
@@ -301,14 +308,13 @@ public class TurretvatorSubsystem{
 
     if (Math.abs(lastElevatorEncoderValue - elevatorLeftEncoder.get()) < 0.005 && Math.abs(elevatorMotors.get()) > 0.4){
       elevatorWatchdogHits++;
-      System.out.println(elevatorWatchdogHits);
+      DataLogManager.log("Watchdog hit counter: " + elevatorWatchdogHits);
     }else{
       elevatorWatchdogHits = 0;
     }
     //detects negative encoder or too many kill switch hits (~200 ms worth of hits)
     if (elevatorWatchdogHits >= 10 || elevatorLeftEncoder.get() < -1.0) {
-      System.out.println("==== ELEVATOR KILL SWITCH WATCHDOG ENGAGED ====");
-      System.out.format("Left Encoder: %.3f%n", elevatorLeftEncoder.get());
+      DataLogManager.log("==== ELEVATOR KILL SWITCH WATCHDOG ENGAGED ====");
       // watchdogActivationTime = RobotController.getFPGATime();
       isElevatorWatchdogEnabled = true;
     }
@@ -327,8 +333,8 @@ public class TurretvatorSubsystem{
 
     //Detects wrap around to not catch that
     if (Math.abs(lastTurretEncoderValue - turretPID.getSensorInput()) > 0.35 && Math.abs(lastTurretEncoderValue - turretPID.getSensorInput()) < 0.65) {
-      System.out.println("==== TURRET KILL SWITCH WATCHDOG ENGAGED ====");
-      System.out.format("Last: %.3f, Current: %.3f%n", lastTurretEncoderValue, turretPID.getSensorInput());
+      DataLogManager.log("==== TURRET KILL SWITCH WATCHDOG ENGAGED ====");
+      DataLogManager.log(String.format("Last: %.3f, Current: %.3f", lastTurretEncoderValue, turretPID.getSensorInput()));
       // watchdogActivationTime = RobotController.getFPGATime();
       isTurretWatchdogEnabled = true;
     }
@@ -337,7 +343,7 @@ public class TurretvatorSubsystem{
 
   public void resetWatchdogs(){
     if(isTurretWatchdogEnabled || isElevatorWatchdogEnabled){
-      System.out.println("==== ALL KILL SWITCH WATCHDOGS RELEASED ====");
+      DataLogManager.log(String.format("==== ALL KILL SWITCH WATCHDOGS RELEASED ===="));
       isTurretWatchdogEnabled = false;
       isElevatorWatchdogEnabled = false;
 
@@ -371,12 +377,13 @@ public class TurretvatorSubsystem{
 
     //Disable watchdogs after timeout
     // if (RobotController.getFPGATime() - watchdogActivationTime > watchdogTimeout && (isTurretWatchdogEnabled || isElevatorWatchdogEnabled)) {
-    //   System.out.println("==== ALL KILL SWITCH WATCHDOGS RELEASED ====");
+    //   DataLogManager.log("==== ALL KILL SWITCH WATCHDOGS RELEASED ====");
     //   isTurretWatchdogEnabled = false;
     //   isElevatorWatchdogEnabled = false;
 
     //   initialPeriodic = true;
     // }
+
   }
 
   public static TurretvatorSubsystem getInstance() {

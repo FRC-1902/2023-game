@@ -1,5 +1,6 @@
 package frc.robot.states.balance;
 
+import edu.wpi.first.wpilibj.DataLogManager;
 import frc.robot.Constants;
 import frc.robot.statemachine.Event;
 import frc.robot.statemachine.State;
@@ -58,7 +59,7 @@ public class AutoBalanceState implements State {
     }
 
     if((int)(System.currentTimeMillis() / 100) % 10 == 0){
-      System.out.format("Angle: %.3f | Output: %.3f%n", imu.getPitch(), output);
+      DataLogManager.log(String.format("Autobalance output: %.3f", output));
     }
     
     driveSubsystem.arcadeDrive(output, 0.0);

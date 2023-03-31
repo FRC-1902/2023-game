@@ -1,6 +1,7 @@
 package frc.robot.states.auto;
 
 import frc.robot.statemachine.State;
+import edu.wpi.first.wpilibj.DataLogManager;
 import frc.robot.statemachine.RobotStateManager;
 
 public class PickupState implements State{
@@ -23,12 +24,10 @@ public class PickupState implements State{
 
     @Override
     public void enter() {
-        System.out.println("entered" + name);
     }
 
     @Override
     public void leave() {
-        System.out.println("left " + name);
     }
 
     @Override

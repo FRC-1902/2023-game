@@ -3,6 +3,8 @@ package frc.robot;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 
 public class PID implements Runnable {
     private double kP;
@@ -29,6 +31,26 @@ public class PID implements Runnable {
     private boolean isVelocity;
     private boolean isSetpointExplicitlyDeclared;
 
+    private DoubleLogEntry pLogger, iLogger, dLogger, fLogger, currentSensorLogger, setPointLogger;
+    private boolean isLogging;
+
+    public void initializeLogger(String loggerName) {
+        pLogger = new DoubleLogEntry(DataLogManager.getLog(), loggerName + "/p");
+        iLogger = new DoubleLogEntry(DataLogManager.getLog(), loggerName + "/i");
+        dLogger = new DoubleLogEntry(DataLogManager.getLog(), loggerName + "/d");
+        fLogger = new DoubleLogEntry(DataLogManager.getLog(), loggerName + "/f");
+        currentSensorLogger = new DoubleLogEntry(DataLogManager.getLog(), loggerName + "/input");
+        setPointLogger = new DoubleLogEntry(DataLogManager.getLog(), loggerName + "/setPoint");
+
+        pLogger.append(kP);
+        iLogger.append(kI);
+        dLogger.append(kD);
+        fLogger.append(kF);
+        setPointLogger.append(setPoint);
+
+        isLogging = true;
+    }
+
     public PID(DoubleSupplier doubleSupplier, double kP, double kI, double kD, double kF) {
         getSensor = doubleSupplier;
         setPoint = 0.0;
@@ -45,22 +67,44 @@ public class PID implements Runnable {
         isSetpointExplicitlyDeclared = false;
     }
 
+    public PID(DoubleSupplier doubleSupplier, double kP, double kI, double kD, double kF, String loggerName) {
+        this(doubleSupplier, kP, kI, kD, kF);
+        initializeLogger(loggerName);
+    }
+
     public PID(DoubleSupplier doubleSupplier, double kP, double kI, double kD, double kF, boolean isVelocity) {
         this(doubleSupplier, kP, kI, kD, kF);
         this.isVelocity = isVelocity;
     }
 
+    public PID(DoubleSupplier doubleSupplier, double kP, double kI, double kD, double kF, boolean isVelocity, String loggerName) {
+        this(doubleSupplier, kP, kI, kD, kF, isVelocity);
+        initializeLogger(loggerName);
+    }
+
     public void setP(double kP) {
         this.kP = kP;
+
+        if (isLogging)
+            pLogger.append(kP);
     }
     public void setI(double kI) {
         this.kI = kI;
+
+        if (isLogging)
+            iLogger.append(kI);
     }
     public void setD(double kD) {
         this.kD = kD;
+
+        if (isLogging)
+            dLogger.append(kD);
     }    
     public void setF(double kF) {
         this.kF = kF;
+
+        if (isLogging)
+            fLogger.append(kF);
     }
 
     public double getP(){
@@ -109,7 +153,7 @@ public class PID implements Runnable {
             thread = new Thread(this);
             
             thread.start();
-            System.out.println("Starting PID Thread " + toString());
+            DataLogManager.log("Starting PID Thread " + toString());
         }
     }
 
@@ -121,6 +165,9 @@ public class PID implements Runnable {
     public void setSetpoint(double setPoint) {
         this.setPoint = setPoint;
         isSetpointExplicitlyDeclared = true;
+
+        if (isLogging)
+            setPointLogger.append(setPoint);
     }
 
     public double getSetpoint(){
@@ -141,6 +188,10 @@ public class PID implements Runnable {
             try {
                 double currentSensor = getSensor.getAsDouble();
                 double error;
+
+                if (isLogging)
+                    currentSensorLogger.append(currentSensor);
+
                 if(isContinuous){
                     double errorBound = (continuousHighRange - continuousLowRange) / 2;
                     error = MathUtil.inputModulus(setPoint - currentSensor, -errorBound, errorBound);
@@ -176,6 +227,6 @@ public class PID implements Runnable {
         }
 
         currentOutput = 0.0;
-        System.out.println("PID Thread ending "  + toString());
+        DataLogManager.log("PID Thread ending "  + toString());
     }
 }
