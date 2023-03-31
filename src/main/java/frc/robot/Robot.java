@@ -40,6 +40,7 @@ public class Robot extends TimedRobot {
   private Controllers controllers;
   private TurretvatorSubsystem turretvatorSubsystem;
   private SendableChooser<Autos> auto;
+  private LEDSubsystem ledSubsystem;
   
   public enum Autos {
     BALANCE,
@@ -98,8 +99,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     // autonomous chooser on the dashboard.
     controllers = Controllers.getInstance();
-    LEDSubsystem.getInstance().setDriveRGB(0, 255, 0);
-    LEDSubsystem.getInstance().setTurretRGB(0, 255, 0);
+    ledSubsystem = LEDSubsystem.getInstance();
 
     rs = RobotStateManager.getInstance();
     rs.addStates(
@@ -147,6 +147,8 @@ public class Robot extends TimedRobot {
     rs.setState("disabled");
     turretvatorSubsystem.enablePID(false);
     turretvatorSubsystem.resetWatchdogs();
+    ledSubsystem.setRGB(80, 176, 78);
+
     System.out.println("Robot disabled");
   }
 
@@ -174,6 +176,8 @@ public class Robot extends TimedRobot {
         System.out.println("nothing");
         break;
     }
+
+    ledSubsystem.setRGB(0, 255, 0);
     
     System.out.println("Robot autonomous initialized");
   }
@@ -188,6 +192,8 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     turretvatorSubsystem.elevatorSet(ElevatorStage.DOWN);
     rs.setState("teleOp");
+
+    ledSubsystem.setRGB(235, 78, 33);
 
     System.out.println("Robot teleop initialized");
   }

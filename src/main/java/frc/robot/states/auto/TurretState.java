@@ -23,12 +23,10 @@ public class TurretState implements State{
 
     @Override
     public void enter() {
-        System.out.println("entered" + name);
     }
 
     @Override
     public void leave() {
-        System.out.println("left " + name);
     }
 
     @Override

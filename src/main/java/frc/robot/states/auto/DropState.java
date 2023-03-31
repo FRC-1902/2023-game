@@ -34,12 +34,10 @@ public class DropState implements State{
         tvSubsystem.setGripper(true);
         
         loopStartTime = System.currentTimeMillis();
-        System.out.println("entered" + name);
     }
 
     @Override
     public void leave() {
-        System.out.println("left " + name);
     }
 
     @Override

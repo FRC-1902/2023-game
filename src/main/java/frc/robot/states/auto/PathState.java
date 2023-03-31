@@ -5,6 +5,7 @@ import frc.robot.statemachine.State;
 import frc.robot.path.Paths;
 import frc.robot.statemachine.RobotStateManager;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 
 import org.json.simple.JSONObject;
 
@@ -20,7 +21,8 @@ public class PathState implements State{
     double beganAvgDist;
     double beganLeftDist;
     int currentFrame;
-    Timer timer = new Timer();
+    Timer timer;
+    LEDSubsystem ledSubsystem;
 
     int startCheckFrame = 1;
 
@@ -29,6 +31,8 @@ public class PathState implements State{
     public PathState(String name, String parent){
         this.name = name;
         this.parent = parent;
+        ledSubsystem = LEDSubsystem.getInstance();
+        timer = new Timer();
         timer.start();
     }
 
@@ -44,8 +48,6 @@ public class PathState implements State{
 
     @Override
     public void enter() {
-        System.out.println("entered " + name);
-
         driveSubsystem = DriveSubsystem.getInstance();
 
         beganLeftDist = driveSubsystem.leftEncoder.getDistance();
@@ -60,7 +62,7 @@ public class PathState implements State{
 
     @Override
     public void leave() {
-        System.out.println("left " + name);
+        ledSubsystem.setRGB(0, 255, 0);
         driveSubsystem.setPIDEnable(false);
         DriveSubsystem.getInstance().velocityPID(0, 0);
     }
@@ -122,6 +124,9 @@ public class PathState implements State{
                 break;
             }
         }
+        
+        //as path progresses, increases in brightness
+        ledSubsystem.setRGB(0, (int)(((double)startCheckFrame / frames.length)*255), 0);
 
         driveSubsystem.velocityPID(velocity, angularVelocity);
 
