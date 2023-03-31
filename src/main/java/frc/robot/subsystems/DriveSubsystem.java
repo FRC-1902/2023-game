@@ -124,18 +124,10 @@ public class DriveSubsystem {
     }
   }
 
-  /**
-   * @param xSpeed
-   * @param zRotation
-   */
-  public void arcadeDrive(double xSpeed, double zRotation) {
-    // Clamp input values to -1 to 1
-    xSpeed = Math.max(-1, Math.min(1, xSpeed));
-    zRotation = Math.max(-1, Math.min(1, zRotation));
-
+  public void arcadeDrive(double xSpeed, double zRotation){
     double lPow = xSpeed - zRotation;
     double rPow = xSpeed + zRotation;
-  
+
     // Desaturate wheel speeds for powers over 1
     double maxMagnitude = Math.max(Math.abs(lPow), Math.abs(rPow));
     if (maxMagnitude > 1.0) {
@@ -145,6 +137,38 @@ public class DriveSubsystem {
       
     tankDrive(lPow, rPow);
   }
+
+  /**
+   * @param xSpeed
+   * @param zRotation
+   */
+  public void curvedArcadeDrive(double xSpeed, double zRotation) {
+    // Clamp input values to -1 to 1
+    xSpeed = Math.max(-1, Math.min(1, xSpeed));
+    zRotation = Math.max(-1, Math.min(1, zRotation));
+
+    //Curve rotation to decrease effect
+    zRotation = Math.pow(zRotation, 1.8) * 0.5;
+
+    arcadeDrive(xSpeed, zRotation);
+  }
+
+  /**
+   * @param xSpeed
+   * @param zRotation
+   * @param scaleFactor slow mode button: 0.5 would cut down the curves by 1/2
+   */
+  public void curvedArcadeDrive(double xSpeed, double zRotation, double scaleFactor) {
+    // Clamp input values to -1 to 1
+    xSpeed = Math.max(-1, Math.min(1, xSpeed));
+    zRotation = Math.max(-1, Math.min(1, zRotation));
+
+    //Curve rotation to decrease effect
+    zRotation = Math.pow(zRotation, 1.8) * 0.5 * scaleFactor;
+    xSpeed *= scaleFactor;
+
+    arcadeDrive(xSpeed, zRotation);
+  }
   
 
   /**
@@ -153,7 +177,6 @@ public class DriveSubsystem {
    * @param rightSpeed
    */
   public void tankDrive(double leftSpeed, double rightSpeed) {
-    // currentLeftCommand = -leftSpeed;
     leftMotors.set(leftSpeed);
     rightMotors.set(rightSpeed);
   }
