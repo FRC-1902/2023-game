@@ -124,10 +124,34 @@ public class DriveSubsystem {
     }
   }
 
+  /**
+   * @param xSpeed
+   * @param zRotation
+   */
   public void arcadeDrive(double xSpeed, double zRotation) {
-    tankDrive(xSpeed - zRotation, xSpeed + zRotation);
-  }
+    // Clamp input values to -1 to 1
+    xSpeed = Math.max(-1, Math.min(1, xSpeed));
+    zRotation = Math.max(-1, Math.min(1, zRotation));
 
+    double lPow = xSpeed - zRotation;
+    double rPow = xSpeed + zRotation;
+  
+    // Desaturate wheel speeds for powers over 1
+    double maxMagnitude = Math.max(Math.abs(lPow), Math.abs(rPow));
+    if (maxMagnitude > 1.0) {
+      lPow /= maxMagnitude;
+      rPow /= maxMagnitude;
+    }
+      
+    tankDrive(lPow, rPow);
+  }
+  
+
+  /**
+   * Bog standard tank drive
+   * @param leftSpeed
+   * @param rightSpeed
+   */
   public void tankDrive(double leftSpeed, double rightSpeed) {
     // currentLeftCommand = -leftSpeed;
     leftMotors.set(leftSpeed);
