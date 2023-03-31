@@ -20,6 +20,7 @@ import frc.robot.states.*;
 import frc.robot.states.auto.*;
 import frc.robot.states.balance.AutoBalanceState;
 import frc.robot.states.balance.BalanceOnPlatformState;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.TurretvatorSubsystem;
 import frc.robot.subsystems.TurretvatorSubsystem.ElevatorStage;
 import frc.robot.path.Paths;
@@ -97,6 +98,8 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     // autonomous chooser on the dashboard.
     controllers = Controllers.getInstance();
+    LEDSubsystem.getInstance().setDriveRGB(0, 255, 0);
+    LEDSubsystem.getInstance().setTurretRGB(0, 255, 0);
 
     rs = RobotStateManager.getInstance();
     rs.addStates(
