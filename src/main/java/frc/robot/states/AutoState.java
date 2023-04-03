@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.states;
 
 import frc.robot.statemachine.State;
 import frc.robot.statemachine.RobotStateManager;

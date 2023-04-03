@@ -35,6 +35,8 @@ public class PID implements Runnable {
     private boolean isLogging;
 
     public void initializeLogger(String loggerName) {
+        loggerName = "/" + loggerName;
+
         pLogger = new DoubleLogEntry(DataLogManager.getLog(), loggerName + "/p");
         iLogger = new DoubleLogEntry(DataLogManager.getLog(), loggerName + "/i");
         dLogger = new DoubleLogEntry(DataLogManager.getLog(), loggerName + "/d");

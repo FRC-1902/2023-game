@@ -1,7 +1,6 @@
 package frc.robot.states;
 
 import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -51,7 +50,7 @@ public class BalanceState implements State {
       .add("Balance Yaw PID - Derivative", 0.0)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
     
-    yawPID = new PID(()->imu.getHeading(), 0.01, 0.0, 0.0, 0.0);
+    yawPID = new PID(()->imu.getHeading(), 0.01, 0.0, 0.0, 0.0, "/BalanceState/yawPID");
   }
 
   @Override

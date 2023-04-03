@@ -1,7 +1,6 @@
 package frc.robot.states.auto;
 
 import frc.robot.statemachine.State;
-import edu.wpi.first.wpilibj.DataLogManager;
 import frc.robot.statemachine.RobotStateManager;
 
 public class VisionAlignState implements State{

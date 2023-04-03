@@ -120,7 +120,7 @@ public class TurretvatorSubsystem{
     elevatorLeftEncoder = new DutyCycleEncoder(Constants.LEFT_ELEVATOR_ENCODER);
     elevatorRightEncoder = new DutyCycleEncoder(Constants.RIGHT_ELEVATOR_ENCODER);
     
-    elevatorPID = new PID(() -> elevatorLeftEncoder.get() - elevatorEncoderOffset, 0.18, 0.0, 0.04, 0.0);
+    elevatorPID = new PID(() -> elevatorLeftEncoder.get() - elevatorEncoderOffset, 0.18, 0.0, 0.04, 0.0, "elevatorPID");
     elevatorPID.setTolerance(0.05);
 
     elevatorMap = new HashMap<>();
@@ -135,7 +135,7 @@ public class TurretvatorSubsystem{
     turretMotor.setInverted(true);
     turretEncoder = new DutyCycleEncoder(Constants.TURRET_ENCODER);
     
-    turretPID = new PID(() -> ((turretEncoder.getAbsolutePosition() - Constants.TURRET_OFFSET + 1) % 1), 9, 0.0, 0.0, 0.0);
+    turretPID = new PID(() -> ((turretEncoder.getAbsolutePosition() - Constants.TURRET_OFFSET + 1) % 1), 9, 0.0, 0.0, 0.0, "turretPID");
  
     turretPID.enableContinuousInput(0, THROUGHBORE_CPR);
     turretPID.setTolerance(0.001); //0.36 of a degree
@@ -185,7 +185,7 @@ public class TurretvatorSubsystem{
    */
   public void setTurret(double degrees){
     if(Math.abs(degrees) > TURRET_MAX_ANGLE){
-      DataLogManager.log("Degree put into TurretvatorSubsystem.turretSet too large!");
+      DataLogManager.log("Degree put into TurretvatorSubsystem.setTurret too large!");
       return;
     }
 
@@ -334,7 +334,6 @@ public class TurretvatorSubsystem{
     //Detects wrap around to not catch that
     if (Math.abs(lastTurretEncoderValue - turretPID.getSensorInput()) > 0.35 && Math.abs(lastTurretEncoderValue - turretPID.getSensorInput()) < 0.65) {
       DataLogManager.log("==== TURRET KILL SWITCH WATCHDOG ENGAGED ====");
-      DataLogManager.log(String.format("Last: %.3f, Current: %.3f", lastTurretEncoderValue, turretPID.getSensorInput()));
       // watchdogActivationTime = RobotController.getFPGATime();
       isTurretWatchdogEnabled = true;
     }
@@ -343,7 +342,7 @@ public class TurretvatorSubsystem{
 
   public void resetWatchdogs(){
     if(isTurretWatchdogEnabled || isElevatorWatchdogEnabled){
-      DataLogManager.log(String.format("==== ALL KILL SWITCH WATCHDOGS RELEASED ===="));
+      DataLogManager.log("==== ALL KILL SWITCH WATCHDOGS RELEASED ====");
       isTurretWatchdogEnabled = false;
       isElevatorWatchdogEnabled = false;
 
