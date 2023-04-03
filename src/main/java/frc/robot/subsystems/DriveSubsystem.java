@@ -209,7 +209,7 @@ public class DriveSubsystem {
       System.out.format("Shifted %b%n", isHigh);
       leftSolenoid.set(isHigh);
       rightSolenoid.set(isHigh);
-      LEDSubsystem.getInstance().setTemporaryRGB(100, 0, 64, 255);
+      LEDSubsystem.getInstance().setTemporaryRGB(200, 0, 64, 255);
     }
   }
 

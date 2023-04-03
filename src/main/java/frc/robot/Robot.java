@@ -147,8 +147,7 @@ public class Robot extends TimedRobot {
     rs.setState("disabled");
     turretvatorSubsystem.enablePID(false);
     turretvatorSubsystem.resetWatchdogs();
-    ledSubsystem.setRGB(80, 176, 78);
-
+    ledSubsystem.setRGB(0, 20, 0);
     System.out.println("Robot disabled");
   }
 
@@ -193,7 +192,7 @@ public class Robot extends TimedRobot {
     turretvatorSubsystem.elevatorSet(ElevatorStage.DOWN);
     rs.setState("teleOp");
 
-    ledSubsystem.setRGB(235, 78, 33);
+    ledSubsystem.setRGB(0, 255, 0);
 
     System.out.println("Robot teleop initialized");
   }

@@ -41,18 +41,23 @@ public class LEDSubsystem {
         led.setData(ledBuffer);
     }
 
-    public void setTemporaryRGB(int msTimeout, int r, int g, int b){
+    public void setTemporaryRGB(long msTimeout, int r, int g, int b){
         setRGBBuffer(tmpLedBuffer, r, g, b);
         led.setData(tmpLedBuffer);
-
-        // if scheduled again, it cancels the last timer task
-        delayTimer.schedule(new TimerTask() {
+        
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 led.setData(ledBuffer);
                 led.setData(ledBuffer);
             }
         }, msTimeout);
+
+        if (delayTimer != null) {
+            delayTimer.cancel();
+        }
+        delayTimer = timer;
     }
 
     public static LEDSubsystem getInstance() {
