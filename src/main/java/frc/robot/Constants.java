@@ -43,7 +43,7 @@ public final class Constants {
   public static final int RIGHT_ELEVATOR_ENCODER = 6;
 
   //PWM ports
-  public static final int LED_PORT = 8;
+  public static final int LED_PORT = 0;
 
   //Controllers
   public static final int DRIVE_CONTROLLER_PORT = 0;
