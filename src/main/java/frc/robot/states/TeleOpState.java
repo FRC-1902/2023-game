@@ -1,5 +1,6 @@
 package frc.robot.states;
 
+import edu.wpi.first.wpilibj.DataLogManager;
 import frc.robot.statemachine.Controllers;
 import frc.robot.statemachine.RobotStateManager;
 import frc.robot.statemachine.Controllers.*;
@@ -14,6 +15,7 @@ public class TeleOpState implements State{
   private String parent;
   private DriveSubsystem driveSubsystem;
   private TurretvatorSubsystem tvSubsystem;
+  private LEDSubsystem ledSubsystem;
   private Controllers controllers;
   private double turretOffset;
   private boolean wasDpadHeld;
@@ -24,6 +26,7 @@ public class TeleOpState implements State{
     driveSubsystem = DriveSubsystem.getInstance();
     tvSubsystem = TurretvatorSubsystem.getInstance();
     controllers = Controllers.getInstance();
+    ledSubsystem = LEDSubsystem.getInstance();
     turretOffset = 0;
   }
 
@@ -129,6 +132,20 @@ public class TeleOpState implements State{
             return true;
           }
           break;
+        //cone hp signal
+        case Y:
+          if(event.action == Action.PRESSED){
+            ledSubsystem.setTemporaryRGB(2000, 230, 80, 0); // cone color
+            return true;
+          }
+          break;
+        //cube hp signal
+        case X:
+          if(event.action == Action.PRESSED){
+            ledSubsystem.setTemporaryRGB(2000, 20, 4, 28); // cube color
+            return true;
+          }
+          break;
         default: break;
       }
     //Manip Controller
@@ -138,7 +155,7 @@ public class TeleOpState implements State{
         case B:
           if(event.action == Action.PRESSED){
             tvSubsystem.setGripper(false);
-            System.out.println("Gripper OPEN");
+            DataLogManager.log("Gripper OPEN");
             return true;
           }
           break;
@@ -146,7 +163,7 @@ public class TeleOpState implements State{
         case X:
           if(event.action == Action.PRESSED){
             tvSubsystem.setGripper(true);
-            System.out.println("Gripper CLOSE");
+            DataLogManager.log("Gripper CLOSE");
             return true;
           }
           break;

@@ -5,9 +5,15 @@ import frc.robot.statemachine.State;
 import frc.robot.path.Paths;
 import frc.robot.statemachine.RobotStateManager;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
+
+import javax.xml.crypto.Data;
 
 import org.json.simple.JSONObject;
 
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.util.datalog.IntegerLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Timer;
 
 
@@ -17,10 +23,13 @@ public class PathState implements State{
 
     DriveSubsystem driveSubsystem;
 
+    private IntegerLogEntry frameLogger;
+
     double beganAvgDist;
     double beganLeftDist;
     int currentFrame;
-    Timer timer = new Timer();
+    Timer timer;
+    LEDSubsystem ledSubsystem;
 
     int startCheckFrame = 1;
 
@@ -29,7 +38,10 @@ public class PathState implements State{
     public PathState(String name, String parent){
         this.name = name;
         this.parent = parent;
+        ledSubsystem = LEDSubsystem.getInstance();
+        timer = new Timer();
         timer.start();
+        frameLogger = new IntegerLogEntry(DataLogManager.getLog(), "DriveSubsystem/PathingFrame");
     }
 
     @Override
@@ -44,8 +56,6 @@ public class PathState implements State{
 
     @Override
     public void enter() {
-        System.out.println("entered " + name);
-
         driveSubsystem = DriveSubsystem.getInstance();
 
         beganLeftDist = driveSubsystem.leftEncoder.getDistance();
@@ -60,7 +70,7 @@ public class PathState implements State{
 
     @Override
     public void leave() {
-        System.out.println("left " + name);
+        ledSubsystem.setRGB(0, 255, 0);
         driveSubsystem.setPIDEnable(false);
         DriveSubsystem.getInstance().velocityPID(0, 0);
     }
@@ -100,7 +110,7 @@ public class PathState implements State{
             double previousTime = ((Number) frames[i-1].get("time")).doubleValue();
             double nextTime = ((Number) frames[i].get("time")).doubleValue();
             
-            System.out.format("%d | ", i);
+            frameLogger.append(i);
 
             if(nextTime > currentTime){
                 //find forward velocity
@@ -122,10 +132,11 @@ public class PathState implements State{
                 break;
             }
         }
+        
+        //as path progresses, increases in brightness
+        ledSubsystem.setRGB(0, (int)(((double)startCheckFrame / frames.length)*255), 0);
 
         driveSubsystem.velocityPID(velocity, angularVelocity);
-
-        System.out.format("Velocity: %.3f | Angular: %.3f | Left Encoder Rate: %.3f%n", velocity, angularVelocity, driveSubsystem.leftEncoder.getRate());
     }
 
     //linear interpolation

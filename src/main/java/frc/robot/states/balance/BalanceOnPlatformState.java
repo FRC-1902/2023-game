@@ -42,7 +42,7 @@ public class BalanceOnPlatformState implements State {
       //.withProperties(Map.of("Min", -0.15, "Max", 0.15))
 
     imu = IMU.getInstance();
-    pitchPID = new PID(()->imu.getPitch(), 0.0, 0.0, 0.0, 0.0);
+    pitchPID = new PID(()->imu.getPitch(), 0.0, 0.0, 0.0, 0.0, "/BalanceOnPlatformState/pitchPID");
     pitchPID.setTolerance(0.05);
     pitchPID.setSetpoint(0);
   }
