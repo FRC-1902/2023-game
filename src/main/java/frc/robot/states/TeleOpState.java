@@ -15,6 +15,7 @@ public class TeleOpState implements State{
   private String parent;
   private DriveSubsystem driveSubsystem;
   private TurretvatorSubsystem tvSubsystem;
+  private LEDSubsystem ledSubsystem;
   private Controllers controllers;
   private double turretOffset;
   private boolean wasDpadHeld;
@@ -25,6 +26,7 @@ public class TeleOpState implements State{
     driveSubsystem = DriveSubsystem.getInstance();
     tvSubsystem = TurretvatorSubsystem.getInstance();
     controllers = Controllers.getInstance();
+    ledSubsystem = LEDSubsystem.getInstance();
     turretOffset = 0;
   }
 
@@ -127,6 +129,20 @@ public class TeleOpState implements State{
         case A:
           if(event.action == Action.PRESSED){
             driveSubsystem.setBrake(false);
+            return true;
+          }
+          break;
+        //cone hp signal
+        case Y:
+          if(event.action == Action.PRESSED){
+            ledSubsystem.setTemporaryRGB(2000, 230, 80, 0); // cone color
+            return true;
+          }
+          break;
+        //cube hp signal
+        case X:
+          if(event.action == Action.PRESSED){
+            ledSubsystem.setTemporaryRGB(2000, 20, 4, 28); // cube color
             return true;
           }
           break;

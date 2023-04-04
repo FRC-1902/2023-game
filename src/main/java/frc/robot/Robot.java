@@ -24,6 +24,7 @@ import frc.robot.states.auto.*;
 import frc.robot.states.balance.AutoBalanceState;
 import frc.robot.states.balance.BalanceOnPlatformState;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.TurretvatorSubsystem;
 import frc.robot.subsystems.TurretvatorSubsystem.ElevatorStage;
 import frc.robot.path.Paths;
@@ -45,6 +46,7 @@ public class Robot extends TimedRobot {
   private DriveSubsystem driveSubsystem;
   private IMU imu;
   private SendableChooser<Autos> auto;
+  private LEDSubsystem ledSubsystem;
   
   public enum Autos {
     BALANCE,
@@ -109,6 +111,7 @@ public class Robot extends TimedRobot {
 
     // autonomous chooser on the dashboard.
     controllers = Controllers.getInstance();
+    ledSubsystem = LEDSubsystem.getInstance();
 
     rs = RobotStateManager.getInstance();
     rs.addStates(
@@ -161,6 +164,7 @@ public class Robot extends TimedRobot {
     rs.setState("disabled");
     turretvatorSubsystem.enablePID(false);
     turretvatorSubsystem.resetWatchdogs();
+    ledSubsystem.setRGB(0, 20, 0);
     DataLogManager.log("Robot disabled");
   }
 
@@ -188,6 +192,8 @@ public class Robot extends TimedRobot {
         DataLogManager.log("nothing");
         break;
     }
+
+    ledSubsystem.setRGB(0, 255, 0);
     
     DataLogManager.log("Robot autonomous initialized");
   }
@@ -202,8 +208,9 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     turretvatorSubsystem.elevatorSet(ElevatorStage.DOWN);
     rs.setState("teleOp");
-
+    ledSubsystem.setRGB(0, 255, 0);
     DataLogManager.log("Robot teleop initialized");
+    System.out.println("Robot teleop initialized");
   }
 
   /** This function is called periodically during operator control. */
