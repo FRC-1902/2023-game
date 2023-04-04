@@ -27,7 +27,6 @@ public class BalanceState implements State {
   private State enteredFromState;
   public double calculatedForwardSpeed;
   
-
   private GenericEntry pidPWidget, pidIWidget, pidDWidget;
   
   public BalanceState(String name, String parent){
@@ -51,7 +50,7 @@ public class BalanceState implements State {
       .add("Balance Yaw PID - Derivative", 0.0)
       .withWidget(BuiltInWidgets.kNumberSlider).getEntry();
     
-    yawPID = new PID(()->imu.getHeading(), 0.01, 0.0, 0.0, 0.0);
+    yawPID = new PID(()->imu.getHeading(), 0.01, 0.0, 0.0, 0.0, "/BalanceState/yawPID");
   }
 
   @Override

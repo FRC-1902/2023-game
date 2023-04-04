@@ -1,6 +1,7 @@
 package frc.robot.states.auto;
 
 import frc.robot.statemachine.State;
+import edu.wpi.first.wpilibj.DataLogManager;
 import frc.robot.statemachine.RobotStateManager;
 import frc.robot.subsystems.TurretvatorSubsystem;
 
@@ -46,7 +47,7 @@ public class DropState implements State{
             case 0:
                 if(System.currentTimeMillis() - loopStartTime > 500){
                     stage++;
-                    System.out.println("Entered HIGH elevator set");
+                    DataLogManager.log("Entered HIGH elevator set");
                 }
                 break;
             case 1:// extend elavator
@@ -55,7 +56,7 @@ public class DropState implements State{
                 if(tvSubsystem.isExtended()){
                     loopStartTime = System.currentTimeMillis();
                     stage++;
-                    System.out.println("Entered wait");
+                    DataLogManager.log("Entered wait");
                 }
                 break;
             case 2:
@@ -63,7 +64,7 @@ public class DropState implements State{
                 if(System.currentTimeMillis() - loopStartTime > 1000) {
                     stage++;
                     dropStartTime = System.currentTimeMillis();
-                    System.out.println("Entered gripper open");
+                    DataLogManager.log("Entered gripper open");
                 }
                 break;
             case 3:// drop game element
@@ -71,7 +72,7 @@ public class DropState implements State{
                 if(System.currentTimeMillis() - dropStartTime > 500) {
                     stage++;
                     dropStartTime = System.currentTimeMillis();
-                    System.out.println("Entered elevator half retraction");
+                    DataLogManager.log("Entered elevator half retraction");
                 }
                 break;
             case 4:// retract elevator

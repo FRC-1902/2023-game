@@ -408,7 +408,7 @@ public class BNO055 {
 	private void update() {
 		currentTime = Timer.getFPGATimestamp(); //seconds
 		if(!initialized) {
-//			System.out.println("State: " + state + ".  curr: " + currentTime
+//			DataLogManager.log("State: " + state + ".  curr: " + currentTime
 //					+ ", next: " + nextTime);
 			
 			//Step through process of initializing the sensor in a non-

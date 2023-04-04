@@ -1,5 +1,8 @@
 package frc.robot.states.balance;
 
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import frc.robot.Constants;
 import frc.robot.statemachine.Event;
 import frc.robot.statemachine.State;
@@ -17,6 +20,8 @@ public class AutoBalanceState implements State {
   private TurretvatorSubsystem tvSubsystem;
 
   private IMU imu;
+
+  private DoubleLogEntry balanceOutputLogger;
   
   public AutoBalanceState(String name, String parent){
     this.name = name;
@@ -24,6 +29,7 @@ public class AutoBalanceState implements State {
     imu = IMU.getInstance();
     driveSubsystem = DriveSubsystem.getInstance();
     tvSubsystem = TurretvatorSubsystem.getInstance();
+    balanceOutputLogger = new DoubleLogEntry(DataLogManager.getLog(), "/AutoBalanceState/Output");
   }
 
   @Override
@@ -57,9 +63,7 @@ public class AutoBalanceState implements State {
       output = .06;
     }
 
-    if((int)(System.currentTimeMillis() / 100) % 10 == 0){
-      System.out.format("Angle: %.3f | Output: %.3f%n", imu.getPitch(), output);
-    }
+    balanceOutputLogger.append(output);
     
     driveSubsystem.arcadeDrive(output, 0.0);
   }
