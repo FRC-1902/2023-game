@@ -34,13 +34,17 @@ public class PID implements Runnable {
     private DoubleLogEntry pLogger, iLogger, dLogger, fLogger, currentSensorLogger, setPointLogger;
     private boolean isLogging;
 
+    private String loggerName;
+
     public void initializeLogger(String loggerName) {
+        this.loggerName = loggerName;
+
         loggerName = "/" + loggerName;
 
-        pLogger = new DoubleLogEntry(DataLogManager.getLog(), loggerName + "/p");
-        iLogger = new DoubleLogEntry(DataLogManager.getLog(), loggerName + "/i");
-        dLogger = new DoubleLogEntry(DataLogManager.getLog(), loggerName + "/d");
-        fLogger = new DoubleLogEntry(DataLogManager.getLog(), loggerName + "/f");
+        pLogger = new DoubleLogEntry(DataLogManager.getLog(), loggerName + "/P");
+        iLogger = new DoubleLogEntry(DataLogManager.getLog(), loggerName + "/I");
+        dLogger = new DoubleLogEntry(DataLogManager.getLog(), loggerName + "/D");
+        fLogger = new DoubleLogEntry(DataLogManager.getLog(), loggerName + "/F");
         currentSensorLogger = new DoubleLogEntry(DataLogManager.getLog(), loggerName + "/input");
         setPointLogger = new DoubleLogEntry(DataLogManager.getLog(), loggerName + "/setPoint");
 
@@ -155,7 +159,7 @@ public class PID implements Runnable {
             thread = new Thread(this);
             
             thread.start();
-            DataLogManager.log("Starting PID Thread " + toString());
+            DataLogManager.log("Starting PID Thread " + loggerName == null ? toString() : loggerName);
         }
     }
 
@@ -229,6 +233,7 @@ public class PID implements Runnable {
         }
 
         currentOutput = 0.0;
-        DataLogManager.log("PID Thread ending "  + toString());
+
+        DataLogManager.log("PID Thread ending "  + loggerName == null ? toString() : loggerName);
     }
 }

@@ -5,6 +5,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.util.datalog.IntegerLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 // import edu.wpi.first.networktables.GenericEntry;
@@ -31,7 +32,7 @@ public class DriveSubsystem {
   private final double driveWidth;
   private double currentLeftCommand;
 
-  private IntegerLogEntry leftEncoderLogger, rightEncoderLogger;
+  private DoubleLogEntry leftEncoderLogger, rightEncoderLogger;
 
   // private GenericEntry pidPWidget, pidIWidget, pidDWidget, pidFWidget;
 
@@ -69,13 +70,13 @@ public class DriveSubsystem {
   }
 
   private void initializeLogger() {
-    leftEncoderLogger = new IntegerLogEntry(DataLogManager.getLog(), "/DriveSubsystem/leftEncoder");
-    rightEncoderLogger = new IntegerLogEntry(DataLogManager.getLog(), "/DriveSubsystem/rightEncoder");
+    leftEncoderLogger = new DoubleLogEntry(DataLogManager.getLog(), "/DriveSubsystem/leftEncoder");
+    rightEncoderLogger = new DoubleLogEntry(DataLogManager.getLog(), "/DriveSubsystem/rightEncoder");
   }
 
   public void logPeriodic() {
-    leftEncoderLogger.append(leftEncoder.get());
-    rightEncoderLogger.append(rightEncoder.get());
+    leftEncoderLogger.append(leftEncoder.getRate());
+    rightEncoderLogger.append(rightEncoder.getRate());
   }
 
   private double[] currentCommand() {
@@ -116,10 +117,10 @@ public class DriveSubsystem {
     initializeLogger();
 
     // TODO: tune high velocity controller to PID in high gear
-    highLeftVelocityController = new PID(leftEncoder::getRate, 0.0, 0.0, 0.0, 0.1);
-    lowLeftVelocityController = new PID(leftEncoder::getRate, 0.01, 0.005, 0.01, 0.5);
-    highRightVelocityController = new PID(rightEncoder::getRate, 0.0, 0.0, 0.0, 0.1);
-    lowRightVelocityController = new PID(rightEncoder::getRate, 0.01, 0.005, 0.01, 0.5);
+    highLeftVelocityController = new PID(leftEncoder::getRate, 0.0, 0.0, 0.0, 0.1, "DriveSubsystem/highLeftVelocityControllerPID");
+    lowLeftVelocityController = new PID(leftEncoder::getRate, 0.01, 0.005, 0.01, 0.5, "DriveSubsystem/lowLeftVelocityControllerPID");
+    highRightVelocityController = new PID(rightEncoder::getRate, 0.0, 0.0, 0.0, 0.1, "DriveSubsystem/highRightVelocityControllerPID");
+    lowRightVelocityController = new PID(rightEncoder::getRate, 0.01, 0.005, 0.01, 0.5, "DriveSubsystem/lowRightVelocityControllerPID");
 
     driveWidth = 0.5461;
 

@@ -6,8 +6,12 @@ import frc.robot.path.Paths;
 import frc.robot.statemachine.RobotStateManager;
 import frc.robot.subsystems.DriveSubsystem;
 
+import javax.xml.crypto.Data;
+
 import org.json.simple.JSONObject;
 
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.util.datalog.IntegerLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -17,6 +21,8 @@ public class PathState implements State{
     private String parent;
 
     DriveSubsystem driveSubsystem;
+
+    private IntegerLogEntry frameLogger;
 
     double beganAvgDist;
     double beganLeftDist;
@@ -31,6 +37,7 @@ public class PathState implements State{
         this.name = name;
         this.parent = parent;
         timer.start();
+        frameLogger = new IntegerLogEntry(DataLogManager.getLog(), "DriveSubsystem/PathingFrame");
     }
 
     @Override
@@ -98,7 +105,7 @@ public class PathState implements State{
             double previousTime = ((Number) frames[i-1].get("time")).doubleValue();
             double nextTime = ((Number) frames[i].get("time")).doubleValue();
             
-            DataLogManager.log(i + " | ");
+            frameLogger.append(i);
 
             if(nextTime > currentTime){
                 //find forward velocity
@@ -122,8 +129,6 @@ public class PathState implements State{
         }
 
         driveSubsystem.velocityPID(velocity, angularVelocity);
-
-        DataLogManager.log(String.format("Velocity: %.3f | Angular: %.3f | Left Encoder Rate: %.3f", velocity, angularVelocity, driveSubsystem.leftEncoder.getRate()));
     }
 
     //linear interpolation
