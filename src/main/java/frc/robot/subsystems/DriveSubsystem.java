@@ -205,9 +205,12 @@ public class DriveSubsystem {
 
   // Low gear is false, and high gear is true
   public void shift(boolean isHigh) {
-    System.out.format("Shifted %b%n", isHigh);
-    leftSolenoid.set(isHigh);
-    rightSolenoid.set(isHigh);
+    if(leftSolenoid.get() != isHigh || leftSolenoid != rightSolenoid){
+      System.out.format("Shifted %b%n", isHigh);
+      leftSolenoid.set(isHigh);
+      rightSolenoid.set(isHigh);
+      LEDSubsystem.getInstance().setTemporaryRGB(200, 0, 64, 255);
+    }
   }
 
   public boolean getLeftShiftState() {
