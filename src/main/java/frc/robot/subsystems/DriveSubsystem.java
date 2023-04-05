@@ -162,11 +162,12 @@ public class DriveSubsystem {
    */
   public void curvedArcadeDrive(double xSpeed, double zRotation) {
     // Clamp input values to -1 to 1
-    xSpeed = Math.max(-1, Math.min(1, xSpeed));
-    zRotation = Math.max(-1, Math.min(1, zRotation));
+    xSpeed = Math.max(-1.0, Math.min(1.0, xSpeed));
+    zRotation = Math.max(-1.0, Math.min(1.0, zRotation));
 
     //Curve rotation to decrease effect
-    zRotation = Math.pow(zRotation, 1.8) * 0.5;
+    //Desmos lied to me and said that this curve would work without the pow(abs) * sign
+    zRotation = Math.signum(zRotation) * (Math.pow(Math.abs(zRotation), 1.8) * 0.5);
 
     arcadeDrive(xSpeed, zRotation);
   }
@@ -178,11 +179,12 @@ public class DriveSubsystem {
    */
   public void curvedArcadeDrive(double xSpeed, double zRotation, double scaleFactor) {
     // Clamp input values to -1 to 1
-    xSpeed = Math.max(-1, Math.min(1, xSpeed));
-    zRotation = Math.max(-1, Math.min(1, zRotation));
+    xSpeed = Math.max(-1.0, Math.min(1.0, xSpeed));
+    zRotation = Math.max(-1.0, Math.min(1.0, zRotation));
 
     //Curve rotation to decrease effect
-    zRotation = Math.pow(zRotation, 1.8) * 0.5 * scaleFactor;
+    //Desmos lied to me and said that this curve would work without the pow(abs) * sign
+    zRotation = Math.signum(zRotation) * (Math.pow(Math.abs(zRotation), 1.8) * 0.5 * scaleFactor);
     xSpeed *= scaleFactor;
 
     arcadeDrive(xSpeed, zRotation);
