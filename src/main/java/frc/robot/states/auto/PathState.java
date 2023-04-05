@@ -7,11 +7,8 @@ import frc.robot.statemachine.RobotStateManager;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 
-import javax.xml.crypto.Data;
-
 import org.json.simple.JSONObject;
 
-import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.util.datalog.IntegerLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Timer;
@@ -58,8 +55,8 @@ public class PathState implements State{
     public void enter() {
         driveSubsystem = DriveSubsystem.getInstance();
 
-        beganLeftDist = driveSubsystem.leftEncoder.getDistance();
-        beganAvgDist = (driveSubsystem.leftEncoder.getDistance() + driveSubsystem.rightEncoder.getDistance())/2;
+        beganLeftDist = driveSubsystem.getLeftEncoderDistance();
+        beganAvgDist = (driveSubsystem.getLeftEncoderDistance() + driveSubsystem.getRightEncoderDistance())/2;
 
         driveSubsystem.setPIDEnable(true);
 
@@ -72,7 +69,7 @@ public class PathState implements State{
     public void leave() {
         ledSubsystem.setRGB(0, 255, 0);
         driveSubsystem.setPIDEnable(false);
-        DriveSubsystem.getInstance().velocityPID(0, 0);
+        driveSubsystem.velocityPID(0, 0);
     }
 
     private void handleExit(RobotStateManager rs){
@@ -114,7 +111,7 @@ public class PathState implements State{
 
             if(nextTime > currentTime){
                 //find forward velocity
-                velocity = //((Number)frames[i].get("velocity")).doubleValue();
+                velocity = 
                     lerp(
                         ((Number) frames[i-1].get("velocity")).doubleValue(),
                         ((Number) frames[i].get("velocity")).doubleValue(),
