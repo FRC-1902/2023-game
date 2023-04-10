@@ -80,6 +80,9 @@ public class PathState implements State{
             case BALANCE:
                 rs.setState("autoBalance");
                 break;
+            case EXITANDBALANCE:
+                rs.setState("autoBalance");
+                break;
             default:
                 rs.setState("disabled");
         }
