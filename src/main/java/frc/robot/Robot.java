@@ -6,6 +6,10 @@ package frc.robot;
 
 import java.util.Map;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.MjpegServer;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.util.datalog.DataLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -47,6 +51,9 @@ public class Robot extends TimedRobot {
   private IMU imu;
   private SendableChooser<Autos> auto;
   private LEDSubsystem ledSubsystem;
+  private DoubleLogEntry pdhVoltageLogger, pdhCurrentLogger, pdhTemperatureLogger;
+  private PowerDistribution pdh;
+
   
   public enum Autos {
     BALANCE,
@@ -57,7 +64,6 @@ public class Robot extends TimedRobot {
   public static Autos chosenAuto = Autos.NOTHING;
 
   public void initializeShuffleBoardWidgets() {
-    PowerDistribution pdh;
     ShuffleboardTab dashboardTab = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB);
 
     ShuffleboardLayout pdhLayout = 
@@ -66,19 +72,15 @@ public class Robot extends TimedRobot {
       dashboardTab.getLayout("State Machine", BuiltInLayouts.kList);
     
     ShuffleboardLayout autoLayout = dashboardTab.getLayout("Auto", BuiltInLayouts.kList);
+    autoLayout.withSize(2, 1);
+
+    CameraServer.startAutomaticCapture();
+    // ShuffleboardLayout cameraLayout = dashboardTab.getLayout("Camera Panel", BuiltInLayouts.kGrid);
+    dashboardTab.addCamera( "camera", "camera name", "http://roborio-1902-frc.local:1181/?action=stream").withSize(5, 5);
 
     if (RobotBase.isReal()) {
-      pdh = new PowerDistribution(Constants.PDH_ID, ModuleType.kRev);
+
       
-      pdhLayout.addDouble("Battery Voltage", pdh::getVoltage)
-        .withWidget(BuiltInWidgets.kGraph)
-        .withProperties(Map.of("Unit", "V"));
-      pdhLayout.addDouble("Total Output Current", pdh::getTotalCurrent)
-        .withWidget(BuiltInWidgets.kGraph)
-        .withProperties(Map.of("Unit", "A"));
-      pdhLayout.addDouble("PDH Temperature", pdh::getTemperature)
-        .withWidget(BuiltInWidgets.kGraph)
-        .withProperties(Map.of("Unit", "deg C"));
     }
     auto = new SendableChooser<Autos>();
     
@@ -95,6 +97,12 @@ public class Robot extends TimedRobot {
         return "Root";
       return currState.getName();
     });
+  }
+
+  private void logPeriodic(){
+    pdhVoltageLogger.append(pdh.getVoltage());
+    pdhCurrentLogger.append(pdh.getTotalCurrent());
+    pdhTemperatureLogger.append(pdh.getTemperature());
   }
 
   /**
@@ -140,6 +148,12 @@ public class Robot extends TimedRobot {
     driveSubsystem = DriveSubsystem.getInstance();
     imu = IMU.getInstance();
 
+    if(RobotBase.isReal())
+      pdh = new PowerDistribution(Constants.PDH_ID, ModuleType.kRev);
+
+    pdhVoltageLogger = new DoubleLogEntry(DataLogManager.getLog(), "/PDH/Voltage");
+    pdhCurrentLogger = new DoubleLogEntry(DataLogManager.getLog(), "/PDH/Current");
+    pdhTemperatureLogger = new DoubleLogEntry(DataLogManager.getLog(), "/PDH/Temperature");
     DataLogManager.log("Robot initialized");
   }
 
@@ -156,6 +170,7 @@ public class Robot extends TimedRobot {
 
     driveSubsystem.logPeriodic();
     imu.logPeriodic();
+    logPeriodic();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
