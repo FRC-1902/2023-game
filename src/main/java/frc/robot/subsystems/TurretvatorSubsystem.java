@@ -276,6 +276,7 @@ public class TurretvatorSubsystem{
     // System.out.format("Turret Position: %.3f, PID: %.3f%n", turretEncoder.getAbsolutePosition(), turretPID.getSensorInput());
 
     double turretPow;
+    long curTime = System.currentTimeMillis();
 
     // turretPID.setP(turretPWidget.getDouble(0.9) * 10);
     // turretPID.setI(turretIWidget.getDouble(0) * 10);
@@ -287,12 +288,10 @@ public class TurretvatorSubsystem{
     
     //ramp soak for smooth startup
     if (turretPID.atSetpoint())
-      turretRampTime = System.currentTimeMillis() + 2000;
+      turretRampTime = curTime + 2000;
     
-    //Investigate me vvvv
-    // ^ Agreed, this could be a terminal bruh moment
-    if (turretRampTime - System.currentTimeMillis() >= 0 && !turretPID.atSetpoint())
-      turretPow *= 1/((turretRampTime - System.currentTimeMillis()) / 2000 + 1); //XXX: integer division, may be an issue
+    if (turretRampTime - curTime >= 0 && !turretPID.atSetpoint())
+      turretPow *= 1.0/((double)(turretRampTime - curTime) / 2000.0 + 1.0);
     
     turretMotor.set(turretPow);
   }

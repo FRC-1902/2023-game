@@ -88,9 +88,9 @@ public class TeleOpState implements State{
   @Override
   public void periodic(RobotStateManager rs) {
     //arcade drive code w/ slow controller
-    double xSpeed = controllers.get(ControllerName.DRIVE, Axis.LY) * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/3.0);
-    double zRotation = controllers.get(ControllerName.DRIVE, Axis.RX) / 2.0 * (1-controllers.get(ControllerName.DRIVE, Axis.RT)/3.0);
-    driveSubsystem.arcadeDrive(xSpeed,zRotation);
+    double xSpeed = controllers.get(ControllerName.DRIVE, Axis.LY);
+    double zRotation = controllers.get(ControllerName.DRIVE, Axis.RX);
+    driveSubsystem.curvedArcadeDrive(xSpeed,zRotation,1-controllers.get(ControllerName.DRIVE, Axis.RT)/3.0);
 
     //Manual elevator control
     tvSubsystem.addElevator(-controllers.get(ControllerName.MANIP, Axis.RY)/50.0);

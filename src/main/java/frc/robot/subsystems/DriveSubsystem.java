@@ -6,9 +6,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.util.datalog.DoubleLogEntry;
-import edu.wpi.first.util.datalog.IntegerLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
-// import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -24,7 +22,7 @@ public class DriveSubsystem {
   private static DriveSubsystem instance;
 
   private CANSparkMax leftMotor1, leftMotor2, rightMotor1, rightMotor2;
-  public Encoder leftEncoder, rightEncoder;
+  private Encoder leftEncoder, rightEncoder;
   private MotorControllerGroup leftMotors, rightMotors;
   private Solenoid leftSolenoid, rightSolenoid;
   private PID highLeftVelocityController, lowLeftVelocityController, highRightVelocityController,
@@ -43,12 +41,7 @@ public class DriveSubsystem {
 
     dashboardLayout.addDoubleArray("Left Drive Command", this::currentCommand).withWidget(BuiltInWidgets.kGraph);
 
-    // dashboardLayout.addDouble("Left Drive Encoder Velocity", leftEncoder::getRate)
-    //     .withWidget(BuiltInWidgets.kGraph);
     dashboardLayout.addBoolean("Left Drive Shift State", () -> leftSolenoid.get());
-
-    // dashboardLayout.addDouble("Right Drive Encoder Velocity", rightEncoder::getRate)
-    //     .withWidget(BuiltInWidgets.kGraph);
     dashboardLayout.addBoolean("Right Drive Shift State", () -> rightSolenoid.get());
 
     // ShuffleboardLayout pidTuningTab = Shuffleboard.getTab(Constants.PID_SHUFFLEBOARD_TAB)
@@ -142,12 +135,61 @@ public class DriveSubsystem {
     }
   }
 
-  public void arcadeDrive(double xSpeed, double zRotation) {
-    tankDrive(xSpeed - zRotation, xSpeed + zRotation);
+  public void arcadeDrive(double xSpeed, double zRotation){
+    double lPow = xSpeed - zRotation;
+    double rPow = xSpeed + zRotation;
+
+    // Desaturate wheel speeds for powers over 1
+    double maxMagnitude = Math.max(Math.abs(lPow), Math.abs(rPow));
+    if (maxMagnitude > 1.0) {
+      lPow /= maxMagnitude;
+      rPow /= maxMagnitude;
+    }
+      
+    tankDrive(lPow, rPow);
   }
 
+  /**
+   * @param xSpeed
+   * @param zRotation
+   */
+  public void curvedArcadeDrive(double xSpeed, double zRotation) {
+    // Clamp input values to -1 to 1
+    xSpeed = Math.max(-1.0, Math.min(1.0, xSpeed));
+    zRotation = Math.max(-1.0, Math.min(1.0, zRotation));
+
+    //Curve rotation to decrease effect
+    //Desmos lied to me and said that this curve would work without the pow(abs) * sign
+    zRotation = Math.signum(zRotation) * (Math.pow(Math.abs(zRotation), 1.8) * 0.5);
+
+    arcadeDrive(xSpeed, zRotation);
+  }
+
+  /**
+   * @param xSpeed
+   * @param zRotation
+   * @param scaleFactor slow mode button: 0.5 would cut down the curves by 1/2
+   */
+  public void curvedArcadeDrive(double xSpeed, double zRotation, double scaleFactor) {
+    // Clamp input values to -1 to 1
+    xSpeed = Math.max(-1.0, Math.min(1.0, xSpeed));
+    zRotation = Math.max(-1.0, Math.min(1.0, zRotation));
+
+    //Curve rotation to decrease effect
+    //Desmos lied to me and said that this curve would work without the pow(abs) * sign
+    zRotation = Math.signum(zRotation) * (Math.pow(Math.abs(zRotation), 1.8) * 0.5 * scaleFactor);
+    xSpeed *= scaleFactor;
+
+    arcadeDrive(xSpeed, zRotation);
+  }
+  
+
+  /**
+   * Bog standard tank drive
+   * @param leftSpeed
+   * @param rightSpeed
+   */
   public void tankDrive(double leftSpeed, double rightSpeed) {
-    // currentLeftCommand = -leftSpeed;
     leftMotors.set(leftSpeed);
     rightMotors.set(rightSpeed);
   }
@@ -175,7 +217,8 @@ public class DriveSubsystem {
    */
   public void velocityPID(double velocity, double angularVelocity) {
     currentLeftCommand = velocity;
-    double leftPower, rightPower;
+    double leftPower;
+    double rightPower;
 
     velocity *= -1;
     angularVelocity *= -1;
@@ -184,27 +227,6 @@ public class DriveSubsystem {
     //TODO:Fix angular velocity
     
     double diffV = (driveWidth * Math.PI) * (1 / (2 * Math.PI)) * angularVelocity;
-
-    // lowLeftVelocityController.setP(pidPWidget.getDouble(0.01));
-    // lowLeftVelocityController.setI(pidIWidget.getDouble(0.005));
-    // lowLeftVelocityController.setD(pidDWidget.getDouble(0.01));    
-    // lowLeftVelocityController.setF(pidFWidget.getDouble(0.5));    
-    // lowRightVelocityController.setP(pidPWidget.getDouble(0.01));
-    // lowRightVelocityController.setI(pidIWidget.getDouble(0.005));
-    // lowRightVelocityController.setD(pidDWidget.getDouble(0.01));
-    // lowRightVelocityController.setF(pidFWidget.getDouble(0.5));
-    // highLeftVelocityController.setP(pidPWidget.getDouble(0));
-    // highLeftVelocityController.setI(pidIWidget.getDouble(0));
-    // highLeftVelocityController.setD(pidDWidget.getDouble(0));    
-    // highLeftVelocityController.setF(pidFWidget.getDouble(0));    
-    // highRightVelocityController.setP(pidPWidget.getDouble(0));
-    // highRightVelocityController.setI(pidIWidget.getDouble(0));
-    // highRightVelocityController.setD(pidDWidget.getDouble(0));
-    // highRightVelocityController.setF(pidFWidget.getDouble(0));
-    
-    // TODO:Fix angular velocity
-
-    // DataLogManager.log(leftSolenoid.get());
 
     if (getLeftShiftState()) {
       highLeftVelocityController.setSetpoint(velocity - diffV);
@@ -237,6 +259,14 @@ public class DriveSubsystem {
 
   public boolean getRightShiftState() {
     return rightSolenoid.get();
+  }
+
+  public double getLeftEncoderDistance(){
+    return leftEncoder.getDistance();
+  }
+
+  public double getRightEncoderDistance(){
+    return rightEncoder.getDistance();
   }
 
   public static DriveSubsystem getInstance() {
