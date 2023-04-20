@@ -160,7 +160,7 @@ public class TurretvatorSubsystem{
   public void setGripper(boolean isClosed){
     DataLogManager.log("Setting gripper to: " + isClosed);
 
-    gripperSolenoidA.set(isClosed);
+    gripperSolenoidA.set(!isClosed);
     gripperSolenoidB.set(!isClosed);
   }
 
@@ -273,7 +273,7 @@ public class TurretvatorSubsystem{
   }
 
   private void turretPeriodic() {
-    // System.out.format("Turret Position: %.3f, PID: %.3f%n", turretEncoder.getAbsolutePosition(), turretPID.getSensorInput());
+    System.out.format("Turret Position: %.3f, PID: %.3f%n", turretEncoder.getAbsolutePosition(), turretPID.getSensorInput());
 
     double turretPow;
     long curTime = System.currentTimeMillis();
@@ -354,6 +354,7 @@ public class TurretvatorSubsystem{
     if(!isPIDEnabled){
       enablePID(true);
     }
+    // System.out.format("Turret Raw %.3f", turretPID.getSensorInput());
 
     // System.out.format("E Sens: %.3f | E Set: %.3f | T Sens: %.3f | T Set %.3f%n", elevatorPID.getSensorInput(), elevatorPID.getSetpoint(), turretPID.getSensorInput(), turretPID.getSetpoint());
     if (elevatorWatchdog()) {
