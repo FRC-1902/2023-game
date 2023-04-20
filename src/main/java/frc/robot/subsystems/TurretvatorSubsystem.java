@@ -198,7 +198,7 @@ public class TurretvatorSubsystem{
    * @param stage ElevatorStage - preset distances to go to
    */
   public void elevatorSet(ElevatorStage stage){
-    elevatorSet(elevatorMap.get(stage));
+    setElevator(elevatorMap.get(stage));
   }
 
   /**
@@ -206,7 +206,7 @@ public class TurretvatorSubsystem{
    * line normal to the line extending from the front of the robot to the back of it.
    * @param distance The distance to maintain the elevator from the imaginary line.
    */
-  public void elevatorSet(double distance) {
+  public void setElevator(double distance) {
     desiredElevatorDistance = distance;
   }
 

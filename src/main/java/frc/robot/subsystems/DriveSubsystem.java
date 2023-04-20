@@ -87,10 +87,7 @@ public class DriveSubsystem {
     rightMotor1.setInverted(true);
     rightMotor2.setInverted(true);
 
-    leftMotor1.setIdleMode(IdleMode.kBrake);
-    leftMotor2.setIdleMode(IdleMode.kBrake);
-    rightMotor1.setIdleMode(IdleMode.kBrake);
-    rightMotor2.setIdleMode(IdleMode.kBrake);
+    setBrake(true);
 
     leftEncoder = new Encoder(Constants.LEFT_DRIVE_ENCODER_1, Constants.LEFT_DRIVE_ENCODER_2);
     rightEncoder = new Encoder(Constants.RIGHT_DRIVE_ENCODER_1, Constants.RIGHT_DRIVE_ENCODER_2);

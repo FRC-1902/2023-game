@@ -6,6 +6,7 @@ import frc.robot.path.Paths;
 import frc.robot.statemachine.RobotStateManager;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
+import frc.robot.subsystems.TurretvatorSubsystem;
 
 import org.json.simple.JSONObject;
 
@@ -78,6 +79,7 @@ public class PathState implements State{
                 rs.setState("autoBalance");
                 break;
             case EXITANDBALANCE:
+                TurretvatorSubsystem.getInstance().setElevator(0.0);
                 rs.setState("autoBalance");
                 break;
             default:
