@@ -76,7 +76,7 @@ public class DropState implements State{
                 }
                 break;
             case 4:// retract elevator
-                tvSubsystem.setElevator(1.00); //leave out a bit for forward CG
+                tvSubsystem.setElevator(1.08); //leave out a bit for forward CG
                 if(System.currentTimeMillis() - dropStartTime > 500) stage++;
                 break;
             default:
