@@ -13,9 +13,6 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import frc.robot.PID;
 import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.networktables.IntegerEntry;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
-import edu.wpi.first.util.datalog.IntegerLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;

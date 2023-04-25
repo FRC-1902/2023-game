@@ -4,12 +4,7 @@
 
 package frc.robot;
 
-import java.util.Map;
-
 import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.MjpegServer;
-import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.util.datalog.DataLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -18,15 +13,12 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.states.*;
 import frc.robot.states.auto.*;
-import frc.robot.states.balance.AutoBalanceState;
-import frc.robot.states.balance.BalanceOnPlatformState;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.TurretvatorSubsystem;
@@ -67,8 +59,6 @@ public class Robot extends TimedRobot {
   public void initializeShuffleBoardWidgets() {
     ShuffleboardTab dashboardTab = Shuffleboard.getTab(Constants.MAIN_SHUFFLEBOARD_TAB);
 
-    ShuffleboardLayout pdhLayout = 
-      dashboardTab.getLayout("Power Distribution Panel", BuiltInLayouts.kList);
     ShuffleboardLayout stateMachineLayout = 
       dashboardTab.getLayout("State Machine", BuiltInLayouts.kList);
     
@@ -127,21 +117,11 @@ public class Robot extends TimedRobot {
     rs.addStates(
       new DisabledState("disabled", null),
       new TeleOpState("teleOp", null),
-      new BalanceState("balance", null),
-      new AutoState("auto", null),
       new AutoBalanceState("autoBalance", null),
-      new PickupState("pickup", "auto"),
       new DropState("drop", null),
-      new VisionAlignState("visionAlign", "auto"),
       new PathState("path", null),
-      new TurretState("turret", "path"),
       new TestState("test", null)
      );
-
-    // We have to initialize these last, because they depend on getting their.
-    rs.addStates(
-      new BalanceOnPlatformState("balancePlatform", "balance")
-    );
 
     initializeShuffleBoardWidgets();
 

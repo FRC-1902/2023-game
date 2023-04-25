@@ -1,6 +1,5 @@
-package frc.robot.states.balance;
+package frc.robot.states.auto;
 
-import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import frc.robot.Constants;
