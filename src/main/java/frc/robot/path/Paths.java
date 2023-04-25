@@ -46,6 +46,14 @@ public class Paths {
           e.printStackTrace();
         }
         break;
+      case EXITANDBALANCE:
+        try {
+          Object obj = new JSONParser().parse(new FileReader(new File(JSONFILEPATH + "exit_and_balance.wpilib.json")));
+          pathArray = (JSONArray) obj;
+        } catch (IOException | ParseException e) {
+          e.printStackTrace();
+        }
+        break;
     }
     return this;
   }
@@ -69,6 +77,7 @@ public class Paths {
 
   public enum pathName{
     REVERSE,
-    BALANCE
+    BALANCE,
+    EXITANDBALANCE
   }
 }

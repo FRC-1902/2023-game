@@ -58,7 +58,8 @@ public class Robot extends TimedRobot {
   public enum Autos {
     BALANCE,
     COMMUNITY,
-    NOTHING
+    NOTHING,
+    EXITANDBALANCE,
   }
 
   public static Autos chosenAuto = Autos.NOTHING;
@@ -87,6 +88,7 @@ public class Robot extends TimedRobot {
     auto.addOption("Exit Community", Autos.COMMUNITY);
     auto.addOption("Balance", Autos.BALANCE);
     auto.addOption("Nothing", Autos.NOTHING);
+    auto.addOption("Exit and Balance", Autos.EXITANDBALANCE);
     
     autoLayout.add(auto);
 
@@ -190,6 +192,8 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    driveSubsystem.setBrake(true);
+    
     chosenAuto = auto.getSelected();
     switch(chosenAuto){
       case BALANCE:
@@ -201,6 +205,11 @@ public class Robot extends TimedRobot {
       case COMMUNITY:
         Paths.getInstance().readPathArray(Paths.pathName.REVERSE);
         DataLogManager.log("community");
+        rs.setState("drop");
+        break;
+      case EXITANDBALANCE:
+        Paths.getInstance().readPathArray(Paths.pathName.EXITANDBALANCE);
+        DataLogManager.log("exit and balance");
         rs.setState("drop");
         break;
       default:
