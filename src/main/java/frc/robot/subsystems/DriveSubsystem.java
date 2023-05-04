@@ -25,8 +25,7 @@ public class DriveSubsystem {
   private Encoder leftEncoder, rightEncoder;
   private MotorControllerGroup leftMotors, rightMotors;
   private Solenoid leftSolenoid, rightSolenoid;
-  private PID highLeftVelocityController, lowLeftVelocityController, highRightVelocityController,
-      lowRightVelocityController;
+  private PID lowLeftVelocityController, lowRightVelocityController;
   private final double driveWidth;
   private double currentLeftCommand;
 
@@ -106,10 +105,7 @@ public class DriveSubsystem {
     initializeShuffleboardWidgets();
     initializeLogger();
 
-    // TODO: tune high velocity controller to PID in high gear
-    highLeftVelocityController = new PID(leftEncoder::getRate, 0.0, 0.0, 0.0, 0.1, "DriveSubsystem/highLeftVelocityControllerPID");
     lowLeftVelocityController = new PID(leftEncoder::getRate, 0.01, 0.005, 0.01, 0.5, "DriveSubsystem/lowLeftVelocityControllerPID");
-    highRightVelocityController = new PID(rightEncoder::getRate, 0.0, 0.0, 0.0, 0.1, "DriveSubsystem/highRightVelocityControllerPID");
     lowRightVelocityController = new PID(rightEncoder::getRate, 0.01, 0.005, 0.01, 0.5, "DriveSubsystem/lowRightVelocityControllerPID");
 
     driveWidth = 0.5461;
@@ -120,13 +116,9 @@ public class DriveSubsystem {
 
   public void setPIDEnable(boolean isEnabled) {
     if (isEnabled) {
-      highLeftVelocityController.startThread();
-      highRightVelocityController.startThread();
       lowLeftVelocityController.startThread();
       lowRightVelocityController.startThread();
     } else {
-      highLeftVelocityController.stopThread();
-      highRightVelocityController.stopThread();
       lowLeftVelocityController.stopThread();
       lowRightVelocityController.stopThread();
     }
@@ -208,34 +200,26 @@ public class DriveSubsystem {
 
   /**
    * PID to hit a specific velocity for your drivetrain
-   * 
+   * <p>XXX: angular velocity is BROKEN, we never used it</p>
    * @param velocity        m/s that you want to hit
    * @param angularVelocity m/s of angular change
    */
   public void velocityPID(double velocity, double angularVelocity) {
+    assert !getLeftShiftState();
+
     currentLeftCommand = velocity;
     double leftPower;
     double rightPower;
 
     velocity *= -1;
     angularVelocity *= -1;
-
-   
-    //TODO:Fix angular velocity
     
     double diffV = (driveWidth * Math.PI) * (1 / (2 * Math.PI)) * angularVelocity;
 
-    if (getLeftShiftState()) {
-      highLeftVelocityController.setSetpoint(velocity - diffV);
-      highRightVelocityController.setSetpoint(velocity + diffV);
-      leftPower = highLeftVelocityController.getOutput();
-      rightPower = highRightVelocityController.getOutput();
-    } else {
-      lowLeftVelocityController.setSetpoint(velocity - diffV);
-      lowRightVelocityController.setSetpoint(velocity + diffV);
-      leftPower = lowLeftVelocityController.getOutput();
-      rightPower = lowRightVelocityController.getOutput();
-    }
+    lowLeftVelocityController.setSetpoint(velocity - diffV);
+    lowRightVelocityController.setSetpoint(velocity + diffV);
+    leftPower = lowLeftVelocityController.getOutput();
+    rightPower = lowRightVelocityController.getOutput();
 
     tankDrive(leftPower, rightPower);
   }
