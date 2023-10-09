@@ -125,7 +125,19 @@ public class Controllers {
             if(manipController.getRawButtonReleased(entry.getValue())){
               rs.handleEvent(new Event((Button) entry.getKey(), Action.RELEASED, ControllerName.MANIP));
             }
-          }
+        }
+    }
+
+    /**
+     * Must be flushed before event periodic to stop remembered button presses in other modes other than TeleOp
+     */
+    public void flushControllerBuffer() {
+        for(Map.Entry<Enum<Controllers.Button>, Integer> entry : buttonMap.entrySet()) {
+            driveController.getRawButtonPressed(entry.getValue());
+            driveController.getRawButtonReleased(entry.getValue());
+            manipController.getRawButtonPressed(entry.getValue());
+            manipController.getRawButtonReleased(entry.getValue());
+        }
     }
 
     public static Controllers getInstance(){

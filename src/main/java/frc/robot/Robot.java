@@ -213,6 +213,7 @@ public class Robot extends TimedRobot {
     turretvatorSubsystem.elevatorSet(ElevatorStage.DOWN);
     rs.setState("teleOp");
     ledSubsystem.setRGB(0, 255, 0);
+    controllers.flushControllerBuffer();
     DataLogManager.log("Robot teleop initialized");
     System.out.println("Robot teleop initialized");
   }
@@ -233,6 +234,7 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     rs.setState("autoBalance");
+    controllers.flushControllerBuffer();
     DataLogManager.log("Robot test initialized");
   }
 

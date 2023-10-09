@@ -130,6 +130,8 @@ public class TurretvatorSubsystem{
     //turret initialization
     turretMotor = new CANSparkMax(Constants.TURRET_ID, MotorType.kBrushless);
     turretMotor.setInverted(true);
+    turretMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+
     turretEncoder = new DutyCycleEncoder(Constants.TURRET_ENCODER);
     
     turretPID = new PID(() -> ((turretEncoder.getAbsolutePosition() - Constants.TURRET_OFFSET + 1) % 1), 9, 0.0, 0.0, 0.0, "turretPID");
