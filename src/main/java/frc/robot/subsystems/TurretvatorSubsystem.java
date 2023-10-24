@@ -272,7 +272,7 @@ public class TurretvatorSubsystem{
   }
 
   private void turretPeriodic() {
-    System.out.format("Turret Position: %.3f, PID: %.3f%n", turretEncoder.getAbsolutePosition(), turretPID.getSensorInput());
+    // System.out.format("Turret Position: %.3f, PID: %.3f%n", turretEncoder.getAbsolutePosition(), turretPID.getSensorInput());
 
     double turretPow;
     long curTime = System.currentTimeMillis();

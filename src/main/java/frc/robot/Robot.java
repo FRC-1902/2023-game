@@ -116,6 +116,7 @@ public class Robot extends TimedRobot {
     rs = RobotStateManager.getInstance();
     rs.addStates(
       new DisabledState("disabled", null),
+      new BabyState("baby", null),
       new TeleOpState("teleOp", null),
       new AutoBalanceState("autoBalance", null),
       new DropState("drop", null),
@@ -162,6 +163,7 @@ public class Robot extends TimedRobot {
     turretvatorSubsystem.enablePID(false);
     turretvatorSubsystem.resetWatchdogs();
     ledSubsystem.setRGB(0, 20, 0);
+
     DataLogManager.log("Robot disabled");
   }
 
@@ -172,50 +174,28 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    driveSubsystem.setBrake(true);
-    
-    chosenAuto = auto.getSelected();
-    switch(chosenAuto){
-      case BALANCE:
-        Paths.getInstance().readPathArray(Paths.pathName.BALANCE);
-        DataLogManager.log("balance");
-        rs.setState("drop");
-        
-        break;
-      case COMMUNITY:
-        Paths.getInstance().readPathArray(Paths.pathName.REVERSE);
-        DataLogManager.log("community");
-        rs.setState("drop");
-        break;
-      case EXITANDBALANCE:
-        Paths.getInstance().readPathArray(Paths.pathName.EXITANDBALANCE);
-        DataLogManager.log("exit and balance");
-        rs.setState("drop");
-        break;
-      default:
-        DataLogManager.log("nothing");
-        break;
-    }
-
-    ledSubsystem.setRGB(0, 255, 0);
-    
-    DataLogManager.log("Robot autonomous initialized");
+    DataLogManager.log("Autonomous disabled in outreach version");
+    rs.setState("disabled");
+    turretvatorSubsystem.enablePID(false);
+    turretvatorSubsystem.resetWatchdogs();
+    ledSubsystem.setRGB(0, 20, 0);
+    DataLogManager.log("Robot disabled");
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    turretvatorSubsystem.periodic();
+
   }
 
   @Override
   public void teleopInit() {
     turretvatorSubsystem.elevatorSet(ElevatorStage.DOWN);
-    rs.setState("teleOp");
+    rs.setState("baby");
     ledSubsystem.setRGB(0, 255, 0);
     controllers.flushControllerBuffer();
-    DataLogManager.log("Robot teleop initialized");
-    System.out.println("Robot teleop initialized");
+    driveSubsystem.shift(false);
+    DataLogManager.log("Robot baby teleop initialized");
   }
 
   /** This function is called periodically during operator control. */
@@ -233,9 +213,11 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
-    rs.setState("autoBalance");
+    turretvatorSubsystem.elevatorSet(ElevatorStage.DOWN);
+    rs.setState("teleOp");
+    ledSubsystem.setRGB(0, 255, 0);
     controllers.flushControllerBuffer();
-    DataLogManager.log("Robot test initialized");
+    DataLogManager.log("Robot baby teleop initialized");
   }
 
   /** This function is called periodically during test mode. */
